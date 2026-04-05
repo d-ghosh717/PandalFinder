@@ -11,10 +11,6 @@ A simple Android app that automatically detects your location and shows nearby p
 - **Simple UI** - Single screen with clean Material Design
 - **No Backend Required** - All data is local and hardcoded
 
-## Screenshots
-
-[To be added after testing on device]
-
 ## Requirements 📋
 
 - **Android Device**: Android 7.0 (API 24) or higher
