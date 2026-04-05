@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="durga_dark_red">#8B0000</color>
+    <color name="durga_gold">#FFD700</color>
+    <color name="durga_light_orange">#FFE5B4</color>
+    <color name="durga_maroon">#800020</color>
+    <color name="durga_orange">#FF6B35</color>
+    <color name="durga_red">#C41E3A</color>
+    <color name="durga_yellow">#FFC107</color>
+    <color name="festival_bg_end">#FFE4B5</color>
+    <color name="festival_bg_start">#FFF5E1</color>
+    <color name="text_primary">#2C1810</color>
+    <color name="text_secondary">#6D4C41</color>
+    <color name="white">#FFFFFFFF</color>
+    <string name="app_name">Pandal Finder</string>
+    <string name="app_subtitle">Shubho Durga Puja! 🪔</string>
+    <string name="area_not_found">Area not found. Try: Park Street, Salt Lake, Ballygunge, etc.</string>
+    <string name="bike">🚴 Bike</string>
+    <string name="cancel">Cancel</string>
+    <string name="choose_transport_mode">Choose Navigation Mode</string>
+    <string name="distance_format">%.2f km</string>
+    <string name="drive">🚗 Drive</string>
+    <string name="find_nearby_pandals">Use My Location</string>
+    <string name="location_unavailable">Unable to get your location. Please enable GPS.</string>
+    <string name="maps_not_installed">Google Maps is not installed</string>
+    <string name="no_pandals_found">No pandals found</string>
+    <string name="pandal_not_found">Pandal not found. Try searching by area or use GPS.</string>
+    <string name="permission_denied">Location permission is required to find nearby pandals</string>
+    <string name="search_area">Search Area</string>
+    <string name="search_hint">Search pandal name or area (Distance from your GPS)</string>
+    <string name="walk">🚶 Walk</string>
+    <style name="Theme.PandalFinder" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+        <item name="colorPrimary">@color/durga_red</item>
+        <item name="colorPrimaryVariant">@color/durga_maroon</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/durga_gold</item>
+        <item name="colorSecondaryVariant">@color/durga_orange</item>
+        <item name="colorOnSecondary">@color/text_primary</item>
+        <item name="android:windowBackground">@color/festival_bg_start</item>
+    </style>
+</resources>

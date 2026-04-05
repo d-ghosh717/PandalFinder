@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Durga Puja Festive Theme -->
+    <color name="durga_red">#C41E3A</color>
+    <color name="durga_maroon">#800020</color>
+    <color name="durga_gold">#FFD700</color>
+    <color name="durga_orange">#FF6B35</color>
+    <color name="durga_yellow">#FFC107</color>
+    <color name="durga_dark_red">#8B0000</color>
+    <color name="durga_light_orange">#FFE5B4</color>
+    
+    <!-- Background colors -->
+    <color name="festival_bg_start">#FFF5E1</color>
+    <color name="festival_bg_end">#FFE4B5</color>
+    
+    <!-- Text colors -->
+    <color name="text_primary">#2C1810</color>
+    <color name="text_secondary">#6D4C41</color>
+    
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+</resources>

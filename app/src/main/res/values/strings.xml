@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Pandal Finder</string>
+    <string name="app_subtitle">Shubho Durga Puja! 🪔</string>
+    <string name="find_nearby_pandals">Use My Location</string>
+    <string name="search_area">Search Area</string>
+    <string name="search_hint">Search pandal name or area (Distance from your GPS)</string>
+    <string name="no_pandals_found">No pandals found</string>
+    <string name="permission_denied">Location permission is required to find nearby pandals</string>
+    <string name="location_unavailable">Unable to get your location. Please enable GPS.</string>
+    <string name="maps_not_installed">Google Maps is not installed</string>
+    <string name="area_not_found">Area not found. Try: Park Street, Salt Lake, Ballygunge, etc.</string>
+    <string name="pandal_not_found">Pandal not found. Try searching by area or use GPS.</string>
+    <string name="choose_transport_mode">Choose Navigation Mode</string>
+    <string name="drive">🚗 Drive</string>
+    <string name="bike">🚴 Bike</string>
+    <string name="walk">🚶 Walk</string>
+    <string name="cancel">Cancel</string>
+    <string name="distance_format">%.2f km</string>
+</resources>
