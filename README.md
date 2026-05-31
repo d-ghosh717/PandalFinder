@@ -1,6 +1,6 @@
 # 📍 Pandal Finder
 
-### Real-Time GPS Festival Navigator Built Entirely in VS Code
+### Real-Time GPS Festival Navigator
 
 [![Kotlin](https://img.shields.io/badge/Kotlin-1.9.0-7f52ff?style=flat&logo=kotlin)](https://kotlinlang.org/)
 [![Gradle](https://img.shields.io/badge/Gradle-8.x-02303a?style=flat&logo=gradle)](https://gradle.org/)
@@ -14,8 +14,7 @@
 ## 📖 Overview
 
 **Pandal Finder** is a lightweight, high-accuracy Android application that automatically scans the user's location and filters nearby community festival pandals within a **3 km radius**. 
-
-Bypassing the heavy resource footprint of Android Studio, this application is engineered to be **compiled, tested, and deployed entirely inside VS Code** using lightweight Gradle runners and Android Debug Bridge (ADB) scripts. By computing geodesic distances locally via standard Android location coordinate mathematics, the app requires zero backend database dependencies, making it extremely fast, private, and lightweight.
+By computing geodesic distances locally via standard Android location coordinate mathematics, the app requires zero backend database dependencies, making it extremely fast, private, and lightweight.
 
 ### Purpose
 
