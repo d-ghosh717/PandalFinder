@@ -1,0 +1,10 @@
+#Wed Feb 18 19:13:42 IST 2026
+base.0=D\:\\ANTI\\PandalFinder\\app\\build\\intermediates\\dex\\debug\\mergeExtDexDebug\\classes.dex
+base.1=D\:\\ANTI\\PandalFinder\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\0\\classes.dex
+base.2=D\:\\ANTI\\PandalFinder\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\9\\classes.dex
+path.0=classes.dex
+path.1=0/classes.dex
+path.2=9/classes.dex
+renamed.0=classes.dex
+renamed.1=classes2.dex
+renamed.2=classes3.dex

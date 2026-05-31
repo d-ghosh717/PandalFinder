@@ -1,0 +1,282 @@
+-- Merging decision tree log ---
+manifest
+ADDED from D:\ANTI\PandalFinder\app\src\main\AndroidManifest.xml:2:1-25:12
+INJECTED from D:\ANTI\PandalFinder\app\src\main\AndroidManifest.xml:2:1-25:12
+INJECTED from D:\ANTI\PandalFinder\app\src\main\AndroidManifest.xml:2:1-25:12
+INJECTED from D:\ANTI\PandalFinder\app\src\main\AndroidManifest.xml:2:1-25:12
+MERGED from [com.google.android.material:material:1.9.0] C:\Users\dibya\.gradle\caches\8.9\transforms\ed2c42d57711ee81e4401cebcb92f2f0\transformed\material-1.9.0\AndroidManifest.xml:17:1-26:12
+MERGED from [androidx.constraintlayout:constraintlayout:2.1.4] C:\Users\dibya\.gradle\caches\8.9\transforms\5108741c2724e469c2a8bbac9965f367\transformed\constraintlayout-2.1.4\AndroidManifest.xml:2:1-11:12
+MERGED from [androidx.appcompat:appcompat-resources:1.6.1] C:\Users\dibya\.gradle\caches\8.9\transforms\1cc0ba00e2acf211c906ad329f7d7130\transformed\appcompat-resources-1.6.1\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.appcompat:appcompat:1.6.1] C:\Users\dibya\.gradle\caches\8.9\transforms\b9398e298918d45ceed86aa123815a76\transformed\appcompat-1.6.1\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.recyclerview:recyclerview:1.3.1] C:\Users\dibya\.gradle\caches\8.9\transforms\fa92e5bc970fb1518dd25daa2f2b8045\transformed\recyclerview-1.3.1\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.viewpager2:viewpager2:1.1.0-beta02] C:\Users\dibya\.gradle\caches\8.9\transforms\db8432925767dd892795547c23a2d4a4\transformed\viewpager2-1.1.0-beta02\AndroidManifest.xml:2:1-7:12
+MERGED from [com.google.android.gms:play-services-location:21.0.1] C:\Users\dibya\.gradle\caches\8.9\transforms\b258704ad7d9cd69f0445548b032990a\transformed\play-services-location-21.0.1\AndroidManifest.xml:2:1-9:12
+MERGED from [com.google.android.gms:play-services-base:18.1.0] C:\Users\dibya\.gradle\caches\8.9\transforms\02c3295751bb096250959477b71d789d\transformed\play-services-base-18.1.0\AndroidManifest.xml:16:1-24:12
+MERGED from [com.google.android.gms:play-services-tasks:18.0.2] C:\Users\dibya\.gradle\caches\8.9\transforms\d133aac263f80eb7e5a224c8e714eff8\transformed\play-services-tasks-18.0.2\AndroidManifest.xml:2:1-6:12
+MERGED from [com.google.android.gms:play-services-basement:18.1.0] C:\Users\dibya\.gradle\caches\8.9\transforms\d1319b90f97390f9fe7b10ea0c6b5670\transformed\play-services-basement-18.1.0\AndroidManifest.xml:16:1-26:12
+MERGED from [androidx.fragment:fragment:1.3.6] C:\Users\dibya\.gradle\caches\8.9\transforms\202ecd43addbc7688a9ec274a93bbb2f\transformed\fragment-1.3.6\AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.activity:activity:1.6.0] C:\Users\dibya\.gradle\caches\8.9\transforms\ad50fad6846549d4eee303986bac1851\transformed\activity-1.6.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.dynamicanimation:dynamicanimation:1.0.0] C:\Users\dibya\.gradle\caches\8.9\transforms\e94e99c58238225b26927bbac50d01f8\transformed\dynamicanimation-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.legacy:legacy-support-core-utils:1.0.0] C:\Users\dibya\.gradle\caches\8.9\transforms\7bf50e94e7306325a600c2008143e754\transformed\legacy-support-core-utils-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.loader:loader:1.0.0] C:\Users\dibya\.gradle\caches\8.9\transforms\10f5c5f61e358e1e656c23af3d6f6287\transformed\loader-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.lifecycle:lifecycle-viewmodel:2.5.1] C:\Users\dibya\.gradle\caches\8.9\transforms\ddaa28ceb5c626be6bf794fd4c629ea9\transformed\lifecycle-viewmodel-2.5.1\AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-savedstate:2.5.1] C:\Users\dibya\.gradle\caches\8.9\transforms\2f9cea8581c5cd04d232140b87bf4134\transformed\lifecycle-viewmodel-savedstate-2.5.1\AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.emoji2:emoji2-views-helper:1.2.0] C:\Users\dibya\.gradle\caches\8.9\transforms\1f06673e4847f2a9d82b173ff7749984\transformed\emoji2-views-helper-1.2.0\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.emoji2:emoji2:1.2.0] C:\Users\dibya\.gradle\caches\8.9\transforms\a4cd7364b228f6ff41e07b881aab80a3\transformed\emoji2-1.2.0\AndroidManifest.xml:17:1-35:12
+MERGED from [androidx.drawerlayout:drawerlayout:1.1.1] C:\Users\dibya\.gradle\caches\8.9\transforms\389f6a4354f83a0cde66e9e8d05c9e46\transformed\drawerlayout-1.1.1\AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.coordinatorlayout:coordinatorlayout:1.1.0] C:\Users\dibya\.gradle\caches\8.9\transforms\e4d071d5b0a5698762100d5a23f770b9\transformed\coordinatorlayout-1.1.0\AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.transition:transition:1.2.0] C:\Users\dibya\.gradle\caches\8.9\transforms\4ae477a530202bf9fe57b177bf3cf71a\transformed\transition-1.2.0\AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.vectordrawable:vectordrawable-animated:1.1.0] C:\Users\dibya\.gradle\caches\8.9\transforms\d96cbd019bed5270c55c63739e8ec814\transformed\vectordrawable-animated-1.1.0\AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.vectordrawable:vectordrawable:1.1.0] C:\Users\dibya\.gradle\caches\8.9\transforms\994ca3f2e839e7aafc2c31ea983ea788\transformed\vectordrawable-1.1.0\AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.viewpager:viewpager:1.0.0] C:\Users\dibya\.gradle\caches\8.9\transforms\a2c9b30ed77b1edb3efa3a0f18fb9f8a\transformed\viewpager-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.customview:customview:1.1.0] C:\Users\dibya\.gradle\caches\8.9\transforms\b15905cc115a8459878cb6f1cff23eee\transformed\customview-1.1.0\AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.core:core:1.10.1] C:\Users\dibya\.gradle\caches\8.9\transforms\181730d28dbd92489bb424f58d512e61\transformed\core-1.10.1\AndroidManifest.xml:17:1-30:12
+MERGED from [androidx.customview:customview-poolingcontainer:1.0.0] C:\Users\dibya\.gradle\caches\8.9\transforms\8d343dd8548e2b85f29528381a30f4d3\transformed\customview-poolingcontainer-1.0.0\AndroidManifest.xml:17:1-23:12
+MERGED from [androidx.core:core-ktx:1.10.1] C:\Users\dibya\.gradle\caches\8.9\transforms\3f3ccc9b785e8428bc6e0f9fae20ec8d\transformed\core-ktx-1.10.1\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.savedstate:savedstate:1.2.0] C:\Users\dibya\.gradle\caches\8.9\transforms\f9ad9fd1a66f7a04373964060cacd635\transformed\savedstate-1.2.0\AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.annotation:annotation-experimental:1.3.0] C:\Users\dibya\.gradle\caches\8.9\transforms\8f090effd6fa90f648effde74fcb9036\transformed\annotation-experimental-1.3.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.cursoradapter:cursoradapter:1.0.0] C:\Users\dibya\.gradle\caches\8.9\transforms\a385a4af3cf0c31d5d8a42d4689483c8\transformed\cursoradapter-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.lifecycle:lifecycle-process:2.4.1] C:\Users\dibya\.gradle\caches\8.9\transforms\41de72f8be775cb1018a5b5f7f63080c\transformed\lifecycle-process-2.4.1\AndroidManifest.xml:17:1-37:12
+MERGED from [androidx.lifecycle:lifecycle-runtime:2.5.1] C:\Users\dibya\.gradle\caches\8.9\transforms\058da4ba5ea5aa2df886972bdd625ffa\transformed\lifecycle-runtime-2.5.1\AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.cardview:cardview:1.0.0] C:\Users\dibya\.gradle\caches\8.9\transforms\9e5d1e6c676d50cc0fc3cbd5149cfafe\transformed\cardview-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.interpolator:interpolator:1.0.0] C:\Users\dibya\.gradle\caches\8.9\transforms\bc55c1751a8def6130992c49fea2730e\transformed\interpolator-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] C:\Users\dibya\.gradle\caches\8.9\transforms\04ef86144bf88557c83f958198ddf7b2\transformed\versionedparcelable-1.1.1\AndroidManifest.xml:17:1-27:12
+MERGED from [androidx.startup:startup-runtime:1.1.1] C:\Users\dibya\.gradle\caches\8.9\transforms\ef1fef1c7fc708d5e0c93411816cea67\transformed\startup-runtime-1.1.1\AndroidManifest.xml:17:1-33:12
+MERGED from [androidx.tracing:tracing:1.0.0] C:\Users\dibya\.gradle\caches\8.9\transforms\023fc9367e2bff99f0ba2ede879bb609\transformed\tracing-1.0.0\AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.lifecycle:lifecycle-livedata:2.0.0] C:\Users\dibya\.gradle\caches\8.9\transforms\a3612b5998c8654bcdb07534e811e5fa\transformed\lifecycle-livedata-2.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.lifecycle:lifecycle-livedata-core:2.5.1] C:\Users\dibya\.gradle\caches\8.9\transforms\f7569f836bada52be14fc5efab3ac1c2\transformed\lifecycle-livedata-core-2.5.1\AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.arch.core:core-runtime:2.1.0] C:\Users\dibya\.gradle\caches\8.9\transforms\bb98266926ca7bfde289d3161de79510\transformed\core-runtime-2.1.0\AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.documentfile:documentfile:1.0.0] C:\Users\dibya\.gradle\caches\8.9\transforms\aaeae28eb818eac6fbd5ef3921dc8dbe\transformed\documentfile-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.localbroadcastmanager:localbroadcastmanager:1.0.0] C:\Users\dibya\.gradle\caches\8.9\transforms\5709aea2470802fd6655a13ef1c8ee86\transformed\localbroadcastmanager-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.print:print:1.0.0] C:\Users\dibya\.gradle\caches\8.9\transforms\767c66aac397e0406ecf2bb6262be017\transformed\print-1.0.0\AndroidManifest.xml:17:1-22:12
+	package
+		INJECTED from D:\ANTI\PandalFinder\app\src\main\AndroidManifest.xml
+	android:versionName
+		INJECTED from D:\ANTI\PandalFinder\app\src\main\AndroidManifest.xml
+	android:versionCode
+		INJECTED from D:\ANTI\PandalFinder\app\src\main\AndroidManifest.xml
+	xmlns:android
+		ADDED from D:\ANTI\PandalFinder\app\src\main\AndroidManifest.xml:2:11-69
+uses-permission#android.permission.ACCESS_FINE_LOCATION
+ADDED from D:\ANTI\PandalFinder\app\src\main\AndroidManifest.xml:5:5-79
+	android:name
+		ADDED from D:\ANTI\PandalFinder\app\src\main\AndroidManifest.xml:5:22-76
+uses-permission#android.permission.ACCESS_COARSE_LOCATION
+ADDED from D:\ANTI\PandalFinder\app\src\main\AndroidManifest.xml:6:5-81
+	android:name
+		ADDED from D:\ANTI\PandalFinder\app\src\main\AndroidManifest.xml:6:22-78
+uses-permission#android.permission.INTERNET
+ADDED from D:\ANTI\PandalFinder\app\src\main\AndroidManifest.xml:7:5-67
+	android:name
+		ADDED from D:\ANTI\PandalFinder\app\src\main\AndroidManifest.xml:7:22-64
+application
+ADDED from D:\ANTI\PandalFinder\app\src\main\AndroidManifest.xml:9:5-23:19
+INJECTED from D:\ANTI\PandalFinder\app\src\main\AndroidManifest.xml:9:5-23:19
+MERGED from [com.google.android.material:material:1.9.0] C:\Users\dibya\.gradle\caches\8.9\transforms\ed2c42d57711ee81e4401cebcb92f2f0\transformed\material-1.9.0\AndroidManifest.xml:24:5-20
+MERGED from [com.google.android.material:material:1.9.0] C:\Users\dibya\.gradle\caches\8.9\transforms\ed2c42d57711ee81e4401cebcb92f2f0\transformed\material-1.9.0\AndroidManifest.xml:24:5-20
+MERGED from [androidx.constraintlayout:constraintlayout:2.1.4] C:\Users\dibya\.gradle\caches\8.9\transforms\5108741c2724e469c2a8bbac9965f367\transformed\constraintlayout-2.1.4\AndroidManifest.xml:9:5-20
+MERGED from [androidx.constraintlayout:constraintlayout:2.1.4] C:\Users\dibya\.gradle\caches\8.9\transforms\5108741c2724e469c2a8bbac9965f367\transformed\constraintlayout-2.1.4\AndroidManifest.xml:9:5-20
+MERGED from [com.google.android.gms:play-services-location:21.0.1] C:\Users\dibya\.gradle\caches\8.9\transforms\b258704ad7d9cd69f0445548b032990a\transformed\play-services-location-21.0.1\AndroidManifest.xml:7:5-20
+MERGED from [com.google.android.gms:play-services-location:21.0.1] C:\Users\dibya\.gradle\caches\8.9\transforms\b258704ad7d9cd69f0445548b032990a\transformed\play-services-location-21.0.1\AndroidManifest.xml:7:5-20
+MERGED from [com.google.android.gms:play-services-base:18.1.0] C:\Users\dibya\.gradle\caches\8.9\transforms\02c3295751bb096250959477b71d789d\transformed\play-services-base-18.1.0\AndroidManifest.xml:19:5-23:19
+MERGED from [com.google.android.gms:play-services-base:18.1.0] C:\Users\dibya\.gradle\caches\8.9\transforms\02c3295751bb096250959477b71d789d\transformed\play-services-base-18.1.0\AndroidManifest.xml:19:5-23:19
+MERGED from [com.google.android.gms:play-services-tasks:18.0.2] C:\Users\dibya\.gradle\caches\8.9\transforms\d133aac263f80eb7e5a224c8e714eff8\transformed\play-services-tasks-18.0.2\AndroidManifest.xml:5:5-20
+MERGED from [com.google.android.gms:play-services-tasks:18.0.2] C:\Users\dibya\.gradle\caches\8.9\transforms\d133aac263f80eb7e5a224c8e714eff8\transformed\play-services-tasks-18.0.2\AndroidManifest.xml:5:5-20
+MERGED from [com.google.android.gms:play-services-basement:18.1.0] C:\Users\dibya\.gradle\caches\8.9\transforms\d1319b90f97390f9fe7b10ea0c6b5670\transformed\play-services-basement-18.1.0\AndroidManifest.xml:20:5-24:19
+MERGED from [com.google.android.gms:play-services-basement:18.1.0] C:\Users\dibya\.gradle\caches\8.9\transforms\d1319b90f97390f9fe7b10ea0c6b5670\transformed\play-services-basement-18.1.0\AndroidManifest.xml:20:5-24:19
+MERGED from [androidx.emoji2:emoji2:1.2.0] C:\Users\dibya\.gradle\caches\8.9\transforms\a4cd7364b228f6ff41e07b881aab80a3\transformed\emoji2-1.2.0\AndroidManifest.xml:23:5-33:19
+MERGED from [androidx.emoji2:emoji2:1.2.0] C:\Users\dibya\.gradle\caches\8.9\transforms\a4cd7364b228f6ff41e07b881aab80a3\transformed\emoji2-1.2.0\AndroidManifest.xml:23:5-33:19
+MERGED from [androidx.core:core:1.10.1] C:\Users\dibya\.gradle\caches\8.9\transforms\181730d28dbd92489bb424f58d512e61\transformed\core-1.10.1\AndroidManifest.xml:28:5-89
+MERGED from [androidx.core:core:1.10.1] C:\Users\dibya\.gradle\caches\8.9\transforms\181730d28dbd92489bb424f58d512e61\transformed\core-1.10.1\AndroidManifest.xml:28:5-89
+MERGED from [androidx.lifecycle:lifecycle-process:2.4.1] C:\Users\dibya\.gradle\caches\8.9\transforms\41de72f8be775cb1018a5b5f7f63080c\transformed\lifecycle-process-2.4.1\AndroidManifest.xml:25:5-35:19
+MERGED from [androidx.lifecycle:lifecycle-process:2.4.1] C:\Users\dibya\.gradle\caches\8.9\transforms\41de72f8be775cb1018a5b5f7f63080c\transformed\lifecycle-process-2.4.1\AndroidManifest.xml:25:5-35:19
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] C:\Users\dibya\.gradle\caches\8.9\transforms\04ef86144bf88557c83f958198ddf7b2\transformed\versionedparcelable-1.1.1\AndroidManifest.xml:24:5-25:19
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] C:\Users\dibya\.gradle\caches\8.9\transforms\04ef86144bf88557c83f958198ddf7b2\transformed\versionedparcelable-1.1.1\AndroidManifest.xml:24:5-25:19
+MERGED from [androidx.startup:startup-runtime:1.1.1] C:\Users\dibya\.gradle\caches\8.9\transforms\ef1fef1c7fc708d5e0c93411816cea67\transformed\startup-runtime-1.1.1\AndroidManifest.xml:25:5-31:19
+MERGED from [androidx.startup:startup-runtime:1.1.1] C:\Users\dibya\.gradle\caches\8.9\transforms\ef1fef1c7fc708d5e0c93411816cea67\transformed\startup-runtime-1.1.1\AndroidManifest.xml:25:5-31:19
+	android:extractNativeLibs
+		INJECTED from D:\ANTI\PandalFinder\app\src\main\AndroidManifest.xml
+	android:appComponentFactory
+		ADDED from [androidx.core:core:1.10.1] C:\Users\dibya\.gradle\caches\8.9\transforms\181730d28dbd92489bb424f58d512e61\transformed\core-1.10.1\AndroidManifest.xml:28:18-86
+	android:supportsRtl
+		ADDED from D:\ANTI\PandalFinder\app\src\main\AndroidManifest.xml:13:9-35
+	android:label
+		ADDED from D:\ANTI\PandalFinder\app\src\main\AndroidManifest.xml:11:9-41
+	android:allowBackup
+		ADDED from D:\ANTI\PandalFinder\app\src\main\AndroidManifest.xml:10:9-35
+	android:theme
+		ADDED from D:\ANTI\PandalFinder\app\src\main\AndroidManifest.xml:12:9-50
+activity#com.pandalfinder.MainActivity
+ADDED from D:\ANTI\PandalFinder\app\src\main\AndroidManifest.xml:15:9-22:20
+	android:exported
+		ADDED from D:\ANTI\PandalFinder\app\src\main\AndroidManifest.xml:17:13-36
+	android:name
+		ADDED from D:\ANTI\PandalFinder\app\src\main\AndroidManifest.xml:16:13-41
+intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
+ADDED from D:\ANTI\PandalFinder\app\src\main\AndroidManifest.xml:18:13-21:29
+action#android.intent.action.MAIN
+ADDED from D:\ANTI\PandalFinder\app\src\main\AndroidManifest.xml:19:17-69
+	android:name
+		ADDED from D:\ANTI\PandalFinder\app\src\main\AndroidManifest.xml:19:25-66
+category#android.intent.category.LAUNCHER
+ADDED from D:\ANTI\PandalFinder\app\src\main\AndroidManifest.xml:20:17-77
+	android:name
+		ADDED from D:\ANTI\PandalFinder\app\src\main\AndroidManifest.xml:20:27-74
+uses-sdk
+INJECTED from D:\ANTI\PandalFinder\app\src\main\AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from D:\ANTI\PandalFinder\app\src\main\AndroidManifest.xml
+INJECTED from D:\ANTI\PandalFinder\app\src\main\AndroidManifest.xml
+MERGED from [com.google.android.material:material:1.9.0] C:\Users\dibya\.gradle\caches\8.9\transforms\ed2c42d57711ee81e4401cebcb92f2f0\transformed\material-1.9.0\AndroidManifest.xml:20:5-22:41
+MERGED from [com.google.android.material:material:1.9.0] C:\Users\dibya\.gradle\caches\8.9\transforms\ed2c42d57711ee81e4401cebcb92f2f0\transformed\material-1.9.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.constraintlayout:constraintlayout:2.1.4] C:\Users\dibya\.gradle\caches\8.9\transforms\5108741c2724e469c2a8bbac9965f367\transformed\constraintlayout-2.1.4\AndroidManifest.xml:5:5-7:41
+MERGED from [androidx.constraintlayout:constraintlayout:2.1.4] C:\Users\dibya\.gradle\caches\8.9\transforms\5108741c2724e469c2a8bbac9965f367\transformed\constraintlayout-2.1.4\AndroidManifest.xml:5:5-7:41
+MERGED from [androidx.appcompat:appcompat-resources:1.6.1] C:\Users\dibya\.gradle\caches\8.9\transforms\1cc0ba00e2acf211c906ad329f7d7130\transformed\appcompat-resources-1.6.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.appcompat:appcompat-resources:1.6.1] C:\Users\dibya\.gradle\caches\8.9\transforms\1cc0ba00e2acf211c906ad329f7d7130\transformed\appcompat-resources-1.6.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.appcompat:appcompat:1.6.1] C:\Users\dibya\.gradle\caches\8.9\transforms\b9398e298918d45ceed86aa123815a76\transformed\appcompat-1.6.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.appcompat:appcompat:1.6.1] C:\Users\dibya\.gradle\caches\8.9\transforms\b9398e298918d45ceed86aa123815a76\transformed\appcompat-1.6.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.recyclerview:recyclerview:1.3.1] C:\Users\dibya\.gradle\caches\8.9\transforms\fa92e5bc970fb1518dd25daa2f2b8045\transformed\recyclerview-1.3.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.recyclerview:recyclerview:1.3.1] C:\Users\dibya\.gradle\caches\8.9\transforms\fa92e5bc970fb1518dd25daa2f2b8045\transformed\recyclerview-1.3.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.viewpager2:viewpager2:1.1.0-beta02] C:\Users\dibya\.gradle\caches\8.9\transforms\db8432925767dd892795547c23a2d4a4\transformed\viewpager2-1.1.0-beta02\AndroidManifest.xml:5:5-44
+MERGED from [androidx.viewpager2:viewpager2:1.1.0-beta02] C:\Users\dibya\.gradle\caches\8.9\transforms\db8432925767dd892795547c23a2d4a4\transformed\viewpager2-1.1.0-beta02\AndroidManifest.xml:5:5-44
+MERGED from [com.google.android.gms:play-services-location:21.0.1] C:\Users\dibya\.gradle\caches\8.9\transforms\b258704ad7d9cd69f0445548b032990a\transformed\play-services-location-21.0.1\AndroidManifest.xml:5:5-44
+MERGED from [com.google.android.gms:play-services-location:21.0.1] C:\Users\dibya\.gradle\caches\8.9\transforms\b258704ad7d9cd69f0445548b032990a\transformed\play-services-location-21.0.1\AndroidManifest.xml:5:5-44
+MERGED from [com.google.android.gms:play-services-base:18.1.0] C:\Users\dibya\.gradle\caches\8.9\transforms\02c3295751bb096250959477b71d789d\transformed\play-services-base-18.1.0\AndroidManifest.xml:18:5-43
+MERGED from [com.google.android.gms:play-services-base:18.1.0] C:\Users\dibya\.gradle\caches\8.9\transforms\02c3295751bb096250959477b71d789d\transformed\play-services-base-18.1.0\AndroidManifest.xml:18:5-43
+MERGED from [com.google.android.gms:play-services-tasks:18.0.2] C:\Users\dibya\.gradle\caches\8.9\transforms\d133aac263f80eb7e5a224c8e714eff8\transformed\play-services-tasks-18.0.2\AndroidManifest.xml:4:5-43
+MERGED from [com.google.android.gms:play-services-tasks:18.0.2] C:\Users\dibya\.gradle\caches\8.9\transforms\d133aac263f80eb7e5a224c8e714eff8\transformed\play-services-tasks-18.0.2\AndroidManifest.xml:4:5-43
+MERGED from [com.google.android.gms:play-services-basement:18.1.0] C:\Users\dibya\.gradle\caches\8.9\transforms\d1319b90f97390f9fe7b10ea0c6b5670\transformed\play-services-basement-18.1.0\AndroidManifest.xml:18:5-43
+MERGED from [com.google.android.gms:play-services-basement:18.1.0] C:\Users\dibya\.gradle\caches\8.9\transforms\d1319b90f97390f9fe7b10ea0c6b5670\transformed\play-services-basement-18.1.0\AndroidManifest.xml:18:5-43
+MERGED from [androidx.fragment:fragment:1.3.6] C:\Users\dibya\.gradle\caches\8.9\transforms\202ecd43addbc7688a9ec274a93bbb2f\transformed\fragment-1.3.6\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.fragment:fragment:1.3.6] C:\Users\dibya\.gradle\caches\8.9\transforms\202ecd43addbc7688a9ec274a93bbb2f\transformed\fragment-1.3.6\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.activity:activity:1.6.0] C:\Users\dibya\.gradle\caches\8.9\transforms\ad50fad6846549d4eee303986bac1851\transformed\activity-1.6.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.activity:activity:1.6.0] C:\Users\dibya\.gradle\caches\8.9\transforms\ad50fad6846549d4eee303986bac1851\transformed\activity-1.6.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.dynamicanimation:dynamicanimation:1.0.0] C:\Users\dibya\.gradle\caches\8.9\transforms\e94e99c58238225b26927bbac50d01f8\transformed\dynamicanimation-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.dynamicanimation:dynamicanimation:1.0.0] C:\Users\dibya\.gradle\caches\8.9\transforms\e94e99c58238225b26927bbac50d01f8\transformed\dynamicanimation-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.legacy:legacy-support-core-utils:1.0.0] C:\Users\dibya\.gradle\caches\8.9\transforms\7bf50e94e7306325a600c2008143e754\transformed\legacy-support-core-utils-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.legacy:legacy-support-core-utils:1.0.0] C:\Users\dibya\.gradle\caches\8.9\transforms\7bf50e94e7306325a600c2008143e754\transformed\legacy-support-core-utils-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.loader:loader:1.0.0] C:\Users\dibya\.gradle\caches\8.9\transforms\10f5c5f61e358e1e656c23af3d6f6287\transformed\loader-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.loader:loader:1.0.0] C:\Users\dibya\.gradle\caches\8.9\transforms\10f5c5f61e358e1e656c23af3d6f6287\transformed\loader-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel:2.5.1] C:\Users\dibya\.gradle\caches\8.9\transforms\ddaa28ceb5c626be6bf794fd4c629ea9\transformed\lifecycle-viewmodel-2.5.1\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.lifecycle:lifecycle-viewmodel:2.5.1] C:\Users\dibya\.gradle\caches\8.9\transforms\ddaa28ceb5c626be6bf794fd4c629ea9\transformed\lifecycle-viewmodel-2.5.1\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-savedstate:2.5.1] C:\Users\dibya\.gradle\caches\8.9\transforms\2f9cea8581c5cd04d232140b87bf4134\transformed\lifecycle-viewmodel-savedstate-2.5.1\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-savedstate:2.5.1] C:\Users\dibya\.gradle\caches\8.9\transforms\2f9cea8581c5cd04d232140b87bf4134\transformed\lifecycle-viewmodel-savedstate-2.5.1\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.emoji2:emoji2-views-helper:1.2.0] C:\Users\dibya\.gradle\caches\8.9\transforms\1f06673e4847f2a9d82b173ff7749984\transformed\emoji2-views-helper-1.2.0\AndroidManifest.xml:5:5-44
+MERGED from [androidx.emoji2:emoji2-views-helper:1.2.0] C:\Users\dibya\.gradle\caches\8.9\transforms\1f06673e4847f2a9d82b173ff7749984\transformed\emoji2-views-helper-1.2.0\AndroidManifest.xml:5:5-44
+MERGED from [androidx.emoji2:emoji2:1.2.0] C:\Users\dibya\.gradle\caches\8.9\transforms\a4cd7364b228f6ff41e07b881aab80a3\transformed\emoji2-1.2.0\AndroidManifest.xml:21:5-44
+MERGED from [androidx.emoji2:emoji2:1.2.0] C:\Users\dibya\.gradle\caches\8.9\transforms\a4cd7364b228f6ff41e07b881aab80a3\transformed\emoji2-1.2.0\AndroidManifest.xml:21:5-44
+MERGED from [androidx.drawerlayout:drawerlayout:1.1.1] C:\Users\dibya\.gradle\caches\8.9\transforms\389f6a4354f83a0cde66e9e8d05c9e46\transformed\drawerlayout-1.1.1\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.drawerlayout:drawerlayout:1.1.1] C:\Users\dibya\.gradle\caches\8.9\transforms\389f6a4354f83a0cde66e9e8d05c9e46\transformed\drawerlayout-1.1.1\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.coordinatorlayout:coordinatorlayout:1.1.0] C:\Users\dibya\.gradle\caches\8.9\transforms\e4d071d5b0a5698762100d5a23f770b9\transformed\coordinatorlayout-1.1.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.coordinatorlayout:coordinatorlayout:1.1.0] C:\Users\dibya\.gradle\caches\8.9\transforms\e4d071d5b0a5698762100d5a23f770b9\transformed\coordinatorlayout-1.1.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.transition:transition:1.2.0] C:\Users\dibya\.gradle\caches\8.9\transforms\4ae477a530202bf9fe57b177bf3cf71a\transformed\transition-1.2.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.transition:transition:1.2.0] C:\Users\dibya\.gradle\caches\8.9\transforms\4ae477a530202bf9fe57b177bf3cf71a\transformed\transition-1.2.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.vectordrawable:vectordrawable-animated:1.1.0] C:\Users\dibya\.gradle\caches\8.9\transforms\d96cbd019bed5270c55c63739e8ec814\transformed\vectordrawable-animated-1.1.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.vectordrawable:vectordrawable-animated:1.1.0] C:\Users\dibya\.gradle\caches\8.9\transforms\d96cbd019bed5270c55c63739e8ec814\transformed\vectordrawable-animated-1.1.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.vectordrawable:vectordrawable:1.1.0] C:\Users\dibya\.gradle\caches\8.9\transforms\994ca3f2e839e7aafc2c31ea983ea788\transformed\vectordrawable-1.1.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.vectordrawable:vectordrawable:1.1.0] C:\Users\dibya\.gradle\caches\8.9\transforms\994ca3f2e839e7aafc2c31ea983ea788\transformed\vectordrawable-1.1.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.viewpager:viewpager:1.0.0] C:\Users\dibya\.gradle\caches\8.9\transforms\a2c9b30ed77b1edb3efa3a0f18fb9f8a\transformed\viewpager-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.viewpager:viewpager:1.0.0] C:\Users\dibya\.gradle\caches\8.9\transforms\a2c9b30ed77b1edb3efa3a0f18fb9f8a\transformed\viewpager-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.customview:customview:1.1.0] C:\Users\dibya\.gradle\caches\8.9\transforms\b15905cc115a8459878cb6f1cff23eee\transformed\customview-1.1.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.customview:customview:1.1.0] C:\Users\dibya\.gradle\caches\8.9\transforms\b15905cc115a8459878cb6f1cff23eee\transformed\customview-1.1.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.core:core:1.10.1] C:\Users\dibya\.gradle\caches\8.9\transforms\181730d28dbd92489bb424f58d512e61\transformed\core-1.10.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.core:core:1.10.1] C:\Users\dibya\.gradle\caches\8.9\transforms\181730d28dbd92489bb424f58d512e61\transformed\core-1.10.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.customview:customview-poolingcontainer:1.0.0] C:\Users\dibya\.gradle\caches\8.9\transforms\8d343dd8548e2b85f29528381a30f4d3\transformed\customview-poolingcontainer-1.0.0\AndroidManifest.xml:20:5-21:38
+MERGED from [androidx.customview:customview-poolingcontainer:1.0.0] C:\Users\dibya\.gradle\caches\8.9\transforms\8d343dd8548e2b85f29528381a30f4d3\transformed\customview-poolingcontainer-1.0.0\AndroidManifest.xml:20:5-21:38
+MERGED from [androidx.core:core-ktx:1.10.1] C:\Users\dibya\.gradle\caches\8.9\transforms\3f3ccc9b785e8428bc6e0f9fae20ec8d\transformed\core-ktx-1.10.1\AndroidManifest.xml:5:5-44
+MERGED from [androidx.core:core-ktx:1.10.1] C:\Users\dibya\.gradle\caches\8.9\transforms\3f3ccc9b785e8428bc6e0f9fae20ec8d\transformed\core-ktx-1.10.1\AndroidManifest.xml:5:5-44
+MERGED from [androidx.savedstate:savedstate:1.2.0] C:\Users\dibya\.gradle\caches\8.9\transforms\f9ad9fd1a66f7a04373964060cacd635\transformed\savedstate-1.2.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.savedstate:savedstate:1.2.0] C:\Users\dibya\.gradle\caches\8.9\transforms\f9ad9fd1a66f7a04373964060cacd635\transformed\savedstate-1.2.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.annotation:annotation-experimental:1.3.0] C:\Users\dibya\.gradle\caches\8.9\transforms\8f090effd6fa90f648effde74fcb9036\transformed\annotation-experimental-1.3.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.annotation:annotation-experimental:1.3.0] C:\Users\dibya\.gradle\caches\8.9\transforms\8f090effd6fa90f648effde74fcb9036\transformed\annotation-experimental-1.3.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.cursoradapter:cursoradapter:1.0.0] C:\Users\dibya\.gradle\caches\8.9\transforms\a385a4af3cf0c31d5d8a42d4689483c8\transformed\cursoradapter-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.cursoradapter:cursoradapter:1.0.0] C:\Users\dibya\.gradle\caches\8.9\transforms\a385a4af3cf0c31d5d8a42d4689483c8\transformed\cursoradapter-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-process:2.4.1] C:\Users\dibya\.gradle\caches\8.9\transforms\41de72f8be775cb1018a5b5f7f63080c\transformed\lifecycle-process-2.4.1\AndroidManifest.xml:21:5-23:41
+MERGED from [androidx.lifecycle:lifecycle-process:2.4.1] C:\Users\dibya\.gradle\caches\8.9\transforms\41de72f8be775cb1018a5b5f7f63080c\transformed\lifecycle-process-2.4.1\AndroidManifest.xml:21:5-23:41
+MERGED from [androidx.lifecycle:lifecycle-runtime:2.5.1] C:\Users\dibya\.gradle\caches\8.9\transforms\058da4ba5ea5aa2df886972bdd625ffa\transformed\lifecycle-runtime-2.5.1\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.lifecycle:lifecycle-runtime:2.5.1] C:\Users\dibya\.gradle\caches\8.9\transforms\058da4ba5ea5aa2df886972bdd625ffa\transformed\lifecycle-runtime-2.5.1\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.cardview:cardview:1.0.0] C:\Users\dibya\.gradle\caches\8.9\transforms\9e5d1e6c676d50cc0fc3cbd5149cfafe\transformed\cardview-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.cardview:cardview:1.0.0] C:\Users\dibya\.gradle\caches\8.9\transforms\9e5d1e6c676d50cc0fc3cbd5149cfafe\transformed\cardview-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.interpolator:interpolator:1.0.0] C:\Users\dibya\.gradle\caches\8.9\transforms\bc55c1751a8def6130992c49fea2730e\transformed\interpolator-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.interpolator:interpolator:1.0.0] C:\Users\dibya\.gradle\caches\8.9\transforms\bc55c1751a8def6130992c49fea2730e\transformed\interpolator-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] C:\Users\dibya\.gradle\caches\8.9\transforms\04ef86144bf88557c83f958198ddf7b2\transformed\versionedparcelable-1.1.1\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] C:\Users\dibya\.gradle\caches\8.9\transforms\04ef86144bf88557c83f958198ddf7b2\transformed\versionedparcelable-1.1.1\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.startup:startup-runtime:1.1.1] C:\Users\dibya\.gradle\caches\8.9\transforms\ef1fef1c7fc708d5e0c93411816cea67\transformed\startup-runtime-1.1.1\AndroidManifest.xml:21:5-23:41
+MERGED from [androidx.startup:startup-runtime:1.1.1] C:\Users\dibya\.gradle\caches\8.9\transforms\ef1fef1c7fc708d5e0c93411816cea67\transformed\startup-runtime-1.1.1\AndroidManifest.xml:21:5-23:41
+MERGED from [androidx.tracing:tracing:1.0.0] C:\Users\dibya\.gradle\caches\8.9\transforms\023fc9367e2bff99f0ba2ede879bb609\transformed\tracing-1.0.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.tracing:tracing:1.0.0] C:\Users\dibya\.gradle\caches\8.9\transforms\023fc9367e2bff99f0ba2ede879bb609\transformed\tracing-1.0.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.lifecycle:lifecycle-livedata:2.0.0] C:\Users\dibya\.gradle\caches\8.9\transforms\a3612b5998c8654bcdb07534e811e5fa\transformed\lifecycle-livedata-2.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-livedata:2.0.0] C:\Users\dibya\.gradle\caches\8.9\transforms\a3612b5998c8654bcdb07534e811e5fa\transformed\lifecycle-livedata-2.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-livedata-core:2.5.1] C:\Users\dibya\.gradle\caches\8.9\transforms\f7569f836bada52be14fc5efab3ac1c2\transformed\lifecycle-livedata-core-2.5.1\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.lifecycle:lifecycle-livedata-core:2.5.1] C:\Users\dibya\.gradle\caches\8.9\transforms\f7569f836bada52be14fc5efab3ac1c2\transformed\lifecycle-livedata-core-2.5.1\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.arch.core:core-runtime:2.1.0] C:\Users\dibya\.gradle\caches\8.9\transforms\bb98266926ca7bfde289d3161de79510\transformed\core-runtime-2.1.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.arch.core:core-runtime:2.1.0] C:\Users\dibya\.gradle\caches\8.9\transforms\bb98266926ca7bfde289d3161de79510\transformed\core-runtime-2.1.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.documentfile:documentfile:1.0.0] C:\Users\dibya\.gradle\caches\8.9\transforms\aaeae28eb818eac6fbd5ef3921dc8dbe\transformed\documentfile-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.documentfile:documentfile:1.0.0] C:\Users\dibya\.gradle\caches\8.9\transforms\aaeae28eb818eac6fbd5ef3921dc8dbe\transformed\documentfile-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.localbroadcastmanager:localbroadcastmanager:1.0.0] C:\Users\dibya\.gradle\caches\8.9\transforms\5709aea2470802fd6655a13ef1c8ee86\transformed\localbroadcastmanager-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.localbroadcastmanager:localbroadcastmanager:1.0.0] C:\Users\dibya\.gradle\caches\8.9\transforms\5709aea2470802fd6655a13ef1c8ee86\transformed\localbroadcastmanager-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.print:print:1.0.0] C:\Users\dibya\.gradle\caches\8.9\transforms\767c66aac397e0406ecf2bb6262be017\transformed\print-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.print:print:1.0.0] C:\Users\dibya\.gradle\caches\8.9\transforms\767c66aac397e0406ecf2bb6262be017\transformed\print-1.0.0\AndroidManifest.xml:20:5-44
+	android:targetSdkVersion
+		INJECTED from D:\ANTI\PandalFinder\app\src\main\AndroidManifest.xml
+	android:minSdkVersion
+		INJECTED from D:\ANTI\PandalFinder\app\src\main\AndroidManifest.xml
+activity#com.google.android.gms.common.api.GoogleApiActivity
+ADDED from [com.google.android.gms:play-services-base:18.1.0] C:\Users\dibya\.gradle\caches\8.9\transforms\02c3295751bb096250959477b71d789d\transformed\play-services-base-18.1.0\AndroidManifest.xml:20:9-22:45
+	android:exported
+		ADDED from [com.google.android.gms:play-services-base:18.1.0] C:\Users\dibya\.gradle\caches\8.9\transforms\02c3295751bb096250959477b71d789d\transformed\play-services-base-18.1.0\AndroidManifest.xml:22:19-43
+	android:theme
+		ADDED from [com.google.android.gms:play-services-base:18.1.0] C:\Users\dibya\.gradle\caches\8.9\transforms\02c3295751bb096250959477b71d789d\transformed\play-services-base-18.1.0\AndroidManifest.xml:21:19-78
+	android:name
+		ADDED from [com.google.android.gms:play-services-base:18.1.0] C:\Users\dibya\.gradle\caches\8.9\transforms\02c3295751bb096250959477b71d789d\transformed\play-services-base-18.1.0\AndroidManifest.xml:20:19-85
+meta-data#com.google.android.gms.version
+ADDED from [com.google.android.gms:play-services-basement:18.1.0] C:\Users\dibya\.gradle\caches\8.9\transforms\d1319b90f97390f9fe7b10ea0c6b5670\transformed\play-services-basement-18.1.0\AndroidManifest.xml:21:9-23:69
+	android:value
+		ADDED from [com.google.android.gms:play-services-basement:18.1.0] C:\Users\dibya\.gradle\caches\8.9\transforms\d1319b90f97390f9fe7b10ea0c6b5670\transformed\play-services-basement-18.1.0\AndroidManifest.xml:23:13-66
+	android:name
+		ADDED from [com.google.android.gms:play-services-basement:18.1.0] C:\Users\dibya\.gradle\caches\8.9\transforms\d1319b90f97390f9fe7b10ea0c6b5670\transformed\play-services-basement-18.1.0\AndroidManifest.xml:22:13-58
+provider#androidx.startup.InitializationProvider
+ADDED from [androidx.emoji2:emoji2:1.2.0] C:\Users\dibya\.gradle\caches\8.9\transforms\a4cd7364b228f6ff41e07b881aab80a3\transformed\emoji2-1.2.0\AndroidManifest.xml:24:9-32:20
+MERGED from [androidx.lifecycle:lifecycle-process:2.4.1] C:\Users\dibya\.gradle\caches\8.9\transforms\41de72f8be775cb1018a5b5f7f63080c\transformed\lifecycle-process-2.4.1\AndroidManifest.xml:26:9-34:20
+MERGED from [androidx.lifecycle:lifecycle-process:2.4.1] C:\Users\dibya\.gradle\caches\8.9\transforms\41de72f8be775cb1018a5b5f7f63080c\transformed\lifecycle-process-2.4.1\AndroidManifest.xml:26:9-34:20
+MERGED from [androidx.startup:startup-runtime:1.1.1] C:\Users\dibya\.gradle\caches\8.9\transforms\ef1fef1c7fc708d5e0c93411816cea67\transformed\startup-runtime-1.1.1\AndroidManifest.xml:26:9-30:34
+MERGED from [androidx.startup:startup-runtime:1.1.1] C:\Users\dibya\.gradle\caches\8.9\transforms\ef1fef1c7fc708d5e0c93411816cea67\transformed\startup-runtime-1.1.1\AndroidManifest.xml:26:9-30:34
+	tools:node
+		ADDED from [androidx.emoji2:emoji2:1.2.0] C:\Users\dibya\.gradle\caches\8.9\transforms\a4cd7364b228f6ff41e07b881aab80a3\transformed\emoji2-1.2.0\AndroidManifest.xml:28:13-31
+	android:authorities
+		ADDED from [androidx.emoji2:emoji2:1.2.0] C:\Users\dibya\.gradle\caches\8.9\transforms\a4cd7364b228f6ff41e07b881aab80a3\transformed\emoji2-1.2.0\AndroidManifest.xml:26:13-68
+	android:exported
+		ADDED from [androidx.emoji2:emoji2:1.2.0] C:\Users\dibya\.gradle\caches\8.9\transforms\a4cd7364b228f6ff41e07b881aab80a3\transformed\emoji2-1.2.0\AndroidManifest.xml:27:13-37
+	android:name
+		ADDED from [androidx.emoji2:emoji2:1.2.0] C:\Users\dibya\.gradle\caches\8.9\transforms\a4cd7364b228f6ff41e07b881aab80a3\transformed\emoji2-1.2.0\AndroidManifest.xml:25:13-67
+meta-data#androidx.emoji2.text.EmojiCompatInitializer
+ADDED from [androidx.emoji2:emoji2:1.2.0] C:\Users\dibya\.gradle\caches\8.9\transforms\a4cd7364b228f6ff41e07b881aab80a3\transformed\emoji2-1.2.0\AndroidManifest.xml:29:13-31:52
+	android:value
+		ADDED from [androidx.emoji2:emoji2:1.2.0] C:\Users\dibya\.gradle\caches\8.9\transforms\a4cd7364b228f6ff41e07b881aab80a3\transformed\emoji2-1.2.0\AndroidManifest.xml:31:17-49
+	android:name
+		ADDED from [androidx.emoji2:emoji2:1.2.0] C:\Users\dibya\.gradle\caches\8.9\transforms\a4cd7364b228f6ff41e07b881aab80a3\transformed\emoji2-1.2.0\AndroidManifest.xml:30:17-75
+permission#${applicationId}.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+ADDED from [androidx.core:core:1.10.1] C:\Users\dibya\.gradle\caches\8.9\transforms\181730d28dbd92489bb424f58d512e61\transformed\core-1.10.1\AndroidManifest.xml:22:5-24:47
+	android:protectionLevel
+		ADDED from [androidx.core:core:1.10.1] C:\Users\dibya\.gradle\caches\8.9\transforms\181730d28dbd92489bb424f58d512e61\transformed\core-1.10.1\AndroidManifest.xml:24:9-44
+	android:name
+		ADDED from [androidx.core:core:1.10.1] C:\Users\dibya\.gradle\caches\8.9\transforms\181730d28dbd92489bb424f58d512e61\transformed\core-1.10.1\AndroidManifest.xml:23:9-81
+permission#com.pandalfinder.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+ADDED from [androidx.core:core:1.10.1] C:\Users\dibya\.gradle\caches\8.9\transforms\181730d28dbd92489bb424f58d512e61\transformed\core-1.10.1\AndroidManifest.xml:22:5-24:47
+	android:protectionLevel
+		ADDED from [androidx.core:core:1.10.1] C:\Users\dibya\.gradle\caches\8.9\transforms\181730d28dbd92489bb424f58d512e61\transformed\core-1.10.1\AndroidManifest.xml:24:9-44
+	android:name
+		ADDED from [androidx.core:core:1.10.1] C:\Users\dibya\.gradle\caches\8.9\transforms\181730d28dbd92489bb424f58d512e61\transformed\core-1.10.1\AndroidManifest.xml:23:9-81
+uses-permission#${applicationId}.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+ADDED from [androidx.core:core:1.10.1] C:\Users\dibya\.gradle\caches\8.9\transforms\181730d28dbd92489bb424f58d512e61\transformed\core-1.10.1\AndroidManifest.xml:26:5-97
+	android:name
+		ADDED from [androidx.core:core:1.10.1] C:\Users\dibya\.gradle\caches\8.9\transforms\181730d28dbd92489bb424f58d512e61\transformed\core-1.10.1\AndroidManifest.xml:26:22-94
+uses-permission#com.pandalfinder.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+ADDED from [androidx.core:core:1.10.1] C:\Users\dibya\.gradle\caches\8.9\transforms\181730d28dbd92489bb424f58d512e61\transformed\core-1.10.1\AndroidManifest.xml:26:5-97
+	android:name
+		ADDED from [androidx.core:core:1.10.1] C:\Users\dibya\.gradle\caches\8.9\transforms\181730d28dbd92489bb424f58d512e61\transformed\core-1.10.1\AndroidManifest.xml:26:22-94
+meta-data#androidx.lifecycle.ProcessLifecycleInitializer
+ADDED from [androidx.lifecycle:lifecycle-process:2.4.1] C:\Users\dibya\.gradle\caches\8.9\transforms\41de72f8be775cb1018a5b5f7f63080c\transformed\lifecycle-process-2.4.1\AndroidManifest.xml:31:13-33:52
+	android:value
+		ADDED from [androidx.lifecycle:lifecycle-process:2.4.1] C:\Users\dibya\.gradle\caches\8.9\transforms\41de72f8be775cb1018a5b5f7f63080c\transformed\lifecycle-process-2.4.1\AndroidManifest.xml:33:17-49
+	android:name
+		ADDED from [androidx.lifecycle:lifecycle-process:2.4.1] C:\Users\dibya\.gradle\caches\8.9\transforms\41de72f8be775cb1018a5b5f7f63080c\transformed\lifecycle-process-2.4.1\AndroidManifest.xml:32:17-78
