@@ -1,0 +1,103 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.pandalfinder"
+4    android:versionCode="1"
+5    android:versionName="1.0" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="24"
+9        android:targetSdkVersion="33" />
+10
+11    <!-- Location permissions -->
+12    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+12-->D:\ANTI\PandalFinder\app\src\main\AndroidManifest.xml:5:5-79
+12-->D:\ANTI\PandalFinder\app\src\main\AndroidManifest.xml:5:22-76
+13    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+13-->D:\ANTI\PandalFinder\app\src\main\AndroidManifest.xml:6:5-81
+13-->D:\ANTI\PandalFinder\app\src\main\AndroidManifest.xml:6:22-78
+14    <uses-permission android:name="android.permission.INTERNET" />
+14-->D:\ANTI\PandalFinder\app\src\main\AndroidManifest.xml:7:5-67
+14-->D:\ANTI\PandalFinder\app\src\main\AndroidManifest.xml:7:22-64
+15
+16    <permission
+16-->[androidx.core:core:1.10.1] C:\Users\dibya\.gradle\caches\8.9\transforms\181730d28dbd92489bb424f58d512e61\transformed\core-1.10.1\AndroidManifest.xml:22:5-24:47
+17        android:name="com.pandalfinder.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+17-->[androidx.core:core:1.10.1] C:\Users\dibya\.gradle\caches\8.9\transforms\181730d28dbd92489bb424f58d512e61\transformed\core-1.10.1\AndroidManifest.xml:23:9-81
+18        android:protectionLevel="signature" />
+18-->[androidx.core:core:1.10.1] C:\Users\dibya\.gradle\caches\8.9\transforms\181730d28dbd92489bb424f58d512e61\transformed\core-1.10.1\AndroidManifest.xml:24:9-44
+19
+20    <uses-permission android:name="com.pandalfinder.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+20-->[androidx.core:core:1.10.1] C:\Users\dibya\.gradle\caches\8.9\transforms\181730d28dbd92489bb424f58d512e61\transformed\core-1.10.1\AndroidManifest.xml:26:5-97
+20-->[androidx.core:core:1.10.1] C:\Users\dibya\.gradle\caches\8.9\transforms\181730d28dbd92489bb424f58d512e61\transformed\core-1.10.1\AndroidManifest.xml:26:22-94
+21
+22    <application
+22-->D:\ANTI\PandalFinder\app\src\main\AndroidManifest.xml:9:5-23:19
+23        android:allowBackup="true"
+23-->D:\ANTI\PandalFinder\app\src\main\AndroidManifest.xml:10:9-35
+24        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+24-->[androidx.core:core:1.10.1] C:\Users\dibya\.gradle\caches\8.9\transforms\181730d28dbd92489bb424f58d512e61\transformed\core-1.10.1\AndroidManifest.xml:28:18-86
+25        android:debuggable="true"
+26        android:extractNativeLibs="false"
+27        android:label="@string/app_name"
+27-->D:\ANTI\PandalFinder\app\src\main\AndroidManifest.xml:11:9-41
+28        android:supportsRtl="true"
+28-->D:\ANTI\PandalFinder\app\src\main\AndroidManifest.xml:13:9-35
+29        android:theme="@style/Theme.PandalFinder" >
+29-->D:\ANTI\PandalFinder\app\src\main\AndroidManifest.xml:12:9-50
+30        <activity
+30-->D:\ANTI\PandalFinder\app\src\main\AndroidManifest.xml:15:9-22:20
+31            android:name="com.pandalfinder.MainActivity"
+31-->D:\ANTI\PandalFinder\app\src\main\AndroidManifest.xml:16:13-41
+32            android:exported="true" >
+32-->D:\ANTI\PandalFinder\app\src\main\AndroidManifest.xml:17:13-36
+33            <intent-filter>
+33-->D:\ANTI\PandalFinder\app\src\main\AndroidManifest.xml:18:13-21:29
+34                <action android:name="android.intent.action.MAIN" />
+34-->D:\ANTI\PandalFinder\app\src\main\AndroidManifest.xml:19:17-69
+34-->D:\ANTI\PandalFinder\app\src\main\AndroidManifest.xml:19:25-66
+35
+36                <category android:name="android.intent.category.LAUNCHER" />
+36-->D:\ANTI\PandalFinder\app\src\main\AndroidManifest.xml:20:17-77
+36-->D:\ANTI\PandalFinder\app\src\main\AndroidManifest.xml:20:27-74
+37            </intent-filter>
+38        </activity>
+39        <activity
+39-->[com.google.android.gms:play-services-base:18.1.0] C:\Users\dibya\.gradle\caches\8.9\transforms\02c3295751bb096250959477b71d789d\transformed\play-services-base-18.1.0\AndroidManifest.xml:20:9-22:45
+40            android:name="com.google.android.gms.common.api.GoogleApiActivity"
+40-->[com.google.android.gms:play-services-base:18.1.0] C:\Users\dibya\.gradle\caches\8.9\transforms\02c3295751bb096250959477b71d789d\transformed\play-services-base-18.1.0\AndroidManifest.xml:20:19-85
+41            android:exported="false"
+41-->[com.google.android.gms:play-services-base:18.1.0] C:\Users\dibya\.gradle\caches\8.9\transforms\02c3295751bb096250959477b71d789d\transformed\play-services-base-18.1.0\AndroidManifest.xml:22:19-43
+42            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+42-->[com.google.android.gms:play-services-base:18.1.0] C:\Users\dibya\.gradle\caches\8.9\transforms\02c3295751bb096250959477b71d789d\transformed\play-services-base-18.1.0\AndroidManifest.xml:21:19-78
+43
+44        <meta-data
+44-->[com.google.android.gms:play-services-basement:18.1.0] C:\Users\dibya\.gradle\caches\8.9\transforms\d1319b90f97390f9fe7b10ea0c6b5670\transformed\play-services-basement-18.1.0\AndroidManifest.xml:21:9-23:69
+45            android:name="com.google.android.gms.version"
+45-->[com.google.android.gms:play-services-basement:18.1.0] C:\Users\dibya\.gradle\caches\8.9\transforms\d1319b90f97390f9fe7b10ea0c6b5670\transformed\play-services-basement-18.1.0\AndroidManifest.xml:22:13-58
+46            android:value="@integer/google_play_services_version" />
+46-->[com.google.android.gms:play-services-basement:18.1.0] C:\Users\dibya\.gradle\caches\8.9\transforms\d1319b90f97390f9fe7b10ea0c6b5670\transformed\play-services-basement-18.1.0\AndroidManifest.xml:23:13-66
+47
+48        <provider
+48-->[androidx.emoji2:emoji2:1.2.0] C:\Users\dibya\.gradle\caches\8.9\transforms\a4cd7364b228f6ff41e07b881aab80a3\transformed\emoji2-1.2.0\AndroidManifest.xml:24:9-32:20
+49            android:name="androidx.startup.InitializationProvider"
+49-->[androidx.emoji2:emoji2:1.2.0] C:\Users\dibya\.gradle\caches\8.9\transforms\a4cd7364b228f6ff41e07b881aab80a3\transformed\emoji2-1.2.0\AndroidManifest.xml:25:13-67
+50            android:authorities="com.pandalfinder.androidx-startup"
+50-->[androidx.emoji2:emoji2:1.2.0] C:\Users\dibya\.gradle\caches\8.9\transforms\a4cd7364b228f6ff41e07b881aab80a3\transformed\emoji2-1.2.0\AndroidManifest.xml:26:13-68
+51            android:exported="false" >
+51-->[androidx.emoji2:emoji2:1.2.0] C:\Users\dibya\.gradle\caches\8.9\transforms\a4cd7364b228f6ff41e07b881aab80a3\transformed\emoji2-1.2.0\AndroidManifest.xml:27:13-37
+52            <meta-data
+52-->[androidx.emoji2:emoji2:1.2.0] C:\Users\dibya\.gradle\caches\8.9\transforms\a4cd7364b228f6ff41e07b881aab80a3\transformed\emoji2-1.2.0\AndroidManifest.xml:29:13-31:52
+53                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+53-->[androidx.emoji2:emoji2:1.2.0] C:\Users\dibya\.gradle\caches\8.9\transforms\a4cd7364b228f6ff41e07b881aab80a3\transformed\emoji2-1.2.0\AndroidManifest.xml:30:17-75
+54                android:value="androidx.startup" />
+54-->[androidx.emoji2:emoji2:1.2.0] C:\Users\dibya\.gradle\caches\8.9\transforms\a4cd7364b228f6ff41e07b881aab80a3\transformed\emoji2-1.2.0\AndroidManifest.xml:31:17-49
+55            <meta-data
+55-->[androidx.lifecycle:lifecycle-process:2.4.1] C:\Users\dibya\.gradle\caches\8.9\transforms\41de72f8be775cb1018a5b5f7f63080c\transformed\lifecycle-process-2.4.1\AndroidManifest.xml:31:13-33:52
+56                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+56-->[androidx.lifecycle:lifecycle-process:2.4.1] C:\Users\dibya\.gradle\caches\8.9\transforms\41de72f8be775cb1018a5b5f7f63080c\transformed\lifecycle-process-2.4.1\AndroidManifest.xml:32:17-78
+57                android:value="androidx.startup" />
+57-->[androidx.lifecycle:lifecycle-process:2.4.1] C:\Users\dibya\.gradle\caches\8.9\transforms\41de72f8be775cb1018a5b5f7f63080c\transformed\lifecycle-process-2.4.1\AndroidManifest.xml:33:17-49
+58        </provider>
+59    </application>
+60
+61</manifest>
