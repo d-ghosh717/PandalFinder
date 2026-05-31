@@ -97,11 +97,6 @@ PandalFinder:\
 │               └── strings.xml         # Shared UI value attributes
 │
 ├── gradle\                             # Gradle wrapper config files
-├── ADB_TROUBLESHOOTING.md              # ADB device discovery guide
-├── BUILD_INSTRUCTIONS.md               # Detailed VS Code CLI compile guide
-├── COORDINATE_VERIFICATION.md          # Guide to calculate exact GPS entries
-├── GPS_DISTANCE_EXPLANATION.md         # Explanation of distance math
-├── SDK_SETUP.md                        # CLI SDK mapping manual
 ├── build.gradle                        # Root project build script
 ├── settings.gradle                     # Project modular setup
 ├── local.properties                    # SDK disk path mapping
