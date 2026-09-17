@@ -1,217 +1,771 @@
-# 📍 Pandal Finder
+# 🛕 PandalFinder
 
-### Real-Time GPS Festival Navigator
+### Your Real-Time Durga Puja Companion for Kolkata
 
-[![Kotlin](https://img.shields.io/badge/Kotlin-1.9.0-7f52ff?style=flat&logo=kotlin)](https://kotlinlang.org/)
-[![Gradle](https://img.shields.io/badge/Gradle-8.x-02303a?style=flat&logo=gradle)](https://gradle.org/)
-[![Android API](https://img.shields.io/badge/Android-API_24+-3ddc84?style=flat&logo=android)](https://developer.android.com/)
-[![Editor](https://img.shields.io/badge/Editor-VS_Code_Only-007acc?style=flat&logo=visual-studio-code)](https://code.visualstudio.com/)
-[![Location](https://img.shields.io/badge/Location-FusedLocation-blue?style=flat&logo=google)](https://developers.google.com/android/reference/com/google/android/gms/location/FusedLocationProviderClient)
-[![License](https://img.shields.io/badge/License-Demo-green.svg)](LICENSE)
+> **Discover pandals. Find metro stations. Locate nearby toilets. Build
+> your hopping route. Navigate with ease.**
 
----
+PandalFinder is a modern Android application designed for **Durga Puja
+pandal hopping across Kolkata and Howrah**.
 
-## 📖 Overview
+It combines live GPS, interactive maps, Google routing, Google Places,
+community-powered crowd/weather updates, metro discovery, and a
+multi-stop hopping planner into one lightweight festival navigation
+experience.
 
-**Pandal Finder** is a lightweight, high-accuracy Android application that automatically scans the user's location and filters nearby community festival pandals within a **3 km radius**. 
-By computing geodesic distances locally via standard Android location coordinate mathematics, the app requires zero backend database dependencies, making it extremely fast, private, and lightweight.
+------------------------------------------------------------------------
 
-### Purpose
+## ✨ What is PandalFinder?
 
-* **Bypass Heavy IDEs**: Demonstrate compile-to-install Android workflows using only VS Code command-line hooks.
-* **Instant GPS Auditing**: Track real-time device coordinate changes using Google Play Services' FusedLocation client.
-* **Geodesic Crossover Filtering**: Calculate direct distance separations (`Location.distanceTo`) locally and sort locations nearest-first.
-* **Single-Tap Navigation**: Transition directly to Google Maps navigation via geo intent routing for turn-by-turn routes.
+During Durga Puja, finding pandals is only part of the problem.
 
----
+You also need to know:
 
-## ✨ Features
+-   📍 Where is the pandal?
+-   🚶 How far is it?
+-   🛵 How far is it by bike?
+-   🚗 How far is it by car?
+-   🌦️ What's the current weather?
+-   👥 How crowded is it?
+-   🚇 What's the nearest metro station?
+-   🚻 Where is the nearest public toilet?
+-   🗺️ How do I get there?
+-   🛕 Which pandals should I visit next?
 
-### 🚀 Core Experience
+**PandalFinder brings all of this together in one map-first
+experience.**
 
-* **Air-Gapped Privacy**: Performs all distance calculations and sorting algorithms locally on the device with zero backend connections.
-* **Smart Fused Location**: Leverages Google Play Services' `FusedLocationProviderClient` for battery-efficient location tracking.
-* **One-Click Turn-by-Turn**: Decodes target coordinates and fires explicit geo intents (`google.navigation:q=lat,lng`) into native mapping applications.
-* **Clean Material UI**: Single-screen dashboard utilizing responsive RecyclerView structures to present distance cards.
-* **Direct CLI Deployments**: Compiled and loaded onto physical test hardware using native command line batch sequences.
+------------------------------------------------------------------------
 
----
+# 🚀 Features
 
-### 🎨 Interactive App Operations
+## 🗺️ Interactive Festival Map
 
-```mermaid
-graph TD
-    Click[Tap Find Nearby Pandals] --> PermCheck{Location Permission Granted?}
-    PermCheck -->|No| Prompt[Prompt Runtime Permissions ACCESS_FINE_LOCATION]
-    PermCheck -->|Yes| GPS[FusedLocationProviderClient Fetches Current GPS]
-    GPS --> Math[Iterate Local Pandal Coordinates list]
-    Math --> Filter[Calculate distanceTo and filter <= 3.0 KM]
-    Filter --> UI[Sort Nearest-First and Render Card List]
-    UI --> Tap[Tap Card -> Launch Google Maps turn-by-turn]
+Explore Kolkata and Howrah through an interactive map containing real
+pandal locations.
+
+Each place has its own marker type:
+
+-   🛕 Pandals
+-   🚇 Metro stations
+-   🚻 Public toilets
+
+The map remains the primary interface of the application.
+
+------------------------------------------------------------------------
+
+## 🔎 Universal Place Search
+
+One compact search bar lets users search across multiple place
+categories.
+
+Search for:
+
+``` text
+Pandal names
+Areas / localities
+Metro stations
+Public toilets
 ```
 
----
+Example:
 
-### 💻 Code Customization Engine
-
-#### Adding Custom Coordinates
-
-You can easily modify the list of target locations. Open `app/src/main/java/com/pandalfinder/Pandal.kt`:
-
-```kotlin
-fun getSamplePandals(): List<Pandal> {
-    return listOf(
-        Pandal("Your Custom Location Name", 22.5726, 88.3639),
-        // Add more coordinates here (Name, Latitude, Longitude)
-    )
-}
+``` text
+Khidderpore
+Rabindra Sarobar
+Howrah
+Maidan
 ```
 
-#### Changing Search Radius
+Search results identify the type of place before opening it.
 
-Open `app/src/main/java/com/pandalfinder/MainActivity.kt` and adjust the search threshold:
+------------------------------------------------------------------------
 
-```kotlin
-private const val MAX_DISTANCE_KM = 3.0f  // Change to your desired boundary
+# 🎛️ Independent Map Filters
+
+PandalFinder provides three independent map filters:
+
+``` text
+[PANDALS] [METRO] [TOILETS]
 ```
 
----
+They can be combined freely.
 
-## 📁 Project Directory Structure
+### Examples
 
-```text
-PandalFinder:\
-├── app\                                # Primary application workspace
-│   ├── build.gradle                    # Application build scripts & dependencies
-│   └── src\main\
-│       ├── AndroidManifest.xml         # App configuration & permissions
-│       ├── java\com\pandalfinder\      # Kotlin sources
-│       │   ├── MainActivity.kt         # Core location and UI thread coordinator
-│       │   ├── Pandal.kt               # Location data structure & hardcoded coordinates
-│       │   └── PandalAdapter.kt        # Card list RecyclerView formatter
-│       └── res\
-│           ├── layout\
-│           │   ├── activity_main.xml   # Dashboard design interface
-│           │   └── item_pandal.xml     # Single Pandal list item design
-│           └── values\
-│               └── strings.xml         # Shared UI value attributes
-│
-├── gradle\                             # Gradle wrapper config files
-├── build.gradle                        # Root project build script
-├── settings.gradle                     # Project modular setup
-├── local.properties                    # SDK disk path mapping
-├── gradlew                             # Linux shell wrapper script
-└── gradlew.bat                         # Windows batch wrapper script
+``` text
+[PANDALS ✓] [METRO] [TOILETS]
 ```
 
----
+Shows pandals only.
 
-## 🛠️ Technical Specifications
+``` text
+[PANDALS] [METRO ✓] [TOILETS]
+```
 
-### Core Architecture
+Shows metro stations only.
 
-* **Development Language**: Kotlin (modern OOP structure).
-* **Build Tooling**: Gradle Wrapper (run fully from terminal).
-* **Location API**: Google Play Services Location SDK (`ACCESS_FINE_LOCATION`).
-* **Android Target Boundaries**: Minimum SDK: `24` (Android 7.0) | Target SDK: `33` (Android 13).
-* **Navigation Trigger**: Explicit android geo intents (`google.navigation:q=...`).
+``` text
+[PANDALS] [METRO] [TOILETS ✓]
+```
 
----
+Shows public toilets only.
 
-## 📦 Installation & Setup
+``` text
+[PANDALS ✓] [METRO ✓] [TOILETS ✓]
+```
 
-### 🟢 First-Time Setup
-1. **Set Android SDK**: Set the local path of your Android SDK in `local.properties`:
-   ```properties
-   sdk.dir=C\:\\Users\\YourUsername\\AppData\\Local\\Android\\Sdk
-   ```
-2. **Setup Device**: Enable **USB Debugging** inside your Android device's "Developer Options".
-3. **Connect Device**: Plug your device in via USB and verify connection:
-   ```bash
-   adb devices
-   ```
+Shows all three simultaneously.
 
----
+------------------------------------------------------------------------
 
-### ▶ Run
-* **Compile Debug APK**: Build the debug bundle:
-  ```powershell
-  .\gradlew.bat assembleDebug
-  ```
-* **Install to Device**: Install the freshly built APK onto your connected physical device:
-  ```powershell
-  adb install app\build\outputs\apk\debug\app-debug.apk
-  ```
+# 🛕 Pandal Discovery
 
-Launch App → Open **Pandal Finder** → Tap **Find Nearby Pandals**!
+Tap any pandal marker to open its detailed information.
 
----
+The pandal detail view provides:
 
-## 🛠 Troubleshooting
+-   Pandal name
+-   Area / location
+-   Road distance
+-   Walking distance
+-   Two-wheeler distance
+-   Driving distance
+-   Current weather
+-   Community crowd level
+-   Nearest metro station
+-   Add to Hopping
+-   Google Maps navigation
 
-* **Location not detected**: Ensure GPS is turned ON and location permission is granted in App Settings.
-* **Device not found**: Unplug/replug your phone, verify USB Debugging is ON, and check `adb devices`.
-* **Build failed**: Verify `sdk.dir` path inside `local.properties` or run clean: `.\gradlew.bat clean`.
-* **Maps not opening**: Make sure Google Maps is installed and set as the default navigation client.
+------------------------------------------------------------------------
 
----
+# 🚗 Google Routes Integration
 
-## 🔧 Manual Commands
+PandalFinder uses Google's routing services for road-based distance
+calculations.
 
-* **Clean Build**:
-  ```powershell
-  .\gradlew.bat clean
-  ```
-* **Build Debug APK**:
-  ```powershell
-  .\gradlew.bat assembleDebug
-  ```
-* **Install via ADB**:
-  ```powershell
-  adb install app\build\outputs\apk\debug\app-debug.apk
-  ```
-* **Launch App via ADB**:
-  ```powershell
-  adb shell am start -n com.pandalfinder/.MainActivity
-  ```
+``` text
+Current GPS
+     │
+     ▼
+Google Routes API
+     │
+     ├── 🚶 Walking
+     ├── 🛵 Two-wheeler
+     └── 🚗 Driving
+```
 
----
+The application does **not** use straight-line distance for road-route
+information.
 
-## 🎯 Development Roadmap
+Example:
+
+``` text
+🚶 7.8 km
+🛵 5.7 km
+🚗 5.8 km
+```
+
+------------------------------------------------------------------------
+
+# 🚇 Metro Discovery
+
+Metro stations can be displayed independently or alongside pandals.
+
+Tap a metro station to view:
+
+-   Station name
+-   Distance from current location
+-   Add/remove from Hopping
+-   Navigation
+
+Example:
+
+``` text
+🚇 Rabindra Sarobar
+
+1.8 km from you
+
+[ + ]    [ Navigation ]
+```
+
+------------------------------------------------------------------------
+
+# 🚻 Public Toilet Discovery
+
+PandalFinder can discover nearby public toilets using **Google Places
+API**.
+
+Toilets have their own marker style and can be displayed independently
+or alongside pandals and metro stations.
+
+Tap a toilet to see:
+
+-   Restroom name
+-   Address
+-   Current distance
+-   Add/remove from Hopping
+-   Google Maps navigation
+
+Example:
+
+``` text
+🚻 Public Toilet
+
+Maidan, Kolkata
+
+850 m from you
+
+[ + ]    [ Navigation ]
+```
+
+------------------------------------------------------------------------
+
+# 🛣️ Hopping --- Build Your Own Route
+
+The **Hopping** section lets users create a personalized multi-stop
+festival itinerary.
+
+A route can contain:
+
+``` text
+1. 🛕 Khidderpore 75 Pally
+2. 🚇 Rabindra Sarobar
+3. 🚻 Pay & Use Restroom
+4. 🛕 Another Pandal
+```
+
+Users can:
+
+-   Add places
+-   Remove places
+-   Reorder stops
+-   Prevent duplicate stops
+-   Calculate route information
+-   Start the route through Google Maps
+
+The itinerary is persisted across app restarts.
+
+------------------------------------------------------------------------
+
+## 🧭 Mixed-Stop Routing
+
+PandalFinder isn't limited to pandal-only routes.
+
+``` text
+Current Location
+       │
+       ▼
+🛕 Pandal
+       │
+       ▼
+🚇 Metro Station
+       │
+       ▼
+🛕 Pandal
+       │
+       ▼
+🚻 Restroom
+       │
+       ▼
+🛕 Final Pandal
+```
+
+Every stop retains its:
+
+-   Name
+-   Type
+-   Coordinates
+-   Address/details
+
+------------------------------------------------------------------------
+
+# 🌦️ Community Weather
+
+Users near a pandal can report the current rain condition:
+
+``` text
+☀️ No rain
+🌦️ Drizzle
+🌧️ Raining
+⛈️ Heavy rain
+```
+
+Reports are stored in Firebase and expire after a limited period so
+outdated conditions don't remain indefinitely.
+
+Only users who are physically near a pandal or have recently visited it
+can submit local updates.
+
+> **Keep contributing to keep PandalFinder updated.**
+
+------------------------------------------------------------------------
+
+# 👥 Community Crowd Reports
+
+Visitors can report crowd intensity using:
+
+``` text
+1 ───────────── 10
+```
+
+    Level Meaning
+  ------- ----------------
+     1--2 Empty
+     3--4 Light
+     5--6 Moderate
+     7--8 Very busy
+        9 Extremely busy
+       10 Packed
+
+The scale represents **crowd intensity**, not an exact number of people.
+
+Only nearby/recent visitors can contribute.
+
+------------------------------------------------------------------------
+
+# 📍 Live Location
+
+PandalFinder uses the device's current GPS position for:
+
+-   Nearby discovery
+-   Distance calculations
+-   Route origins
+-   Metro distance
+-   Toilet distance
+-   Contribution eligibility
+-   Navigation
+
+------------------------------------------------------------------------
+
+# 🗺️ Navigation
+
+Every supported destination can be handed off directly to Google Maps.
+
+``` text
+Pandal / Metro / Toilet
+          │
+          ▼
+     Navigation
+          │
+          ▼
+      Google Maps
+          │
+          ▼
+ Turn-by-turn directions
+```
+
+------------------------------------------------------------------------
+
+# 🎨 Design
+
+PandalFinder uses a visual identity inspired by **Durga Puja and
+Kolkata**.
+
+### Core palette
+
+  Color             Hex
+  ----------------- -----------
+  Sindoor Red       `#E52B00`
+  Cream             `#FFF5E3`
+  Orange            `#F97E04`
+  Gold              `#FBC222`
+  Festival Yellow   `#FBEF00`
+  Green             `#45A701`
+
+The interface focuses on:
+
+-   Warm festival colors
+-   Modern Android design
+-   Readable typography
+-   Floating map controls
+-   Rounded surfaces
+-   Strong visual hierarchy
+-   Minimal navigation
+-   Outdoor usability
+
+------------------------------------------------------------------------
+
+# 🧭 App Structure
+
+``` text
+                    PANDALFINDER
+                         │
+                         ▼
+                 ┌───────────────┐
+                 │      MAP      │
+                 └───────┬───────┘
+                         │
+       ┌─────────────────┼─────────────────┐
+       ▼                 ▼                 ▼
+   🛕 PANDALS        🚇 METRO          🚻 TOILETS
+       │                 │                 │
+       └─────────────────┼─────────────────┘
+                         ▼
+                    PLACE CARD
+                         │
+              ┌──────────┴──────────┐
+              ▼                     ▼
+        + HOPPING              NAVIGATION
+              │                     │
+              ▼                     ▼
+        HOPPING PLAN           GOOGLE MAPS
+              │
+              ▼
+        MULTI-STOP ROUTE
+```
+
+------------------------------------------------------------------------
+
+# 🧰 Tech Stack
+
+### Android
+
+-   **Kotlin**
+-   **Android SDK**
+-   **Gradle**
+-   **Google Play Services Location**
+-   **Firebase**
+-   **Firestore**
+
+### Maps & Location
+
+-   Interactive map rendering
+-   Device GPS
+-   Google Routes API
+-   Google Places API
+-   Google Maps navigation
+
+------------------------------------------------------------------------
+
+# 🔥 Firebase
+
+Firebase / Firestore is used for community-generated information such
+as:
+
+``` text
+Crowd Reports
+Weather Reports
+```
+
+The app does not require traditional user accounts for its core
+experience.
+
+------------------------------------------------------------------------
+
+# ⚙️ Setup
+
+## Requirements
+
+-   Android SDK
+-   JDK
+-   Gradle wrapper
+-   Android device or emulator
+-   USB debugging for physical-device testing
+-   Google Cloud project
+-   Firebase project
+
+------------------------------------------------------------------------
+
+## 🔑 Google Maps Platform
+
+The application uses:
+
+``` text
+Maps
+Routes API
+Places API
+```
+
+Required APIs must be enabled in the Google Cloud project.
+
+**Never commit API keys to GitHub.**
+
+Use local configuration such as:
+
+``` text
+local.properties
+```
+
+or the project's secure build configuration.
+
+------------------------------------------------------------------------
+
+# 📱 Running the App
+
+### 1. Configure Android SDK
+
+Set the SDK location in:
+
+``` text
+local.properties
+```
+
+Example:
+
+``` properties
+sdk.dir=C:\\Users\\YourUsername\\AppData\\Local\\Android\\Sdk
+```
+
+### 2. Enable USB Debugging
+
+Enable:
+
+``` text
+Settings
+→ Developer Options
+→ USB Debugging
+```
+
+Then connect the device and verify:
+
+``` bash
+adb devices
+```
+
+### 3. Build
+
+Windows:
+
+``` powershell
+.\gradlew.bat assembleDebug
+```
+
+macOS / Linux:
+
+``` bash
+./gradlew assembleDebug
+```
+
+### 4. Install
+
+``` bash
+adb install -r app/build/outputs/apk/debug/app-debug.apk
+```
+
+------------------------------------------------------------------------
+
+# 🧪 Development Workflow
+
+``` text
+VS Code
+    ↓
+Gradle CLI
+    ↓
+Debug APK
+    ↓
+ADB / USB Debugging
+    ↓
+Physical Android Device
+```
+
+------------------------------------------------------------------------
+
+# 🛠️ Useful Commands
+
+### Clean
+
+``` powershell
+.\gradlew.bat clean
+```
+
+### Build Debug APK
+
+``` powershell
+.\gradlew.bat assembleDebug
+```
+
+### Install
+
+``` powershell
+adb install -r app\build\outputs\apk\debug\app-debug.apk
+```
+
+### Check Connected Devices
+
+``` powershell
+adb devices
+```
+
+### Launch
+
+``` powershell
+adb shell am start -n com.pandalfinder/.MainActivity
+```
+
+### View Logs
+
+``` powershell
+adb logcat
+```
+
+------------------------------------------------------------------------
+
+# 🧩 Troubleshooting
+
+### Location isn't updating
+
+Check:
+
+-   GPS is enabled
+-   Location permission is granted
+-   Google Play Services is available
+-   Device location settings are enabled
+
+### Google Maps doesn't open
+
+Make sure Google Maps or another supported mapping application is
+installed.
+
+### Routes are unavailable
+
+Check:
+
+-   Routes API is enabled
+-   API key is valid
+-   API key restrictions allow the required service
+-   Billing is configured
+-   Device has internet access
+
+### Toilets aren't appearing
+
+Check:
+
+-   Places API (New) is enabled
+-   API key allows Places requests
+-   Required Places endpoint is available
+-   Device has internet access
+
+### Firebase updates aren't working
+
+Check:
+
+-   Firebase configuration is present
+-   Firestore is enabled
+-   Firestore rules permit the intended operation
+-   Device has internet access
+-   Logcat for Firebase exceptions
+
+------------------------------------------------------------------------
+
+# 🗺️ Data Philosophy
+
+PandalFinder is designed around **real location data instead of
+fabricated values**.
+
+The application avoids:
+
+-   Fake route distances
+-   Fake toilet locations
+-   Fake crowd values
+-   Hardcoded current GPS positions
+-   Map-center coordinates used as destinations
+-   Artificial navigation routes
+
+When a service cannot provide reliable information, the application
+should report that state instead of pretending that a value is accurate.
+
+------------------------------------------------------------------------
+
+# 🛡️ Privacy
+
+PandalFinder is designed to work without traditional account creation.
+
+Location is primarily used for:
+
+``` text
+Nearby discovery
+Routing
+Navigation
+Contribution eligibility
+Distance calculations
+```
+
+Community contributions use only the information necessary to associate
+a report with a place and validate/display community updates.
+
+------------------------------------------------------------------------
+
+# 🗺️ Roadmap
 
 ### ✅ Completed
-* Built permission validation sequences handling ACCESS_FINE_LOCATION at runtime.
-* Completed local geodesic distance evaluation sorting nearest pandals first.
-* Bypassed IDE compile requirements utilizing terminal Gradle wrapper binaries.
-* Integrated turn-by-turn navigation routing geo intents directly to Google Maps.
 
-### 🚧 In Progress
-* Integrating customizable search limits directly inside the main UI layout.
-* Porting offline JSON loaders to let users drop customized lists without editing code.
+-   [x] Live GPS location
+-   [x] Interactive pandal map
+-   [x] Pandal discovery
+-   [x] Pandal search
+-   [x] Metro discovery
+-   [x] Universal place search
+-   [x] Independent pandal/metro/toilet filters
+-   [x] Google Routes integration
+-   [x] Walking route distance
+-   [x] Two-wheeler route distance
+-   [x] Driving route distance
+-   [x] Google Maps navigation
+-   [x] Automatic weather
+-   [x] Community weather reports
+-   [x] Community crowd reports
+-   [x] Nearby/recent visitor contribution validation
+-   [x] Firebase Firestore integration
+-   [x] Google Places toilet discovery
+-   [x] Toilet detail cards
+-   [x] Metro detail cards
+-   [x] Hopping itinerary
+-   [x] Mixed pandal/metro/toilet routes
+-   [x] Stop reordering
+-   [x] Duplicate-stop prevention
+-   [x] Persistent hopping plan
+-   [x] Durga Puja visual identity
 
-### 📅 Planned
-* Implementing map overlays with simple markers using offline OpenStreetMap cards.
-* Adding a bookmark database to let users save favorite destinations.
+### 🚧 Future Ideas
 
----
+-   [ ] Better route optimization
+-   [ ] Festival/event timing information
+-   [ ] More detailed accessibility information
+-   [ ] Pandal photography
+-   [ ] Offline map support
+-   [ ] More community-generated festival information
 
-## 🤝 Contributing & Support
+------------------------------------------------------------------------
 
-Contributions are welcome! Please follow these steps to add new maps or coordinates:
+# 🤝 Contributing
 
-1. Create a feature branch: `git checkout -b feature/new-coordinates`
-2. Test on a physical device.
-3. Commit your coordinates changes.
-4. Push and open a pull request.
+Contributions are welcome.
 
----
+``` bash
+git checkout -b feature/your-feature
+```
 
-## 📜 Licenses & Credits
+Make your changes, test them on a physical Android device, then:
 
-### Open Source Runtimes
-* **Kotlin Runtime**: Distributed under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0).
-* **FusedLocationProviderClient**: Provided by Google Play Services under standard SDK terms.
+``` bash
+git add .
+git commit -m "Add your feature"
+git push origin feature/your-feature
+```
 
-### Credits
-* Built using lightweight Kotlin packaging templates.
-* Configured to build purely on VS Code and command line environments.
+Then open a pull request.
+
+------------------------------------------------------------------------
+
+# 📜 Credits
+
+Built with:
+
+-   Kotlin
+-   Android
+-   Google Play Services
+-   Google Maps Platform
+-   Google Routes API
+-   Google Places API
+-   Firebase
+-   Firestore
+-   OpenStreetMap / map data where applicable
+
+------------------------------------------------------------------------
+
+# 🛕 PandalFinder
+
+### Discover Kolkata. Build your route. Experience Durga Puja.
+
+**Made for pandal hoppers.**
