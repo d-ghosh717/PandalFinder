@@ -8,16 +8,18 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.pandalfinder.MainActivity
-import com.pandalfinder.Pandal
 import com.pandalfinder.R
+import com.pandalfinder.data.HoppingStop
+import com.pandalfinder.data.StopType
 
 class HoppingAdapter(
-    private var items: MutableList<Pandal>,
+    private var items: MutableList<HoppingStop>,
     private var legDistances: List<Int> = emptyList(),
-    private val onRemove: (Pandal) -> Unit,
-    private val onPandalClick: (Pandal) -> Unit,
+    private val onRemove: (HoppingStop) -> Unit,
+    private val onStopClick: (HoppingStop) -> Unit,
     private val onStartDrag: (RecyclerView.ViewHolder) -> Unit,
     private val onItemMoved: (Int, Int) -> Unit
 ) : RecyclerView.Adapter<HoppingAdapter.ViewHolder>() {
@@ -25,6 +27,7 @@ class HoppingAdapter(
     class ViewHolder(v: View) : RecyclerView.ViewHolder(v) {
         val stopIndex: TextView = v.findViewById(R.id.stopIndex)
         val stopName: TextView = v.findViewById(R.id.stopName)
+        val stopTypeIcon: ImageView = v.findViewById(R.id.stopTypeIcon)
         val stopArea: TextView = v.findViewById(R.id.stopArea)
         val legDistanceContainer: View = v.findViewById(R.id.legDistanceContainer)
         val legDistance: TextView = v.findViewById(R.id.legDistance)
@@ -42,7 +45,23 @@ class HoppingAdapter(
         val item = items[position]
         holder.stopIndex.text = (position + 1).toString()
         holder.stopName.text = item.name
-        holder.stopArea.text = item.area
+        holder.stopArea.text = item.subtitle
+
+        when (item.type) {
+            StopType.PANDAL -> {
+                holder.stopTypeIcon.setImageResource(R.drawable.ic_temple)
+                holder.stopTypeIcon.setColorFilter(ContextCompat.getColor(holder.itemView.context, R.color.primary))
+            }
+            StopType.METRO -> {
+                holder.stopTypeIcon.setImageResource(R.drawable.ic_metro)
+                val color = item.metroRef?.lineColor ?: ContextCompat.getColor(holder.itemView.context, R.color.metro_icon)
+                holder.stopTypeIcon.setColorFilter(color)
+            }
+            StopType.TOILET -> {
+                holder.stopTypeIcon.setImageResource(R.drawable.ic_toilet)
+                holder.stopTypeIcon.setColorFilter(ContextCompat.getColor(holder.itemView.context, R.color.toilet_icon))
+            }
+        }
 
         // Display leg distance if calculated
         if (position in legDistances.indices && legDistances[position] > 0) {
@@ -58,7 +77,7 @@ class HoppingAdapter(
         }
 
         holder.itemView.setOnClickListener {
-            onPandalClick(item)
+            onStopClick(item)
         }
 
         holder.dragHandle.setOnTouchListener { _, event ->
@@ -71,7 +90,7 @@ class HoppingAdapter(
 
     override fun getItemCount(): Int = items.size
 
-    fun updateData(newItems: List<Pandal>, newLegDistances: List<Int>) {
+    fun updateData(newItems: List<HoppingStop>, newLegDistances: List<Int>) {
         items = newItems.toMutableList()
         legDistances = newLegDistances
         notifyDataSetChanged()
@@ -92,3 +111,4 @@ class HoppingAdapter(
         onItemMoved(fromPosition, toPosition)
     }
 }
+

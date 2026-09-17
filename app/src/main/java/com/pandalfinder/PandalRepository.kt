@@ -6,33 +6,25 @@ import android.util.Log
 import com.pandalfinder.data.MetroStation
 import java.util.Locale
 
-sealed class SearchResult {
-    abstract val title: String
-    abstract val subtitle: String
-    abstract val distanceMeters: Float
-    abstract val latitude: Double
-    abstract val longitude: Double
-
-    data class PandalResult(
-        val pandal: Pandal,
-        override val distanceMeters: Float = pandal.distanceMeters
-    ) : SearchResult() {
-        override val title: String get() = pandal.name
-        override val subtitle: String get() = pandal.area
-        override val latitude: Double get() = pandal.latitude
-        override val longitude: Double get() = pandal.longitude
-    }
-
-    data class MetroStationResult(
-        val station: MetroStation,
-        override val distanceMeters: Float = 0f
-    ) : SearchResult() {
-        override val title: String get() = "${station.name} Metro"
-        override val subtitle: String get() = "${station.line} • Station"
-        override val latitude: Double get() = station.latitude
-        override val longitude: Double get() = station.longitude
-    }
+enum class PlaceType {
+    PANDAL,
+    METRO,
+    TOILET
 }
+
+data class SearchResult(
+    val id: String,
+    val name: String,
+    val type: PlaceType,
+    val latitude: Double,
+    val longitude: Double,
+    val subtitle: String,
+    val distanceMeters: Float = 0f,
+    val pandal: Pandal? = null,
+    val metroStation: MetroStation? = null,
+    val toilet: com.pandalfinder.data.PublicToilet? = null
+)
+
 
 /** Single source of local pandal data. Keeping the UI behind this class makes a JSON
  * catalogue or a seasonal download a drop-in replacement later. */
@@ -80,7 +72,11 @@ class PandalRepository(@Suppress("UNUSED_PARAMETER") context: Context) {
         return if (location == null) matches.sortedBy { it.name } else matches.sortedBy { it.distanceMeters }
     }
 
-    fun searchAll(query: String, location: Location?): List<SearchResult> {
+    fun searchAll(
+        query: String,
+        location: Location?,
+        toilets: List<com.pandalfinder.data.PublicToilet> = emptyList()
+    ): List<SearchResult> {
         val normalized = query.trim()
         if (normalized.isBlank()) return emptyList()
 
@@ -88,7 +84,16 @@ class PandalRepository(@Suppress("UNUSED_PARAMETER") context: Context) {
             .filter { it.name.contains(normalized, true) || it.area.contains(normalized, true) }
             .map { pandal ->
                 val p = if (location != null) pandal.withDistanceFrom(location) else pandal
-                SearchResult.PandalResult(p, p.distanceMeters)
+                SearchResult(
+                    id = "pandal:${p.id}",
+                    name = p.name,
+                    type = PlaceType.PANDAL,
+                    latitude = p.latitude,
+                    longitude = p.longitude,
+                    subtitle = "Pandal • ${p.area}",
+                    distanceMeters = p.distanceMeters,
+                    pandal = p
+                )
             }
 
         val metroResults = metroStations
@@ -101,14 +106,45 @@ class PandalRepository(@Suppress("UNUSED_PARAMETER") context: Context) {
                     }
                     location.distanceTo(sLoc)
                 } else 0f
-                SearchResult.MetroStationResult(station, dist)
+                SearchResult(
+                    id = "metro:${station.name.lowercase().replace(" ", "_")}",
+                    name = station.name,
+                    type = PlaceType.METRO,
+                    latitude = station.latitude,
+                    longitude = station.longitude,
+                    subtitle = "Metro • ${station.line}",
+                    distanceMeters = dist,
+                    metroStation = station
+                )
             }
 
-        val combined = (pandalResults + metroResults)
+        val toiletResults = toilets
+            .filter { it.name.contains(normalized, true) || it.address.contains(normalized, true) || normalized.contains("toilet", true) || normalized.contains("restroom", true) || normalized.contains("washroom", true) }
+            .map { toilet ->
+                val dist = if (location != null) {
+                    val tLoc = Location("").apply {
+                        latitude = toilet.latitude
+                        longitude = toilet.longitude
+                    }
+                    location.distanceTo(tLoc)
+                } else 0f
+                SearchResult(
+                    id = "toilet:${toilet.id}",
+                    name = toilet.name,
+                    type = PlaceType.TOILET,
+                    latitude = toilet.latitude,
+                    longitude = toilet.longitude,
+                    subtitle = "Toilet • ${toilet.address}",
+                    distanceMeters = dist,
+                    toilet = toilet
+                )
+            }
+
+        val combined = (pandalResults + metroResults + toiletResults)
         return if (location != null) {
             combined.sortedBy { it.distanceMeters }
         } else {
-            combined.sortedBy { it.title }
+            combined.sortedBy { it.name }
         }
     }
 

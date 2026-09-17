@@ -1,12 +1,15 @@
 package com.pandalfinder
 
 import android.Manifest
+import android.content.Context
 import android.content.pm.PackageManager
+import android.content.res.ColorStateList
 import android.graphics.*
 import android.location.Location
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -33,13 +36,12 @@ import org.maplibre.android.maps.MapView
 
 class MainActivity : AppCompatActivity() {
 
-    enum class MapFilter { PANDALS, METRO, TOILETS }
-
     // ── Map Views ──
     private lateinit var mapContainer: View
     private lateinit var mapView: MapView
     private lateinit var searchInput: TextInputEditText
     private lateinit var results: RecyclerView
+    private lateinit var searchEmptyView: TextView
     private lateinit var statusCard: View
     private lateinit var dismissStatusCard: View
     private lateinit var statusTitle: TextView
@@ -48,6 +50,28 @@ class MainActivity : AppCompatActivity() {
     private lateinit var pandalsFilterButton: MaterialButton
     private lateinit var metroFilterButton: MaterialButton
     private lateinit var toiletsFilterButton: MaterialButton
+
+    // ── Compact Floating Metro Card Views ──
+    private lateinit var metroCard: MaterialCardView
+    private lateinit var metroCardIconContainer: FrameLayout
+    private lateinit var metroCardIcon: ImageView
+    private lateinit var metroCardName: TextView
+    private lateinit var metroCardDistance: TextView
+    private lateinit var dismissMetroCard: ImageButton
+    private lateinit var metroAddToHoppingCard: MaterialCardView
+    private lateinit var metroHoppingActionIcon: ImageView
+    private lateinit var metroNavigateButton: MaterialButton
+
+    // ── Compact Floating Toilet Card Views ──
+    private lateinit var toiletCard: MaterialCardView
+    private lateinit var toiletCardIconContainer: FrameLayout
+    private lateinit var toiletCardIcon: ImageView
+    private lateinit var toiletCardName: TextView
+    private lateinit var toiletCardDistance: TextView
+    private lateinit var dismissToiletCard: ImageButton
+    private lateinit var toiletAddToHoppingCard: MaterialCardView
+    private lateinit var toiletHoppingActionIcon: ImageView
+    private lateinit var toiletNavigateButton: MaterialButton
 
     // ── Hopping Views ──
     private lateinit var hoppingContainer: View
@@ -76,6 +100,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var weatherReports: WeatherReportRepository
     private lateinit var crowd: CrowdRepository
     private lateinit var metro: MetroRepository
+    private lateinit var places: GooglePlacesRepository
     private lateinit var routes: GoogleRoutesRepository
     private lateinit var hopping: HoppingRepository
     private lateinit var eligibility: ContributionEligibility
@@ -85,11 +110,17 @@ class MainActivity : AppCompatActivity() {
     private var location: Location? = null
     private var shownPandals = emptyList<Pandal>()
     private var shownStations = emptyList<MetroStation>()
-    private var currentFilter = MapFilter.PANDALS
+    private var shownToilets = emptyList<PublicToilet>()
+    private var filterShowPandals = true
+    private var filterShowMetro = false
+    private var filterShowToilets = false
     private var locationCallback: com.google.android.gms.location.LocationCallback? = null
     private var currentDetailPandal: Pandal? = null
     private var currentDetailSheetView: View? = null
+    private var currentSelectedMetro: MetroStation? = null
+    private var currentSelectedToilet: PublicToilet? = null
     private val metroMarkerCache = mutableMapOf<Int, Bitmap>()
+    private var toiletMarkerIcon: Bitmap? = null
 
     // ────────────────────────────────────────────────────────
     //  Lifecycle
@@ -126,6 +157,7 @@ class MainActivity : AppCompatActivity() {
         weatherReports = WeatherReportRepository()
         crowd = CrowdRepository()
         metro = MetroRepository()
+        places = GooglePlacesRepository()
         routes = GoogleRoutesRepository()
         hopping = HoppingRepository(this, pandals)
         eligibility = ContributionEligibility(this)
@@ -141,6 +173,7 @@ class MainActivity : AppCompatActivity() {
         mapView = findViewById(R.id.mapView)
         searchInput = findViewById(R.id.searchInput)
         results = findViewById(R.id.searchResults)
+        searchEmptyView = findViewById(R.id.searchEmptyView)
         statusCard = findViewById(R.id.statusCard)
         dismissStatusCard = findViewById(R.id.dismissStatusCard)
         statusTitle = findViewById(R.id.statusTitle)
@@ -154,6 +187,38 @@ class MainActivity : AppCompatActivity() {
         pandalsFilterButton = findViewById(R.id.pandalsFilter)
         metroFilterButton = findViewById(R.id.nearbyFilter)
         toiletsFilterButton = findViewById(R.id.toiletsFilter)
+
+        // Metro Card Views
+        metroCard = findViewById(R.id.metroCard)
+        metroCardIconContainer = findViewById(R.id.metroCardIconContainer)
+        metroCardIcon = findViewById(R.id.metroCardIcon)
+        metroCardName = findViewById(R.id.metroCardName)
+        metroCardDistance = findViewById(R.id.metroCardDistance)
+        dismissMetroCard = findViewById(R.id.dismissMetroCard)
+        metroAddToHoppingCard = findViewById(R.id.metroAddToHoppingCard)
+        metroHoppingActionIcon = findViewById(R.id.metroHoppingActionIcon)
+        metroNavigateButton = findViewById(R.id.metroNavigateButton)
+
+        dismissMetroCard.setOnClickListener {
+            metroCard.visibility = View.GONE
+            currentSelectedMetro = null
+        }
+
+        // Toilet Card Views
+        toiletCard = findViewById(R.id.toiletCard)
+        toiletCardIconContainer = findViewById(R.id.toiletCardIconContainer)
+        toiletCardIcon = findViewById(R.id.toiletCardIcon)
+        toiletCardName = findViewById(R.id.toiletCardName)
+        toiletCardDistance = findViewById(R.id.toiletCardDistance)
+        dismissToiletCard = findViewById(R.id.dismissToiletCard)
+        toiletAddToHoppingCard = findViewById(R.id.toiletAddToHoppingCard)
+        toiletHoppingActionIcon = findViewById(R.id.toiletHoppingActionIcon)
+        toiletNavigateButton = findViewById(R.id.toiletNavigateButton)
+
+        dismissToiletCard.setOnClickListener {
+            toiletCard.visibility = View.GONE
+            currentSelectedToilet = null
+        }
 
         hoppingContainer = findViewById(R.id.hoppingContainer)
         hoppingEmptyView = findViewById(R.id.hoppingEmptyView)
@@ -181,46 +246,98 @@ class MainActivity : AppCompatActivity() {
         mapView.getMapAsync { readyMap ->
             map = readyMap
             readyMap.setOnMarkerClickListener { marker ->
+                val pos = marker.position
                 val clickedPandal = shownPandals.firstOrNull {
-                    it.longitude == marker.position.longitude && it.latitude == marker.position.latitude
+                    it.latitude == pos.latitude && it.longitude == pos.longitude
                 }
                 if (clickedPandal != null) {
+                    metroCard.visibility = View.GONE
+                    toiletCard.visibility = View.GONE
+                    currentSelectedMetro = null
+                    currentSelectedToilet = null
                     showDetail(clickedPandal)
                     return@setOnMarkerClickListener true
                 }
 
                 val clickedStation = shownStations.firstOrNull {
-                    it.longitude == marker.position.longitude && it.latitude == marker.position.latitude
+                    it.latitude == pos.latitude && it.longitude == pos.longitude
                 }
                 if (clickedStation != null) {
-                    Toast.makeText(this, "🚇 ${clickedStation.name} (${clickedStation.line})", Toast.LENGTH_SHORT).show()
+                    toiletCard.visibility = View.GONE
+                    currentSelectedToilet = null
+                    showMetroCard(clickedStation)
+                    return@setOnMarkerClickListener true
+                }
+
+                val clickedToilet = shownToilets.firstOrNull {
+                    it.latitude == pos.latitude && it.longitude == pos.longitude
+                }
+                if (clickedToilet != null) {
+                    metroCard.visibility = View.GONE
+                    currentSelectedMetro = null
+                    showToiletCard(clickedToilet)
                     return@setOnMarkerClickListener true
                 }
                 false
             }
             readyMap.setStyle("https://tiles.openfreemap.org/styles/liberty") {
-                applyCurrentFilter()
+                applyCurrentFilters()
             }
         }
 
         searchInput.doAfterTextChanged { text ->
-            val query = text?.toString().orEmpty()
+            val query = text?.toString()?.trim().orEmpty()
             if (query.isBlank()) {
                 results.visibility = View.GONE
+                searchEmptyView.visibility = View.GONE
             } else {
-                val matching = pandals.searchAll(query, location).take(8)
-                results.visibility = if (matching.isEmpty()) View.GONE else View.VISIBLE
-                results.adapter = SearchResultAdapter(matching) { result ->
-                    searchInput.setText("")
+                val matching = pandals.searchAll(query, location, places.cachedToilets).take(10)
+                if (matching.isEmpty()) {
                     results.visibility = View.GONE
-                    when (result) {
-                        is SearchResult.PandalResult -> {
-                            focusPandal(result.pandal)
-                            showDetail(result.pandal)
+                    searchEmptyView.visibility = View.VISIBLE
+                } else {
+                    searchEmptyView.visibility = View.GONE
+                    results.visibility = View.VISIBLE
+                    results.adapter = SearchResultAdapter(matching) { result ->
+                        // Hide soft keyboard
+                        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+                        imm?.hideSoftInputFromWindow(searchInput.windowToken, 0)
+
+                        searchInput.setText("")
+                        searchInput.clearFocus()
+                        results.visibility = View.GONE
+                        searchEmptyView.visibility = View.GONE
+
+                        if (!isValidCoordinate(result.latitude, result.longitude)) {
+                            Log.w(TAG, "Search result has invalid coordinates: ${result.name} (${result.latitude}, ${result.longitude})")
+                            Toast.makeText(this, "Coordinates unavailable for ${result.name}", Toast.LENGTH_SHORT).show()
+                            return@SearchResultAdapter
                         }
-                        is SearchResult.MetroStationResult -> {
-                            focusMetro(result.station)
-                            Toast.makeText(this, "🚇 ${result.station.name} (${result.station.line})", Toast.LENGTH_SHORT).show()
+
+                        when (result.type) {
+                            PlaceType.PANDAL -> {
+                                val p = result.pandal ?: pandals.all().firstOrNull { it.id == result.id.removePrefix("pandal:") }
+                                if (p != null) {
+                                    focusPandal(p)
+                                    showDetail(p)
+                                }
+                            }
+                            PlaceType.METRO -> {
+                                val s = result.metroStation ?: MetroStation.allStations().firstOrNull {
+                                    it.name.equals(result.name, ignoreCase = true)
+                                }
+                                if (s != null) {
+                                    focusMetro(s)
+                                    showMetroCard(s)
+                                }
+                            }
+                            PlaceType.TOILET -> {
+                                val t = result.toilet ?: shownToilets.firstOrNull { it.id == result.id.removePrefix("toilet:") }
+                                if (t != null) {
+                                    focusToilet(t)
+                                    showToiletCard(t)
+                                }
+                            }
                         }
                     }
                 }
@@ -230,20 +347,25 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupFilterPills() {
         pandalsFilterButton.setOnClickListener {
-            setFilter(MapFilter.PANDALS)
+            filterShowPandals = !filterShowPandals
+            updateFilterPillStyles()
+            applyCurrentFilters()
         }
         metroFilterButton.setOnClickListener {
-            setFilter(MapFilter.METRO)
+            filterShowMetro = !filterShowMetro
+            updateFilterPillStyles()
+            applyCurrentFilters()
         }
         toiletsFilterButton.setOnClickListener {
-            Toast.makeText(this, "Public toilet discovery requires Places API", Toast.LENGTH_SHORT).show()
+            filterShowToilets = !filterShowToilets
+            updateFilterPillStyles()
+            if (filterShowToilets) {
+                fetchAndDisplayToilets()
+            } else {
+                applyCurrentFilters()
+            }
         }
-    }
-
-    private fun setFilter(filter: MapFilter) {
-        currentFilter = filter
         updateFilterPillStyles()
-        applyCurrentFilter()
     }
 
     private fun updateFilterPillStyles() {
@@ -252,50 +374,106 @@ class MainActivity : AppCompatActivity() {
         val onPrimaryText = ContextCompat.getColor(this, R.color.on_primary)
         val textPrimary = ContextCompat.getColor(this, R.color.text_primary)
 
-        if (currentFilter == MapFilter.PANDALS) {
+        if (filterShowPandals) {
             pandalsFilterButton.backgroundTintList = primaryBg
             pandalsFilterButton.setTextColor(onPrimaryText)
             pandalsFilterButton.strokeWidth = 0
-
-            metroFilterButton.backgroundTintList = surfaceBg
-            metroFilterButton.setTextColor(textPrimary)
-            metroFilterButton.strokeWidth = dp(1)
-        } else if (currentFilter == MapFilter.METRO) {
-            metroFilterButton.backgroundTintList = primaryBg
-            metroFilterButton.setTextColor(onPrimaryText)
-            metroFilterButton.strokeWidth = 0
-
+        } else {
             pandalsFilterButton.backgroundTintList = surfaceBg
             pandalsFilterButton.setTextColor(textPrimary)
             pandalsFilterButton.strokeWidth = dp(1)
         }
+
+        if (filterShowMetro) {
+            metroFilterButton.backgroundTintList = primaryBg
+            metroFilterButton.setTextColor(onPrimaryText)
+            metroFilterButton.strokeWidth = 0
+        } else {
+            metroFilterButton.backgroundTintList = surfaceBg
+            metroFilterButton.setTextColor(textPrimary)
+            metroFilterButton.strokeWidth = dp(1)
+        }
+
+        if (filterShowToilets) {
+            toiletsFilterButton.backgroundTintList = primaryBg
+            toiletsFilterButton.setTextColor(onPrimaryText)
+            toiletsFilterButton.strokeWidth = 0
+        } else {
+            toiletsFilterButton.backgroundTintList = surfaceBg
+            toiletsFilterButton.setTextColor(textPrimary)
+            toiletsFilterButton.strokeWidth = dp(1)
+        }
     }
 
-    private fun applyCurrentFilter() {
-        when (currentFilter) {
-            MapFilter.PANDALS -> {
-                val list = location?.let { pandals.nearby(it) } ?: pandals.all()
-                renderPandals(list)
+    private fun fetchAndDisplayToilets() {
+        val loc = location ?: Location("").apply {
+            latitude = 22.5726
+            longitude = 88.3639
+        }
+        places.fetchNearbyToilets(loc) { toiletsList, error ->
+            if (error != null) {
+                Log.e(TAG, "Places API Error: $error")
+                Toast.makeText(this, error, Toast.LENGTH_LONG).show()
             }
-            MapFilter.METRO -> {
-                renderMetro(metro.all())
-            }
-            MapFilter.TOILETS -> {
-                // Not supported without places API
+            if (toiletsList != null) {
+                shownToilets = toiletsList
+                if (filterShowToilets) {
+                    applyCurrentFilters()
+                }
             }
         }
+    }
+
+    private fun applyCurrentFilters() {
+        val pandalList = if (filterShowPandals) {
+            location?.let { pandals.nearby(it) } ?: pandals.all()
+        } else {
+            emptyList()
+        }
+
+        val metroList = if (filterShowMetro) {
+            MetroStation.allStations()
+        } else {
+            emptyList()
+        }
+
+        val toiletList = if (filterShowToilets) {
+            shownToilets
+        } else {
+            emptyList()
+        }
+
+        renderMarkers(pandalList, metroList, toiletList)
     }
 
     private fun setupHoppingTab() {
         hoppingRecyclerView.layoutManager = LinearLayoutManager(this)
         hoppingAdapter = HoppingAdapter(
             items = mutableListOf(),
-            onRemove = { pandal ->
-                hopping.remove(pandal.id)
-                Toast.makeText(this, "Removed ${pandal.name} from Hopping", Toast.LENGTH_SHORT).show()
+            onRemove = { stop ->
+                hopping.remove(stop.id)
+                Toast.makeText(this, "Removed ${stop.name} from Hopping", Toast.LENGTH_SHORT).show()
             },
-            onPandalClick = { pandal ->
-                showDetail(pandal)
+            onStopClick = { stop ->
+                when (stop.type) {
+                    StopType.PANDAL -> {
+                        stop.pandalRef?.let { showDetail(it) }
+                    }
+                    StopType.METRO -> {
+                        stop.metroRef?.let { station ->
+                            selectTab(isMap = true)
+                            focusMetro(station)
+                            showMetroCard(station)
+                        }
+                    }
+                    StopType.TOILET -> {
+                        stop.toiletRef?.let { toilet ->
+                            selectTab(isMap = true)
+                            focusToilet(toilet)
+                            showToiletCard(toilet)
+                        }
+                    }
+                }
             },
             onStartDrag = { viewHolder ->
                 itemTouchHelper.startDrag(viewHolder)
@@ -328,6 +506,9 @@ class MainActivity : AppCompatActivity() {
         hopping.addListener {
             updateHoppingUI()
             updateHoppingBadge()
+            // If a metro or toilet card is open, refresh its button state
+            currentSelectedMetro?.let { updateMetroCardHoppingState(it) }
+            currentSelectedToilet?.let { updateToiletCardHoppingState(it) }
         }
 
         startHoppingButton.setOnClickListener {
@@ -335,7 +516,7 @@ class MainActivity : AppCompatActivity() {
             if (plan.isNotEmpty()) {
                 NavigationLauncher.startHopping(this, location, plan)
             } else {
-                Toast.makeText(this, "Add pandals to your hopping plan first", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Add places to your hopping plan first", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -446,7 +627,7 @@ class MainActivity : AppCompatActivity() {
             statusTitle.text = getString(R.string.location_explanation_title)
             statusMessage.text = getString(R.string.location_explanation_body)
             allowButton.visibility = View.VISIBLE
-            renderPandals(pandals.all())
+            renderMarkers(pandals.all(), emptyList())
         }
     }
 
@@ -483,9 +664,9 @@ class MainActivity : AppCompatActivity() {
                 override fun onLocationResult(result: com.google.android.gms.location.LocationResult) {
                     val found = result.lastLocation ?: return
                     location = found
-                    if (currentFilter == MapFilter.PANDALS) {
+                    
+                    if (filterShowPandals) {
                         val nearby = pandals.nearby(found)
-                        renderPandals(nearby)
                         val within3km = nearby.filter { it.distanceMeters <= 3000f }
                         if (within3km.isEmpty()) {
                             statusTitle.text = getString(R.string.location_none_nearby)
@@ -497,10 +678,14 @@ class MainActivity : AppCompatActivity() {
                             statusTitle.text = getString(R.string.location_found, within3km.size)
                             statusMessage.text = getString(R.string.location_tap)
                         }
-                        statusCard.visibility = View.VISIBLE
+                        if (metroCard.visibility != View.VISIBLE) {
+                            statusCard.visibility = View.VISIBLE
+                        }
                     }
 
-                    if (map?.cameraPosition?.zoom ?: 0.0 < 10.0) {
+                    applyCurrentFilters()
+
+                    if (map?.cameraPosition?.zoom ?: 0.0 < 10.0 && isValidCoordinate(found.latitude, found.longitude)) {
                         map?.cameraPosition = CameraPosition.Builder()
                             .target(LatLng(found.latitude, found.longitude))
                             .zoom(12.5)
@@ -516,6 +701,10 @@ class MainActivity : AppCompatActivity() {
                     if (hoppingContainer.visibility == View.VISIBLE) {
                         updateHoppingUI()
                     }
+
+                    // Refresh active metro or toilet card distance if shown
+                    currentSelectedMetro?.let { showMetroCard(it) }
+                    currentSelectedToilet?.let { showToiletCard(it) }
                 }
             }
             try {
@@ -536,58 +725,83 @@ class MainActivity : AppCompatActivity() {
         ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
 
     // ────────────────────────────────────────────────────────
-    //  Map rendering
+    //  Map rendering (Combined Pandals + Metro + Toilet support)
     // ────────────────────────────────────────────────────────
 
-    private fun renderPandals(items: List<Pandal>) {
-        shownPandals = items
-        shownStations = emptyList()
-        map?.let { readyMap ->
-            readyMap.clear()
-            val icons = IconFactory.getInstance(this)
-            location?.let {
-                readyMap.addMarker(
-                    MarkerOptions()
-                        .position(LatLng(it.latitude, it.longitude))
-                        .icon(icons.fromBitmap(userMarkerBitmap()))
-                )
-            }
-            val icon = icons.fromBitmap(pandalMarkerBitmap())
-            items.forEach {
-                readyMap.addMarker(
-                    MarkerOptions()
-                        .position(LatLng(it.latitude, it.longitude))
-                        .icon(icon)
-                )
-            }
-        }
-    }
+    private fun renderMarkers(
+        pandalList: List<Pandal>,
+        stationList: List<MetroStation>,
+        toiletList: List<PublicToilet> = emptyList()
+    ) {
+        shownPandals = pandalList
+        shownStations = stationList
+        shownToilets = toiletList
 
-    private fun renderMetro(stations: List<MetroStation>) {
-        shownPandals = emptyList()
-        shownStations = stations
         map?.let { readyMap ->
             readyMap.clear()
             val icons = IconFactory.getInstance(this)
+
+            // User Location Marker
             location?.let {
-                readyMap.addMarker(
-                    MarkerOptions()
-                        .position(LatLng(it.latitude, it.longitude))
-                        .icon(icons.fromBitmap(userMarkerBitmap()))
-                )
+                if (isValidCoordinate(it.latitude, it.longitude)) {
+                    readyMap.addMarker(
+                        MarkerOptions()
+                            .position(LatLng(it.latitude, it.longitude))
+                            .icon(icons.fromBitmap(userMarkerBitmap()))
+                    )
+                }
             }
-            stations.forEach { station ->
-                readyMap.addMarker(
-                    MarkerOptions()
-                        .position(LatLng(station.latitude, station.longitude))
-                        .icon(icons.fromBitmap(metroMarkerBitmap(station)))
-                )
+
+            // Pandal Markers
+            if (pandalList.isNotEmpty()) {
+                val pandalIcon = icons.fromBitmap(pandalMarkerBitmap())
+                pandalList.forEach { pandal ->
+                    if (isValidCoordinate(pandal.latitude, pandal.longitude)) {
+                        readyMap.addMarker(
+                            MarkerOptions()
+                                .position(LatLng(pandal.latitude, pandal.longitude))
+                                .icon(pandalIcon)
+                        )
+                    }
+                }
+            }
+
+            // Metro Station Markers
+            if (stationList.isNotEmpty()) {
+                stationList.forEach { station ->
+                    if (isValidCoordinate(station.latitude, station.longitude)) {
+                        readyMap.addMarker(
+                            MarkerOptions()
+                                .position(LatLng(station.latitude, station.longitude))
+                                .icon(icons.fromBitmap(metroMarkerBitmap(station)))
+                        )
+                    }
+                }
+            }
+
+            // Public Toilet Markers
+            if (toiletList.isNotEmpty()) {
+                val toiletIcon = icons.fromBitmap(toiletMarkerBitmap())
+                toiletList.forEach { toilet ->
+                    if (isValidCoordinate(toilet.latitude, toilet.longitude)) {
+                        readyMap.addMarker(
+                            MarkerOptions()
+                                .position(LatLng(toilet.latitude, toilet.longitude))
+                                .icon(toiletIcon)
+                        )
+                    }
+                }
             }
         }
     }
 
     private fun focusPandal(pandal: Pandal) {
-        renderPandals(listOf(location?.let { pandal.withDistanceFrom(it) } ?: pandal))
+        if (!isValidCoordinate(pandal.latitude, pandal.longitude)) return
+        if (!filterShowPandals) {
+            filterShowPandals = true
+            updateFilterPillStyles()
+        }
+        applyCurrentFilters()
         map?.cameraPosition = CameraPosition.Builder()
             .target(LatLng(pandal.latitude, pandal.longitude))
             .zoom(15.5)
@@ -595,11 +809,205 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun focusMetro(station: MetroStation) {
-        renderMetro(listOf(station))
+        if (!isValidCoordinate(station.latitude, station.longitude)) return
+        if (!filterShowMetro) {
+            filterShowMetro = true
+            updateFilterPillStyles()
+        }
+        applyCurrentFilters()
         map?.cameraPosition = CameraPosition.Builder()
             .target(LatLng(station.latitude, station.longitude))
             .zoom(15.5)
             .build()
+    }
+
+    private fun focusToilet(toilet: PublicToilet) {
+        if (!isValidCoordinate(toilet.latitude, toilet.longitude)) return
+        if (!filterShowToilets) {
+            filterShowToilets = true
+            updateFilterPillStyles()
+        }
+        applyCurrentFilters()
+        map?.cameraPosition = CameraPosition.Builder()
+            .target(LatLng(toilet.latitude, toilet.longitude))
+            .zoom(15.5)
+            .build()
+    }
+
+    // ────────────────────────────────────────────────────────
+    //  Compact Floating Metro Card
+    // ────────────────────────────────────────────────────────
+
+    private fun showMetroCard(station: MetroStation) {
+        currentSelectedMetro = station
+        currentSelectedToilet = null
+        statusCard.visibility = View.GONE
+        toiletCard.visibility = View.GONE
+        metroCard.visibility = View.VISIBLE
+
+        metroCardIcon.setColorFilter(station.lineColor)
+        metroCardIconContainer.backgroundTintList = ColorStateList.valueOf(station.lineBadgeBgColor)
+        metroCardName.text = "${station.name} Metro"
+
+        // Compute Live Distance from GPS
+        if (location != null && isValidCoordinate(location!!.latitude, location!!.longitude)) {
+            val sLoc = Location("").apply {
+                latitude = station.latitude
+                longitude = station.longitude
+            }
+            val geodesicDistance = location!!.distanceTo(sLoc)
+            val formattedGeodesic = distanceShort(geodesicDistance)
+            metroCardDistance.text = "$formattedGeodesic from you • ${station.line}"
+
+            // Request road-route distance asynchronously via Google Routes API if available
+            routes.routesToStation(location!!, station) { routesData ->
+                if (currentSelectedMetro?.name == station.name && routesData?.drive != null) {
+                    val roadDist = routeDistanceText(routesData.drive.distanceMeters)
+                    metroCardDistance.text = "$roadDist from you • ${station.line}"
+                }
+            }
+        } else {
+            metroCardDistance.text = "${station.line} • Location needed for distance"
+        }
+
+        updateMetroCardHoppingState(station)
+
+        metroAddToHoppingCard.setOnClickListener {
+            val inPlan = hopping.isMetroInPlan(station)
+            if (inPlan) {
+                hopping.removeMetro(station)
+                Toast.makeText(this, "Removed ${station.name} Metro from Hopping", Toast.LENGTH_SHORT).show()
+            } else {
+                val added = hopping.addMetro(station)
+                if (added) {
+                    Toast.makeText(this, "Added ${station.name} Metro to Hopping", Toast.LENGTH_SHORT).show()
+                }
+            }
+            updateMetroCardHoppingState(station)
+        }
+
+        metroNavigateButton.setOnClickListener {
+            NavigationLauncher.openMetroRoute(this, station)
+        }
+    }
+
+    private fun updateMetroCardHoppingState(station: MetroStation) {
+        val inPlan = hopping.isMetroInPlan(station)
+        if (inPlan) {
+            metroHoppingActionIcon.setImageResource(R.drawable.ic_check)
+            metroHoppingActionIcon.setColorFilter(ContextCompat.getColor(this, R.color.primary))
+            metroAddToHoppingCard.setCardBackgroundColor(ContextCompat.getColor(this, R.color.hopping_surface))
+            metroAddToHoppingCard.strokeColor = ContextCompat.getColor(this, R.color.hopping_outline)
+        } else {
+            metroHoppingActionIcon.setImageResource(R.drawable.ic_add)
+            metroHoppingActionIcon.setColorFilter(ContextCompat.getColor(this, R.color.text_secondary))
+            metroAddToHoppingCard.setCardBackgroundColor(ContextCompat.getColor(this, R.color.surface_variant))
+            metroAddToHoppingCard.strokeColor = ContextCompat.getColor(this, R.color.outline)
+        }
+    }
+
+    // ────────────────────────────────────────────────────────
+    //  Compact Floating Toilet Card
+    // ────────────────────────────────────────────────────────
+
+    private fun showToiletCard(toilet: PublicToilet) {
+        currentSelectedToilet = toilet
+        currentSelectedMetro = null
+        statusCard.visibility = View.GONE
+        metroCard.visibility = View.GONE
+        toiletCard.visibility = View.VISIBLE
+
+        toiletCardName.text = toilet.name
+
+        // Compute Live Distance from GPS
+        if (location != null && isValidCoordinate(location!!.latitude, location!!.longitude)) {
+            val tLoc = Location("").apply {
+                latitude = toilet.latitude
+                longitude = toilet.longitude
+            }
+            val geodesicDistance = location!!.distanceTo(tLoc)
+            val formattedGeodesic = distanceShort(geodesicDistance)
+            toiletCardDistance.text = "$formattedGeodesic from you • ${toilet.address}"
+        } else {
+            toiletCardDistance.text = toilet.address
+        }
+
+        updateToiletCardHoppingState(toilet)
+
+        toiletAddToHoppingCard.setOnClickListener {
+            val inPlan = hopping.isToiletInPlan(toilet)
+            if (inPlan) {
+                hopping.removeToilet(toilet)
+                Toast.makeText(this, "Removed ${toilet.name} from Hopping", Toast.LENGTH_SHORT).show()
+            } else {
+                val added = hopping.addToilet(toilet)
+                if (added) {
+                    Toast.makeText(this, "Added ${toilet.name} to Hopping", Toast.LENGTH_SHORT).show()
+                }
+            }
+            updateToiletCardHoppingState(toilet)
+        }
+
+        toiletNavigateButton.setOnClickListener {
+            val uri = android.net.Uri.parse("geo:0,0?q=${toilet.latitude},${toilet.longitude}(${android.net.Uri.encode(toilet.name)})")
+            val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, uri).apply {
+                setPackage("com.google.android.apps.maps")
+            }
+            if (intent.resolveActivity(packageManager) != null) {
+                startActivity(intent)
+            } else {
+                startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, uri))
+            }
+        }
+    }
+
+    private fun updateToiletCardHoppingState(toilet: PublicToilet) {
+        val inPlan = hopping.isToiletInPlan(toilet)
+        if (inPlan) {
+            toiletHoppingActionIcon.setImageResource(R.drawable.ic_check)
+            toiletHoppingActionIcon.setColorFilter(ContextCompat.getColor(this, R.color.primary))
+            toiletAddToHoppingCard.setCardBackgroundColor(ContextCompat.getColor(this, R.color.hopping_surface))
+            toiletAddToHoppingCard.strokeColor = ContextCompat.getColor(this, R.color.hopping_outline)
+        } else {
+            toiletHoppingActionIcon.setImageResource(R.drawable.ic_add)
+            toiletHoppingActionIcon.setColorFilter(ContextCompat.getColor(this, R.color.text_secondary))
+            toiletAddToHoppingCard.setCardBackgroundColor(ContextCompat.getColor(this, R.color.surface_variant))
+            toiletAddToHoppingCard.strokeColor = ContextCompat.getColor(this, R.color.outline)
+        }
+    }
+
+    private fun toiletMarkerBitmap(): Bitmap {
+        toiletMarkerIcon?.let { return it }
+        val w = dp(34)
+        val h = dp(44)
+        val bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
+        Canvas(bitmap).apply {
+            val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+            val cx = w / 2f
+            val circleR = w / 2f - dp(2)
+
+            // Teal/Green Toilet pin (#0D9488)
+            paint.color = Color.rgb(13, 148, 136)
+            drawCircle(cx, cx, circleR, paint)
+
+            val path = Path().apply {
+                moveTo(cx - dp(9), cx + dp(4))
+                lineTo(cx, h.toFloat() - dp(2))
+                lineTo(cx + dp(9), cx + dp(4))
+                close()
+            }
+            drawPath(path, paint)
+
+            // White center circle
+            paint.color = Color.WHITE
+            drawCircle(cx, cx, circleR * 0.55f, paint)
+
+            // Green center dot
+            paint.color = Color.rgb(13, 148, 136)
+            drawCircle(cx, cx, circleR * 0.25f, paint)
+        }
+        toiletMarkerIcon = bitmap
+        return bitmap
     }
 
     private fun pandalMarkerBitmap(): Bitmap {
@@ -817,7 +1225,7 @@ class MainActivity : AppCompatActivity() {
         val hoppingActionIcon = view.findViewById<ImageView>(R.id.hoppingActionIcon)
 
         fun updateHoppingButtonState() {
-            val inPlan = hopping.isInPlan(item.id)
+            val inPlan = hopping.isPandalInPlan(item.id)
             if (inPlan) {
                 hoppingActionIcon.setImageResource(R.drawable.ic_check)
                 hoppingActionIcon.setColorFilter(ContextCompat.getColor(this, R.color.primary))
@@ -833,12 +1241,12 @@ class MainActivity : AppCompatActivity() {
         updateHoppingButtonState()
 
         addToHoppingCard.setOnClickListener {
-            val inPlan = hopping.isInPlan(item.id)
+            val inPlan = hopping.isPandalInPlan(item.id)
             if (inPlan) {
-                hopping.remove(item.id)
+                hopping.removePandal(item.id)
                 Toast.makeText(this, "Removed from Hopping", Toast.LENGTH_SHORT).show()
             } else {
-                hopping.add(item)
+                hopping.addPandal(item)
                 Toast.makeText(this, "Added to Hopping", Toast.LENGTH_SHORT).show()
             }
             updateHoppingButtonState()
@@ -1040,6 +1448,10 @@ class MainActivity : AppCompatActivity() {
         private const val TAG = "PandalFinderMain"
         private const val REQUEST_LOCATION = 1001
 
+        fun isValidCoordinate(lat: Double, lng: Double): Boolean =
+            !lat.isNaN() && !lat.isInfinite() && !lng.isNaN() && !lng.isInfinite() &&
+            lat in -90.0..90.0 && lng in -180.0..180.0
+
         fun distanceText(meters: Float): String = when {
             meters < 50 -> "< 50 m away"
             meters < 1000 -> "${(meters / 50).toInt() * 50} m away"
@@ -1089,6 +1501,7 @@ private class SearchResultAdapter(
 ) : RecyclerView.Adapter<SearchResultAdapter.Holder>() {
 
     class Holder(v: View) : RecyclerView.ViewHolder(v) {
+        val iconContainer: FrameLayout = v.findViewById(R.id.resultIconContainer)
         val icon: ImageView = v.findViewById(R.id.resultIcon)
         val name: TextView = v.findViewById(R.id.resultName)
         val area: TextView = v.findViewById(R.id.resultArea)
@@ -1100,24 +1513,40 @@ private class SearchResultAdapter(
 
     override fun onBindViewHolder(holder: Holder, position: Int) {
         val item = items[position]
-        when (item) {
-            is SearchResult.PandalResult -> {
+        val context = holder.itemView.context
+
+        when (item.type) {
+            PlaceType.PANDAL -> {
                 holder.icon.setImageResource(R.drawable.ic_temple)
-                holder.icon.setColorFilter(ContextCompat.getColor(holder.itemView.context, R.color.primary))
-                holder.name.text = item.pandal.name
-                holder.area.text = item.pandal.area
-                holder.distance.text = item.pandal.distanceMeters.takeIf { it > 0 }?.let {
-                    MainActivity.distanceShort(it)
-                } ?: ""
+                holder.icon.setColorFilter(ContextCompat.getColor(context, R.color.primary))
+                holder.iconContainer.backgroundTintList = ContextCompat.getColorStateList(context, R.color.surface_variant)
+                holder.name.text = item.name
+                holder.area.text = item.subtitle
+                holder.distance.text = if (item.distanceMeters > 0) {
+                    MainActivity.distanceShort(item.distanceMeters)
+                } else ""
             }
-            is SearchResult.MetroStationResult -> {
+            PlaceType.METRO -> {
                 holder.icon.setImageResource(R.drawable.ic_metro)
-                holder.icon.setColorFilter(item.station.lineColor)
-                holder.name.text = item.station.name
-                holder.area.text = "Metro Station (${item.station.line})"
-                holder.distance.text = item.distanceMeters.takeIf { it > 0 }?.let {
-                    MainActivity.distanceShort(it)
-                } ?: ""
+                val lineColor = item.metroStation?.lineColor ?: ContextCompat.getColor(context, R.color.metro_icon)
+                holder.icon.setColorFilter(lineColor)
+                val badgeBg = item.metroStation?.lineBadgeBgColor ?: ContextCompat.getColor(context, R.color.surface_variant)
+                holder.iconContainer.backgroundTintList = ColorStateList.valueOf(badgeBg)
+                holder.name.text = item.name
+                holder.area.text = item.subtitle
+                holder.distance.text = if (item.distanceMeters > 0) {
+                    MainActivity.distanceShort(item.distanceMeters)
+                } else ""
+            }
+            PlaceType.TOILET -> {
+                holder.icon.setImageResource(R.drawable.ic_toilet)
+                holder.icon.setColorFilter(ContextCompat.getColor(context, R.color.toilet_icon))
+                holder.iconContainer.backgroundTintList = ContextCompat.getColorStateList(context, R.color.toilet_surface)
+                holder.name.text = item.name
+                holder.area.text = item.subtitle
+                holder.distance.text = if (item.distanceMeters > 0) {
+                    MainActivity.distanceShort(item.distanceMeters)
+                } else ""
             }
         }
         holder.itemView.setOnClickListener { selected(item) }
@@ -1125,3 +1554,4 @@ private class SearchResultAdapter(
 
     override fun getItemCount(): Int = items.size
 }
+

@@ -39,12 +39,27 @@ class GoogleRoutesRepository {
     private val hoppingCache = mutableMapOf<String, Pair<Long, HoppingRoute>>()
 
     fun routesFrom(origin: Location, pandal: Pandal, onResult: (PandalRoutes?) -> Unit) {
+        routesToCoordinates(origin, "pandal:${pandal.id}", pandal.latitude, pandal.longitude, onResult)
+    }
+
+    fun routesToStation(origin: Location, station: MetroStation, onResult: (PandalRoutes?) -> Unit) {
+        val id = "metro:${station.name.lowercase().replace(" ", "_")}"
+        routesToCoordinates(origin, id, station.latitude, station.longitude, onResult)
+    }
+
+    fun routesToCoordinates(
+        origin: Location,
+        destinationId: String,
+        destLat: Double,
+        destLng: Double,
+        onResult: (PandalRoutes?) -> Unit
+    ) {
         if (BuildConfig.GOOGLE_ROUTES_API_KEY.isBlank()) {
             Log.w(TAG, "Routes API key is not configured; route request skipped")
             onResult(null)
             return
         }
-        val cacheKey = "${pandal.id}:${"%.4f".format(origin.latitude)}:${"%.4f".format(origin.longitude)}"
+        val cacheKey = "$destinationId:${"%.4f".format(origin.latitude)}:${"%.4f".format(origin.longitude)}"
         val now = System.currentTimeMillis()
         singleCache[cacheKey]?.takeIf { now - it.first < CACHE_MILLIS }?.let {
             onResult(it.second)
@@ -52,11 +67,11 @@ class GoogleRoutesRepository {
         }
 
         executor.execute {
-            Log.d(TAG, "Compute Routes origin=${origin.latitude},${origin.longitude}; destination=${pandal.latitude},${pandal.longitude}")
+            Log.d(TAG, "Compute Routes origin=${origin.latitude},${origin.longitude}; destination=$destLat,$destLng")
             val results = PandalRoutes(
-                walk = requestSingle(origin, pandal.latitude, pandal.longitude, RouteMode.WALK),
-                twoWheeler = requestSingle(origin, pandal.latitude, pandal.longitude, RouteMode.TWO_WHEELER),
-                drive = requestSingle(origin, pandal.latitude, pandal.longitude, RouteMode.DRIVE)
+                walk = requestSingle(origin, destLat, destLng, RouteMode.WALK),
+                twoWheeler = requestSingle(origin, destLat, destLng, RouteMode.TWO_WHEELER),
+                drive = requestSingle(origin, destLat, destLng, RouteMode.DRIVE)
             )
             val resolved = results.takeIf { it.walk != null || it.twoWheeler != null || it.drive != null }
             resolved?.let { singleCache[cacheKey] = now to it }
@@ -66,7 +81,7 @@ class GoogleRoutesRepository {
 
     fun computeHoppingRoute(
         origin: Location,
-        stops: List<Pandal>,
+        stops: List<HoppingStop>,
         onResult: (HoppingRoute?) -> Unit
     ) {
         if (stops.isEmpty()) {
@@ -135,7 +150,7 @@ class GoogleRoutesRepository {
         null
     }
 
-    private fun requestHopping(origin: Location, stops: List<Pandal>): HoppingRoute? = runCatching {
+    private fun requestHopping(origin: Location, stops: List<HoppingStop>): HoppingRoute? = runCatching {
         val lastStop = stops.last()
         val intermediateStops = if (stops.size > 1) stops.subList(0, stops.size - 1) else emptyList()
 

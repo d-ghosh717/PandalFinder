@@ -24,7 +24,7 @@ object NavigationLauncher {
      * Open Google Maps multi-stop directions for the Hopping itinerary.
      * Preserves the sequence of stops: Origin -> Stop 1 -> Stop 2 -> ... -> Last Stop
      */
-    fun startHopping(context: Context, origin: Location?, stops: List<Pandal>) {
+    fun startHopping(context: Context, origin: Location?, stops: List<HoppingStop>) {
         if (stops.isEmpty()) return
 
         val lastStop = stops.last()

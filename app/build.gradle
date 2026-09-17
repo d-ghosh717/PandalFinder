@@ -43,6 +43,10 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
 }
 
 dependencies {
@@ -62,4 +66,6 @@ dependencies {
     // Firestore is deliberately configuration-free in source. Add google-services.json
     // for the project's Firebase app before enabling live crowd reports.
     implementation 'com.google.firebase:firebase-firestore-ktx:25.1.1'
+
+    testImplementation 'junit:junit:4.13.2'
 }
