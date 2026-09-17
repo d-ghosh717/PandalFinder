@@ -13,6 +13,13 @@ import java.util.concurrent.Executors
 
 /**
  * Repository for querying public toilets/restrooms using Google Places API (New).
+ *
+ * Uses the Nearby Search endpoint:
+ *   POST https://places.googleapis.com/v1/places:searchNearby
+ *
+ * Requires the same API key used by Google Routes (stored in secrets.properties
+ * as ROUTES_API_KEY and exposed through BuildConfig.GOOGLE_ROUTES_API_KEY).
+ * The key must have Places API (New) enabled in Google Cloud Console.
  */
 class GooglePlacesRepository {
     private val executor = Executors.newSingleThreadExecutor()
@@ -23,26 +30,33 @@ class GooglePlacesRepository {
 
     fun fetchNearbyToilets(
         origin: Location,
-        radiusMeters: Double = 3000.0,
+        radiusMeters: Double = 5000.0,
         onResult: (List<PublicToilet>?, String?) -> Unit
     ) {
-        if (BuildConfig.GOOGLE_ROUTES_API_KEY.isBlank()) {
-            val errorMsg = "Google API Key is not configured."
-            Log.w(TAG, errorMsg)
+        val apiKey = BuildConfig.GOOGLE_ROUTES_API_KEY
+        if (apiKey.isBlank()) {
+            val errorMsg = "Google API Key is blank in BuildConfig. " +
+                "Ensure secrets.properties contains ROUTES_API_KEY=<your-key> and rebuild."
+            Log.e(TAG, errorMsg)
+            Log.e(TAG, "BuildConfig.GOOGLE_ROUTES_API_KEY = '${apiKey.take(8)}...' (length=${apiKey.length})")
             onResult(null, errorMsg)
             return
         }
 
+        Log.d(TAG, "fetchNearbyToilets: key present (${apiKey.take(8)}…), " +
+            "origin=(${origin.latitude}, ${origin.longitude}), radius=$radiusMeters")
+
         val cacheKey = "${"%.3f".format(origin.latitude)}:${"%.3f".format(origin.longitude)}:$radiusMeters"
         val now = System.currentTimeMillis()
         cache[cacheKey]?.takeIf { now - it.first < CACHE_MILLIS }?.let {
+            Log.d(TAG, "Returning ${it.second.size} cached toilets for key=$cacheKey")
             cachedToilets = it.second
             onResult(it.second, null)
             return
         }
 
         executor.execute {
-            val (toilets, error) = executeNearbySearch(origin.latitude, origin.longitude, radiusMeters)
+            val (toilets, error) = executeNearbySearch(origin.latitude, origin.longitude, radiusMeters, apiKey)
             if (toilets != null) {
                 cache[cacheKey] = now to toilets
                 cachedToilets = toilets
@@ -56,13 +70,15 @@ class GooglePlacesRepository {
     private fun executeNearbySearch(
         lat: Double,
         lng: Double,
-        radiusMeters: Double
+        radiusMeters: Double,
+        apiKey: String
     ): Pair<List<PublicToilet>?, String?> = runCatching {
         val requestBody = JSONObject().apply {
             put("includedTypes", JSONArray().apply {
                 put("public_bathroom")
             })
             put("maxResultCount", 20)
+            put("rankPreference", "DISTANCE")
             put("locationRestriction", JSONObject().apply {
                 put("circle", JSONObject().apply {
                     put("center", JSONObject().apply {
@@ -74,14 +90,18 @@ class GooglePlacesRepository {
             })
         }
 
+        Log.d(TAG, "Places API Request: POST $NEARBY_SEARCH_URL")
+        Log.d(TAG, "Request body: ${requestBody.toString(2)}")
+
         val connection = (URL(NEARBY_SEARCH_URL).openConnection() as HttpURLConnection).apply {
             requestMethod = "POST"
-            connectTimeout = 10_000
-            readTimeout = 10_000
+            connectTimeout = 15_000
+            readTimeout = 15_000
             doOutput = true
             setRequestProperty("Content-Type", "application/json")
-            setRequestProperty("X-Goog-Api-Key", BuildConfig.GOOGLE_ROUTES_API_KEY)
-            setRequestProperty("X-Goog-FieldMask", "places.id,places.displayName,places.formattedAddress,places.location")
+            setRequestProperty("X-Goog-Api-Key", apiKey)
+            setRequestProperty("X-Goog-FieldMask",
+                "places.id,places.displayName,places.formattedAddress,places.location,places.types")
         }
 
         connection.outputStream.bufferedWriter().use { it.write(requestBody.toString()) }
@@ -89,27 +109,46 @@ class GooglePlacesRepository {
         val responseBody = (if (status in 200..299) connection.inputStream else connection.errorStream)
             ?.bufferedReader()?.use { it.readText() }.orEmpty()
 
+        Log.d(TAG, "Places API Response: HTTP $status")
+
         if (status !in 200..299) {
+            // Extract detailed Google error information
             val errorMsg = try {
                 val json = JSONObject(responseBody)
                 val errObj = json.optJSONObject("error")
-                val msg = errObj?.optString("message") ?: "HTTP $status error"
-                val errStatus = errObj?.optString("status") ?: ""
-                "Places API Error: $msg ($errStatus)".trim()
+                val code = errObj?.optInt("code", status) ?: status
+                val msg = errObj?.optString("message", "Unknown error") ?: "Unknown error"
+                val errStatus = errObj?.optString("status", "") ?: ""
+                val details = errObj?.optJSONArray("details")
+
+                Log.e(TAG, "┌─── Places API Error ───")
+                Log.e(TAG, "│ HTTP Status:    $code")
+                Log.e(TAG, "│ Error Status:   $errStatus")
+                Log.e(TAG, "│ Error Message:  $msg")
+                if (details != null) {
+                    Log.e(TAG, "│ Error Details:  ${details.toString(2)}")
+                }
+                Log.e(TAG, "└────────────────────────")
+
+                "Places API error: $errStatus — $msg"
             } catch (e: Exception) {
-                "Places API HTTP $status: $responseBody"
+                Log.e(TAG, "Raw error response: $responseBody")
+                "Places API HTTP $status: ${responseBody.take(200)}"
             }
-            Log.e(TAG, errorMsg)
             return Pair(null, errorMsg)
         }
+
+        Log.d(TAG, "Places API Success: HTTP $status, body length=${responseBody.length}")
 
         val placesJson = JSONObject(responseBody).optJSONArray("places")
         val toilets = mutableListOf<PublicToilet>()
         if (placesJson != null) {
+            Log.d(TAG, "Found ${placesJson.length()} places in response")
             for (i in 0 until placesJson.length()) {
                 val p = placesJson.optJSONObject(i) ?: continue
                 val id = p.optString("id", "")
-                val name = p.optJSONObject("displayName")?.optString("text", "Public Toilet") ?: "Public Toilet"
+                val name = p.optJSONObject("displayName")?.optString("text", "Public Toilet")
+                    ?: "Public Toilet"
                 val address = p.optString("formattedAddress", "Kolkata, West Bengal")
                 val locObj = p.optJSONObject("location")
                 val pLat = locObj?.optDouble("latitude", Double.NaN) ?: Double.NaN
@@ -125,10 +164,14 @@ class GooglePlacesRepository {
                             longitude = pLng
                         )
                     )
+                    Log.d(TAG, "  [$i] $name @ ($pLat, $pLng)")
                 }
             }
+        } else {
+            Log.d(TAG, "No 'places' array in response — 0 results")
         }
 
+        Log.d(TAG, "Parsed ${toilets.size} valid toilets")
         Pair(toilets, null)
     }.getOrElse { error ->
         val msg = "Network/API error: ${error.localizedMessage ?: "Unknown error"}"
