@@ -14,7 +14,10 @@
     <!-- Location -->
     <string name="location_finding">Finding pandals near you…</string>
     <string name="location_getting">Getting your location.</string>
-    <string name="location_found">%d pandals nearby</string>
+    <string name="location_found">%d pandals within 3 km</string>
+    <string name="location_found_one">1 pandal within 3 km</string>
+    <string name="location_none_nearby">No pandals within 3 km</string>
+    <string name="location_none_nearby_body">Explore all %d pandals across Kolkata on the map.</string>
     <string name="location_tap">Tap a marker to explore.</string>
     <string name="location_unavailable">Location unavailable</string>
     <string name="location_enable_gps">Turn on GPS, then try Nearby again.</string>

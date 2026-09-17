@@ -40,6 +40,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var mapView: MapView
     private lateinit var searchInput: TextInputEditText
     private lateinit var results: RecyclerView
+    private lateinit var statusCard: View
+    private lateinit var dismissStatusCard: View
     private lateinit var statusTitle: TextView
     private lateinit var statusMessage: TextView
     private lateinit var allowButton: MaterialButton
@@ -87,6 +89,7 @@ class MainActivity : AppCompatActivity() {
     private var locationCallback: com.google.android.gms.location.LocationCallback? = null
     private var currentDetailPandal: Pandal? = null
     private var currentDetailSheetView: View? = null
+    private val metroMarkerCache = mutableMapOf<Int, Bitmap>()
 
     // ────────────────────────────────────────────────────────
     //  Lifecycle
@@ -138,9 +141,15 @@ class MainActivity : AppCompatActivity() {
         mapView = findViewById(R.id.mapView)
         searchInput = findViewById(R.id.searchInput)
         results = findViewById(R.id.searchResults)
+        statusCard = findViewById(R.id.statusCard)
+        dismissStatusCard = findViewById(R.id.dismissStatusCard)
         statusTitle = findViewById(R.id.statusTitle)
         statusMessage = findViewById(R.id.statusMessage)
         allowButton = findViewById(R.id.allowLocationButton)
+
+        dismissStatusCard.setOnClickListener {
+            statusCard.visibility = View.GONE
+        }
 
         pandalsFilterButton = findViewById(R.id.pandalsFilter)
         metroFilterButton = findViewById(R.id.nearbyFilter)
@@ -330,6 +339,10 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        findViewById<View>(R.id.hoppingExploreMapButton)?.setOnClickListener {
+            selectTab(isMap = true)
+        }
+
         updateHoppingUI()
         updateHoppingBadge()
     }
@@ -473,8 +486,18 @@ class MainActivity : AppCompatActivity() {
                     if (currentFilter == MapFilter.PANDALS) {
                         val nearby = pandals.nearby(found)
                         renderPandals(nearby)
-                        statusTitle.text = getString(R.string.location_found, nearby.size)
-                        statusMessage.text = getString(R.string.location_tap)
+                        val within3km = nearby.filter { it.distanceMeters <= 3000f }
+                        if (within3km.isEmpty()) {
+                            statusTitle.text = getString(R.string.location_none_nearby)
+                            statusMessage.text = getString(R.string.location_none_nearby_body, pandals.all().size)
+                        } else if (within3km.size == 1) {
+                            statusTitle.text = getString(R.string.location_found_one)
+                            statusMessage.text = getString(R.string.location_tap)
+                        } else {
+                            statusTitle.text = getString(R.string.location_found, within3km.size)
+                            statusMessage.text = getString(R.string.location_tap)
+                        }
+                        statusCard.visibility = View.VISIBLE
                     }
 
                     if (map?.cameraPosition?.zoom ?: 0.0 < 10.0) {
@@ -553,12 +576,11 @@ class MainActivity : AppCompatActivity() {
                         .icon(icons.fromBitmap(userMarkerBitmap()))
                 )
             }
-            val icon = icons.fromBitmap(metroMarkerBitmap())
-            stations.forEach {
+            stations.forEach { station ->
                 readyMap.addMarker(
                     MarkerOptions()
-                        .position(LatLng(it.latitude, it.longitude))
-                        .icon(icon)
+                        .position(LatLng(station.latitude, station.longitude))
+                        .icon(icons.fromBitmap(metroMarkerBitmap(station)))
                 )
             }
         }
@@ -612,36 +634,39 @@ class MainActivity : AppCompatActivity() {
         return bitmap
     }
 
-    private fun metroMarkerBitmap(): Bitmap {
-        val w = dp(34)
-        val h = dp(44)
-        val bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
-        Canvas(bitmap).apply {
-            val paint = Paint(Paint.ANTI_ALIAS_FLAG)
-            val cx = w / 2f
-            val circleR = w / 2f - dp(2)
+    private fun metroMarkerBitmap(station: MetroStation): Bitmap {
+        val color = station.lineColor
+        return metroMarkerCache.getOrPut(color) {
+            val w = dp(34)
+            val h = dp(44)
+            val bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
+            Canvas(bitmap).apply {
+                val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+                val cx = w / 2f
+                val circleR = w / 2f - dp(2)
 
-            // Emerald Green metro pin
-            paint.color = Color.rgb(69, 167, 1)
-            drawCircle(cx, cx, circleR, paint)
+                // Line-colored metro pin
+                paint.color = color
+                drawCircle(cx, cx, circleR, paint)
 
-            val path = Path().apply {
-                moveTo(cx - dp(9), cx + dp(4))
-                lineTo(cx, h.toFloat() - dp(2))
-                lineTo(cx + dp(9), cx + dp(4))
-                close()
+                val path = Path().apply {
+                    moveTo(cx - dp(9), cx + dp(4))
+                    lineTo(cx, h.toFloat() - dp(2))
+                    lineTo(cx + dp(9), cx + dp(4))
+                    close()
+                }
+                drawPath(path, paint)
+
+                // White center circle
+                paint.color = Color.WHITE
+                drawCircle(cx, cx, circleR * 0.55f, paint)
+
+                // Line-colored center dot
+                paint.color = color
+                drawCircle(cx, cx, circleR * 0.25f, paint)
             }
-            drawPath(path, paint)
-
-            // White center circle
-            paint.color = Color.WHITE
-            drawCircle(cx, cx, circleR * 0.55f, paint)
-
-            // Green center dot
-            paint.color = Color.rgb(69, 167, 1)
-            drawCircle(cx, cx, circleR * 0.25f, paint)
+            bitmap
         }
-        return bitmap
     }
 
     private fun userMarkerBitmap(): Bitmap {
@@ -785,7 +810,7 @@ class MainActivity : AppCompatActivity() {
         val metroName = view.findViewById<TextView>(R.id.metroName)
         val metroResult = metro.nearestTo(item)
         val mDistStr = distanceShort(metroResult.distanceMeters)
-        metroName.text = "${metroResult.station.name} · $mDistStr"
+        metroName.text = "${metroResult.station.name} (${metroResult.station.line}) · $mDistStr"
 
         // ── Compact Secondary Hopping Toggle Card ──
         val addToHoppingCard = view.findViewById<MaterialCardView>(R.id.addToHoppingCard)
@@ -1087,7 +1112,7 @@ private class SearchResultAdapter(
             }
             is SearchResult.MetroStationResult -> {
                 holder.icon.setImageResource(R.drawable.ic_metro)
-                holder.icon.setColorFilter(ContextCompat.getColor(holder.itemView.context, R.color.metro_icon))
+                holder.icon.setColorFilter(item.station.lineColor)
                 holder.name.text = item.station.name
                 holder.area.text = "Metro Station (${item.station.line})"
                 holder.distance.text = item.distanceMeters.takeIf { it > 0 }?.let {

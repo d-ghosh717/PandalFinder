@@ -90,17 +90,31 @@
                 app:tint="@color/text_tertiary" />
         </LinearLayout>
 
-        <!-- Leg Distance Badge -->
-        <TextView
-            android:id="@+id/legDistance"
+        <!-- Leg Distance Trail Pill -->
+        <LinearLayout
+            android:id="@+id/legDistanceContainer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="44dp"
-            android:layout_marginTop="6dp"
-            android:fontFamily="@font/inter"
-            android:textColor="@color/primary"
-            android:textSize="13sp"
-            android:visibility="gone" />
+            android:layout_marginTop="8dp"
+            android:background="@drawable/bg_option_selected"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="10dp"
+            android:paddingTop="3dp"
+            android:paddingEnd="10dp"
+            android:paddingBottom="3dp"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/legDistance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/inter"
+                android:textColor="@color/primary"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+        </LinearLayout>
 
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

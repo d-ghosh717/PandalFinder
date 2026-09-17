@@ -1,9 +1,9 @@
 package com.pandalfinder.data
 
+import android.graphics.Color
+
 /**
- * Kolkata Metro station with geographic coordinates.
- * Dataset covers operational stations on the Blue Line (Line 1: Dakshineswar–Kavi Subhash)
- * and Green Line (Line 2: Howrah Maidan–Sector V), plus the partial Purple Line (Line 3).
+ * Kolkata Metro station with geographic coordinates and line color styling.
  */
 data class MetroStation(
     val name: String,
@@ -11,7 +11,35 @@ data class MetroStation(
     val longitude: Double,
     val line: String
 ) {
+    val lineColor: Int
+        get() = getLineColor(line)
+
+    val lineBadgeBgColor: Int
+        get() = getLineBadgeBgColor(line)
+
     companion object {
+        fun getLineColor(line: String): Int {
+            return when {
+                line.contains("Blue", ignoreCase = true) -> Color.parseColor("#1565C0")
+                line.contains("Green", ignoreCase = true) -> Color.parseColor("#2E7D32")
+                line.contains("Purple", ignoreCase = true) -> Color.parseColor("#7B1FA2")
+                line.contains("Orange", ignoreCase = true) -> Color.parseColor("#E65100")
+                line.contains("Yellow", ignoreCase = true) -> Color.parseColor("#F57F17")
+                else -> Color.parseColor("#2E7D32")
+            }
+        }
+
+        fun getLineBadgeBgColor(line: String): Int {
+            return when {
+                line.contains("Blue", ignoreCase = true) -> Color.parseColor("#E3F2FD")
+                line.contains("Green", ignoreCase = true) -> Color.parseColor("#E8F5E9")
+                line.contains("Purple", ignoreCase = true) -> Color.parseColor("#F3E5F5")
+                line.contains("Orange", ignoreCase = true) -> Color.parseColor("#FFF3E0")
+                line.contains("Yellow", ignoreCase = true) -> Color.parseColor("#FFFDE7")
+                else -> Color.parseColor("#E8F5E9")
+            }
+        }
+
         fun allStations(): List<MetroStation> = listOf(
             // ── Blue Line (Line 1): Dakshineswar → Kavi Subhash ──
             MetroStation("Dakshineswar", 22.6553, 88.3576, "Blue Line"),
@@ -50,14 +78,25 @@ data class MetroStation(
             MetroStation("City Centre", 22.5770, 88.4310, "Green Line"),
             MetroStation("Sector V", 22.5770, 88.4416, "Green Line"),
 
-            // ── Purple Line (Line 3): Joka → Taratala (operational segment) ──
+            // ── Purple Line (Line 3): Joka → Majerhat ──
             MetroStation("Joka", 22.4539, 88.3137, "Purple Line"),
             MetroStation("Thakurpukur", 22.4620, 88.3175, "Purple Line"),
             MetroStation("Sakher Bazar", 22.4685, 88.3204, "Purple Line"),
             MetroStation("Behala Chowrasta", 22.4760, 88.3245, "Purple Line"),
             MetroStation("Behala Bazar", 22.4830, 88.3265, "Purple Line"),
             MetroStation("Taratala", 22.4963, 88.3302, "Purple Line"),
-            MetroStation("Majerhat", 22.5142, 88.3324, "Purple Line")
+            MetroStation("Majerhat", 22.5142, 88.3324, "Purple Line"),
+
+            // ── Orange Line (Line 6): Kavi Subhash → Hemanta Mukhopadhyay (Ruby) ──
+            MetroStation("Satyajit Ray", 22.4842, 88.3842, "Orange Line"),
+            MetroStation("Jyotirindra Nandi", 22.4925, 88.3912, "Orange Line"),
+            MetroStation("Kavi Sukanta", 22.5034, 88.3975, "Orange Line"),
+            MetroStation("Hemanta Mukhopadhyay", 22.5139, 88.4022, "Orange Line"),
+
+            // ── Yellow Line (Line 4): Noapara → Jai Hind Biman Bandar ──
+            MetroStation("Dum Dum Cantonment", 22.6391, 88.4192, "Yellow Line"),
+            MetroStation("Jessore Road", 22.6468, 88.4312, "Yellow Line"),
+            MetroStation("Jai Hind (Airport)", 22.6534, 88.4451, "Yellow Line")
         )
     }
 }

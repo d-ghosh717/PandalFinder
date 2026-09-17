@@ -26,6 +26,7 @@ class HoppingAdapter(
         val stopIndex: TextView = v.findViewById(R.id.stopIndex)
         val stopName: TextView = v.findViewById(R.id.stopName)
         val stopArea: TextView = v.findViewById(R.id.stopArea)
+        val legDistanceContainer: View = v.findViewById(R.id.legDistanceContainer)
         val legDistance: TextView = v.findViewById(R.id.legDistance)
         val removeButton: ImageButton = v.findViewById(R.id.removeStopButton)
         val dragHandle: ImageView = v.findViewById(R.id.dragHandle)
@@ -46,10 +47,10 @@ class HoppingAdapter(
         // Display leg distance if calculated
         if (position in legDistances.indices && legDistances[position] > 0) {
             val distText = MainActivity.routeDistanceText(legDistances[position])
-            holder.legDistance.visibility = View.VISIBLE
+            holder.legDistanceContainer.visibility = View.VISIBLE
             holder.legDistance.text = if (position == 0) "↓ $distText from your location" else "↓ $distText from Stop $position"
         } else {
-            holder.legDistance.visibility = View.GONE
+            holder.legDistanceContainer.visibility = View.GONE
         }
 
         holder.removeButton.setOnClickListener {
