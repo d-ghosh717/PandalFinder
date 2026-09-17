@@ -1,20 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Pandal Finder</string>
-    <string name="app_subtitle">Shubho Durga Puja! 🪔</string>
-    <string name="find_nearby_pandals">Use My Location</string>
-    <string name="search_area">Search Area</string>
-    <string name="search_hint">Search pandal name or area (Distance from your GPS)</string>
-    <string name="no_pandals_found">No pandals found</string>
-    <string name="permission_denied">Location permission is required to find nearby pandals</string>
-    <string name="location_unavailable">Unable to get your location. Please enable GPS.</string>
-    <string name="maps_not_installed">Google Maps is not installed</string>
-    <string name="area_not_found">Area not found. Try: Park Street, Salt Lake, Ballygunge, etc.</string>
-    <string name="pandal_not_found">Pandal not found. Try searching by area or use GPS.</string>
-    <string name="choose_transport_mode">Choose Navigation Mode</string>
-    <string name="drive">🚗 Drive</string>
-    <string name="bike">🚴 Bike</string>
-    <string name="walk">🚶 Walk</string>
-    <string name="cancel">Cancel</string>
-    <string name="distance_format">%.2f km</string>
+
+    <!-- Search -->
+    <string name="search_pandals">Search pandals</string>
+
+    <!-- Filters -->
+    <string name="filter_pandals">Pandals</string>
+    <string name="filter_nearby">Nearby</string>
+
+    <!-- Location -->
+    <string name="location_finding">Finding pandals near you…</string>
+    <string name="location_getting">Getting your location.</string>
+    <string name="location_found">%d pandals nearby</string>
+    <string name="location_tap">Tap a marker to explore.</string>
+    <string name="location_unavailable">Location unavailable</string>
+    <string name="location_enable_gps">Turn on GPS, then try Nearby again.</string>
+    <string name="location_allow">Allow location</string>
+    <string name="location_explanation_title">Find pandals around you</string>
+    <string name="location_explanation_body">Allow location access to show nearby Durga Puja pandals.</string>
+    <string name="location_denied_title">Location is off</string>
+    <string name="location_denied_body">You can still search all pandals, or allow location in Settings for nearby results.</string>
+
+    <!-- Distance -->
+    <string name="distance_unavailable">Distance unavailable</string>
+    <string name="distance_straight_line">Approximate straight-line distance</string>
+
+    <!-- Detail Sheet -->
+    <string name="rain_status">Rain status</string>
+    <string name="crowd_level">Crowd level</string>
+    <string name="nearest_metro">🚇 Nearest Metro</string>
+    <string name="navigate">Navigate</string>
+    <string name="update_crowd">Update crowd</string>
+    <string name="view_route">View route</string>
+
+    <!-- Weather States -->
+    <string name="weather_checking">Checking weather…</string>
+    <string name="weather_unavailable">Live weather unavailable</string>
+    <string name="weather_no_data">No live weather</string>
+
+    <!-- Crowd States -->
+    <string name="crowd_loading">Loading recent reports…</string>
+    <string name="crowd_no_reports">No recent reports</string>
+    <string name="crowd_no_level">— / 10</string>
+    <string name="crowd_report_count">Based on %d recent reports</string>
+    <string name="crowd_report_count_one">Based on 1 recent report</string>
+
+    <!-- Crowd Labels -->
+    <string name="crowd_label_empty">Empty</string>
+    <string name="crowd_label_light">Light</string>
+    <string name="crowd_label_moderate">Moderate</string>
+    <string name="crowd_label_busy">Very busy</string>
+    <string name="crowd_label_extreme">Extremely busy</string>
+    <string name="crowd_label_packed">Packed</string>
+
+    <!-- Crowd Descriptions -->
+    <string name="crowd_desc_1">Little to no crowd.</string>
+    <string name="crowd_desc_2">Almost empty, very easy to visit.</string>
+    <string name="crowd_desc_3">Light crowd, comfortable.</string>
+    <string name="crowd_desc_4">Some people around, easy movement.</string>
+    <string name="crowd_desc_5">Comfortable but noticeable crowd.</string>
+    <string name="crowd_desc_6">Moderate crowd, some waiting.</string>
+    <string name="crowd_desc_7">Busy, expect some queues.</string>
+    <string name="crowd_desc_8">Very busy, slow movement in places.</string>
+    <string name="crowd_desc_9">Extremely busy, long queues and slow movement.</string>
+    <string name="crowd_desc_10">Very dense crowd and slow movement.</string>
+
+    <!-- Crowd Dialog -->
+    <string name="crowd_dialog_title">How crowded is it?</string>
+    <string name="crowd_dialog_subtitle">Your report helps other puja-goers plan their visit.</string>
+    <string name="crowd_submit">Submit update</string>
+    <string name="crowd_success_title">Thanks!</string>
+    <string name="crowd_success_body">Your update helps other puja-goers.</string>
+    <string name="crowd_submit_failed">Could not submit now. Check your connection.</string>
+
+    <!-- Metro States -->
+    <string name="metro_finding">Finding nearest metro…</string>
+    <string name="metro_unavailable">Metro information unavailable</string>
+    <string name="metro_distance_label">%s from pandal</string>
+
+    <!-- Navigation -->
+    <string name="navigate_to_pandal">Navigate to pandal</string>
+    <string name="close">Close</string>
 </resources>

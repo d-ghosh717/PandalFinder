@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Spacing scale -->
+    <dimen name="spacing_xs">4dp</dimen>
+    <dimen name="spacing_sm">8dp</dimen>
+    <dimen name="spacing_md">12dp</dimen>
+    <dimen name="spacing_base">16dp</dimen>
+    <dimen name="spacing_lg">20dp</dimen>
+    <dimen name="spacing_xl">24dp</dimen>
+    <dimen name="spacing_2xl">32dp</dimen>
+
+    <!-- Corner radii -->
+    <dimen name="radius_small">12dp</dimen>
+    <dimen name="radius_medium">20dp</dimen>
+    <dimen name="radius_large">28dp</dimen>
+    <dimen name="radius_pill">50dp</dimen>
+
+    <!-- Touch targets -->
+    <dimen name="touch_min">48dp</dimen>
+    <dimen name="button_height">56dp</dimen>
+    <dimen name="search_height">56dp</dimen>
+    <dimen name="filter_height">44dp</dimen>
+
+    <!-- Card elevation -->
+    <dimen name="elevation_low">2dp</dimen>
+    <dimen name="elevation_medium">6dp</dimen>
+    <dimen name="elevation_high">8dp</dimen>
+
+    <!-- Typography sizes -->
+    <dimen name="text_display">32sp</dimen>
+    <dimen name="text_title">26sp</dimen>
+    <dimen name="text_heading">22sp</dimen>
+    <dimen name="text_subheading">19sp</dimen>
+    <dimen name="text_body">16sp</dimen>
+    <dimen name="text_body_large">18sp</dimen>
+    <dimen name="text_caption">14sp</dimen>
+    <dimen name="text_label">14sp</dimen>
+</resources>

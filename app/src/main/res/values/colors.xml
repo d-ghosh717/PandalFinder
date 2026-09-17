@@ -1,22 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Durga Puja Festive Theme -->
-    <color name="durga_red">#C41E3A</color>
-    <color name="durga_maroon">#800020</color>
-    <color name="durga_gold">#FFD700</color>
-    <color name="durga_orange">#FF6B35</color>
-    <color name="durga_yellow">#FFC107</color>
-    <color name="durga_dark_red">#8B0000</color>
-    <color name="durga_light_orange">#FFE5B4</color>
-    
-    <!-- Background colors -->
-    <color name="festival_bg_start">#FFF5E1</color>
-    <color name="festival_bg_end">#FFE4B5</color>
-    
-    <!-- Text colors -->
-    <color name="text_primary">#2C1810</color>
-    <color name="text_secondary">#6D4C41</color>
-    
-    <color name="black">#FF000000</color>
+    <!-- Primary: Deep Vermilion / Sindoor Red -->
+    <color name="primary">#C62828</color>
+    <color name="primary_dark">#8B1A1A</color>
+    <color name="on_primary">#FFFFFF</color>
+
+    <!-- Secondary: Warm Gold -->
+    <color name="secondary">#C6901E</color>
+    <color name="secondary_light">#E8B84D</color>
+
+    <!-- Backgrounds -->
+    <color name="background">#FFF8F0</color>
+    <color name="surface">#FFFCF8</color>
+    <color name="surface_variant">#F5E6D8</color>
+
+    <!-- Text -->
+    <color name="text_primary">#1A1110</color>
+    <color name="text_secondary">#5C4D48</color>
+    <color name="text_on_dark">#FFFFFF</color>
+
+    <!-- UI Elements -->
+    <color name="outline">#9C8A84</color>
+    <color name="divider">#E8DBD4</color>
+    <color name="scrim">#33000000</color>
+
+    <!-- Crowd Level Colors -->
+    <color name="crowd_empty">#2E7D32</color>
+    <color name="crowd_light">#558B2F</color>
+    <color name="crowd_moderate">#EF6C00</color>
+    <color name="crowd_busy">#D32F2F</color>
+    <color name="crowd_extreme">#B71C1C</color>
+
+    <!-- Metro -->
+    <color name="metro_blue">#1565C0</color>
+
+    <!-- Selection -->
+    <color name="chip_selected_bg">#C62828</color>
+    <color name="chip_selected_text">#FFFFFF</color>
+    <color name="chip_unselected_bg">#FFFCF8</color>
+    <color name="chip_unselected_text">#1A1110</color>
+
+    <!-- Legacy aliases (keep for any lingering references) -->
+    <color name="accent">@color/primary</color>
+    <color name="accent_dark">@color/primary_dark</color>
+    <color name="accent_on">@color/on_primary</color>
+    <color name="surface_background">@color/background</color>
+    <color name="durga_red">@color/primary</color>
+    <color name="durga_maroon">@color/primary_dark</color>
+    <color name="durga_gold">@color/secondary</color>
+    <color name="durga_orange">#B6411A</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="black">#FF000000</color>
 </resources>

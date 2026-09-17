@@ -6,12 +6,18 @@ data class Pandal(
     val name: String,
     val latitude: Double,
     val longitude: Double,
-    val theme: String = "Modern", // Heritage, Modern, Eco
-    var distance: Float = 0f
+    val id: String = "",
+    val area: String = "Kolkata",
+    val description: String? = null,
+    var distanceMeters: Float = 0f
 ) {
     companion object {
         // Comprehensive list of famous Durga Puja pandals in Kolkata
-        fun getSamplePandals(): List<Pandal> {
+        /**
+         * Local seasonal coordinate catalogue. Replace this source with the supplied
+         * Puja-season JSON feed when available; [PandalRepository] isolates the UI from it.
+         */
+        fun getLocalPandals(): List<Pandal> {
             return listOf(
                 // North Kolkata
                 Pandal("Paikpara 31 Pally Sadharan Durgotsab Samity", 22.6125036, 88.3792923),
@@ -189,14 +195,11 @@ Pandal("Bijoygarh 6 Pally Sarbojanin Shyama Puja Committee", 22.485933, 88.36015
         }
     }
     
-    // Calculate distance from a given location
-    fun calculateDistanceFrom(userLocation: Location) {
+    fun withDistanceFrom(userLocation: Location): Pandal {
         val pandalLocation = Location("").apply {
             latitude = this@Pandal.latitude
             longitude = this@Pandal.longitude
         }
-        // Calculate aerial distance and multiply by 1.4 to estimate driving distance
-        val aerialDistance = userLocation.distanceTo(pandalLocation) / 1000
-        distance = aerialDistance * 1.4f  // Estimate driving distance (aerial × 1.4)
+        return copy(distanceMeters = userLocation.distanceTo(pandalLocation))
     }
 }
