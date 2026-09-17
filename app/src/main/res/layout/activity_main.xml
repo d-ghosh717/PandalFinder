@@ -4,167 +4,564 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:focusableInTouchMode="true"
     android:background="@color/background">
 
-    <!-- Map fills entire screen -->
-    <org.maplibre.android.maps.MapView
-        android:id="@+id/mapView"
+    <!-- ==================================================== -->
+    <!--  1. MAP CONTAINER (MAP IS FULL-SCREEN HERO)         -->
+    <!-- ==================================================== -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/mapContainer"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent">
 
-    <!-- Search bar -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/searchCard"
+        <!-- Full-screen MapView -->
+        <org.maplibre.android.maps.MapView
+            android:id="@+id/mapView"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Floating Search Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/searchCard"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            app:cardBackgroundColor="@color/surface_floating"
+            app:cardCornerRadius="26dp"
+            app:cardElevation="5dp"
+            app:strokeColor="@color/outline"
+            app:strokeWidth="1dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="0dp">
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp">
+
+                    <ImageView
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginStart="18dp"
+                        android:contentDescription="Search"
+                        android:src="@drawable/ic_search"
+                        app:tint="@color/text_secondary" />
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/searchInput"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@android:color/transparent"
+                        android:gravity="center_vertical"
+                        android:hint="@string/search_pandals"
+                        android:imeOptions="actionSearch"
+                        android:inputType="text"
+                        android:fontFamily="@font/inter"
+                        android:paddingStart="52dp"
+                        android:paddingEnd="18dp"
+                        android:textColor="@color/text_primary"
+                        android:textColorHint="@color/text_tertiary"
+                        android:textSize="16sp" />
+                </FrameLayout>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/searchResults"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:maxHeight="260dp"
+                    android:visibility="gone"
+                    android:clipToPadding="false" />
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Floating Filter Pills -->
+        <HorizontalScrollView
+            android:id="@+id/filterScroll"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:scrollbars="none"
+            android:clipToPadding="false"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            app:layout_constraintTop_toBottomOf="@id/searchCard"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <LinearLayout
+                android:id="@+id/filterRow"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/pandalsFilter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="38dp"
+                    android:text="🛕 PANDALS"
+                    android:fontFamily="@font/inter"
+                    android:textAllCaps="false"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:minWidth="0dp"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    app:backgroundTint="@color/primary"
+                    app:cornerRadius="19dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/nearbyFilter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="38dp"
+                    android:layout_marginStart="8dp"
+                    android:text="🚇 METRO"
+                    android:fontFamily="@font/inter"
+                    android:textAllCaps="false"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary"
+                    android:textSize="13sp"
+                    android:minWidth="0dp"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    app:backgroundTint="@color/surface_floating"
+                    app:cornerRadius="19dp"
+                    app:strokeColor="@color/outline"
+                    app:strokeWidth="1dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/toiletsFilter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="38dp"
+                    android:layout_marginStart="8dp"
+                    android:text="🚻 TOILETS"
+                    android:fontFamily="@font/inter"
+                    android:textAllCaps="false"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary"
+                    android:textSize="13sp"
+                    android:minWidth="0dp"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    app:backgroundTint="@color/surface_floating"
+                    app:cornerRadius="19dp"
+                    app:strokeColor="@color/outline"
+                    app:strokeWidth="1dp" />
+
+            </LinearLayout>
+        </HorizontalScrollView>
+
+        <!-- Compact Floating Discovery Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/statusCard"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginBottom="12dp"
+            app:cardBackgroundColor="@color/surface_floating"
+            app:cardCornerRadius="18dp"
+            app:cardElevation="4dp"
+            app:strokeColor="@color/outline"
+            app:strokeWidth="1dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/floatingNavAnchor">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingStart="16dp"
+                android:paddingTop="12dp"
+                android:paddingEnd="16dp"
+                android:paddingBottom="12dp">
+
+                <TextView
+                    android:id="@+id/statusTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/inter"
+                    android:text="@string/location_finding"
+                    android:textColor="@color/text_primary"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/statusMessage"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:fontFamily="@font/inter"
+                    android:text="@string/location_getting"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/allowLocationButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:layout_marginTop="8dp"
+                    android:fontFamily="@font/inter"
+                    android:text="@string/location_allow"
+                    android:textAllCaps="false"
+                    android:textSize="13sp"
+                    android:visibility="gone"
+                    app:backgroundTint="@color/primary"
+                    app:cornerRadius="20dp" />
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Anchor point for floating nav bar spacing -->
+        <View
+            android:id="@+id/floatingNavAnchor"
+            android:layout_width="0dp"
+            android:layout_height="80dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- ==================================================== -->
+    <!--  2. HOPPING CONTAINER (TRAIL PLANNER)               -->
+    <!-- ==================================================== -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/hoppingContainer"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        app:cardBackgroundColor="@color/surface"
-        app:cardCornerRadius="@dimen/radius_large"
-        app:cardElevation="@dimen/elevation_medium"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        android:background="@color/background"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
+        <!-- Hopping Header -->
         <LinearLayout
-            android:layout_width="match_parent"
+            android:id="@+id/hoppingHeaderLayout"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="4dp">
+            android:paddingStart="20dp"
+            android:paddingTop="20dp"
+            android:paddingEnd="20dp"
+            android:paddingBottom="10dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
+            <TextView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:boxBackgroundMode="none"
-                app:startIconDrawable="@drawable/ic_search"
-                app:startIconTint="@color/text_secondary"
-                app:hintTextColor="@color/text_secondary">
+                android:fontFamily="@font/inter"
+                android:text="Hopping"
+                android:textColor="@color/text_primary"
+                android:textSize="28sp"
+                android:textStyle="bold" />
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/searchInput"
-                    android:layout_width="match_parent"
-                    android:layout_height="@dimen/search_height"
-                    android:hint="@string/search_pandals"
-                    android:imeOptions="actionSearch"
-                    android:inputType="text"
-                    android:paddingEnd="16dp"
-                    android:textColor="@color/text_primary"
-                    android:textColorHint="@color/outline"
-                    android:textSize="@dimen/text_body_large" />
-
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/searchResults"
-                android:layout_width="match_parent"
+            <TextView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:maxHeight="280dp"
-                android:visibility="gone"
-                android:clipToPadding="false" />
-
+                android:layout_marginTop="2dp"
+                android:fontFamily="@font/inter"
+                android:text="Plan your pandal trail"
+                android:textColor="@color/text_secondary"
+                android:textSize="14sp" />
         </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
 
-    <!-- Filter pills -->
-    <LinearLayout
-        android:id="@+id/filterRow"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="12dp"
-        android:orientation="horizontal"
-        app:layout_constraintTop_toBottomOf="@id/searchCard"
-        app:layout_constraintStart_toStartOf="parent">
+        <!-- Empty State View -->
+        <LinearLayout
+            android:id="@+id/hoppingEmptyView"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="32dp"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/hoppingHeaderLayout"
+            app:layout_constraintBottom_toTopOf="@id/hoppingBottomAnchor"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/pandalsFilter"
-            android:layout_width="wrap_content"
-            android:layout_height="@dimen/filter_height"
-            android:text="🛕 PANDALS"
-            android:textAllCaps="false"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:minWidth="0dp"
-            android:paddingStart="20dp"
-            android:paddingEnd="20dp"
-            app:backgroundTint="@color/primary"
-            app:cornerRadius="22dp" />
+            <ImageView
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:src="@drawable/ic_route_plan"
+                app:tint="@color/outline_strong" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/nearbyFilter"
-            android:layout_width="wrap_content"
-            android:layout_height="@dimen/filter_height"
-            android:layout_marginStart="8dp"
-            android:text="🚇 METRO"
-            android:textAllCaps="false"
-            android:textStyle="bold"
-            android:textColor="@color/text_primary"
-            android:textSize="14sp"
-            android:minWidth="0dp"
-            android:paddingStart="20dp"
-            android:paddingEnd="20dp"
-            app:backgroundTint="@color/surface"
-            app:cornerRadius="22dp"
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:fontFamily="@font/inter"
+                android:text="Your hopping plan is empty"
+                android:textColor="@color/text_primary"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:fontFamily="@font/inter"
+                android:gravity="center"
+                android:text="Add pandals from the map to build your route."
+                android:textColor="@color/text_secondary"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <!-- Hopping Stops RecyclerView -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/hoppingRecyclerView"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:clipToPadding="false"
+            android:paddingTop="4dp"
+            android:paddingBottom="12dp"
+            app:layout_constraintTop_toBottomOf="@id/hoppingHeaderLayout"
+            app:layout_constraintBottom_toTopOf="@id/hoppingSummaryCard"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Route Summary & Start Hopping Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/hoppingSummaryCard"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="10dp"
+            app:cardBackgroundColor="@color/surface_floating"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="5dp"
             app:strokeColor="@color/outline"
-            app:strokeWidth="1dp" />
+            app:strokeWidth="1dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/hoppingBottomAnchor">
 
-    </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
 
-    <!-- Compact status card at bottom -->
+                <!-- Summary Row: Total Distance & Duration -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/inter"
+                            android:text="Total distance"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="13sp" />
+
+                        <TextView
+                            android:id="@+id/hoppingTotalDistance"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:fontFamily="@font/inter"
+                            android:text="Calculating route…"
+                            android:textColor="@color/primary"
+                            android:textSize="20sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="end"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/hoppingStopsCount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/inter"
+                            android:text="0 stops"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="13sp" />
+
+                        <TextView
+                            android:id="@+id/hoppingEstimatedTime"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:fontFamily="@font/inter"
+                            android:text="—"
+                            android:textColor="@color/text_primary"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Start Hopping Button -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/startHoppingButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:layout_marginTop="12dp"
+                    android:fontFamily="@font/inter"
+                    android:text="Start Hopping"
+                    android:textAllCaps="false"
+                    android:textColor="@color/on_primary"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    app:backgroundTint="@color/primary"
+                    app:cornerRadius="16dp"
+                    app:icon="@drawable/ic_navigation"
+                    app:iconGravity="textStart"
+                    app:iconTint="@color/on_primary" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Bottom space anchor for Hopping tab -->
+        <View
+            android:id="@+id/hoppingBottomAnchor"
+            android:layout_width="0dp"
+            android:layout_height="80dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- ==================================================== -->
+    <!--  3. FLOATING DETACHED BOTTOM NAVIGATION (MAP / HOP) -->
+    <!-- ==================================================== -->
     <com.google.android.material.card.MaterialCardView
-        android:id="@+id/statusCard"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
+        android:id="@+id/floatingNavCard"
+        android:layout_width="wrap_content"
+        android:layout_height="56dp"
         android:layout_marginBottom="24dp"
-        app:cardBackgroundColor="@color/surface"
-        app:cardCornerRadius="@dimen/radius_medium"
-        app:cardElevation="@dimen/elevation_medium"
+        app:cardBackgroundColor="@color/surface_floating"
+        app:cardCornerRadius="28dp"
+        app:cardElevation="8dp"
+        app:strokeColor="@color/outline"
+        app:strokeWidth="1dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent">
 
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="@dimen/spacing_base">
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="6dp"
+            android:paddingEnd="6dp">
 
-            <TextView
-                android:id="@+id/statusTitle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/location_finding"
-                android:textColor="@color/text_primary"
-                android:textSize="@dimen/text_subheading"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/statusMessage"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:text="@string/location_getting"
-                android:textColor="@color/text_secondary"
-                android:textSize="15sp" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/allowLocationButton"
+            <!-- Map Nav Pill -->
+            <LinearLayout
+                android:id="@+id/navMapPill"
                 android:layout_width="wrap_content"
-                android:layout_height="@dimen/touch_min"
-                android:layout_marginTop="10dp"
-                android:text="@string/location_allow"
-                android:textAllCaps="false"
-                android:textSize="16sp"
-                android:visibility="gone"
-                app:backgroundTint="@color/primary"
-                app:cornerRadius="24dp" />
+                android:layout_height="44dp"
+                android:background="@drawable/bg_nav_pill_active"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:paddingStart="18dp"
+                android:paddingEnd="18dp">
+
+                <ImageView
+                    android:id="@+id/navMapIcon"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_map_tab"
+                    app:tint="@color/on_primary" />
+
+                <TextView
+                    android:id="@+id/navMapText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:fontFamily="@font/inter"
+                    android:text="Map"
+                    android:textColor="@color/on_primary"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- Hopping Nav Pill -->
+            <LinearLayout
+                android:id="@+id/navHoppingPill"
+                android:layout_width="wrap_content"
+                android:layout_height="44dp"
+                android:layout_marginStart="4dp"
+                android:background="@android:color/transparent"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:paddingStart="18dp"
+                android:paddingEnd="18dp">
+
+                <ImageView
+                    android:id="@+id/navHoppingIcon"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_route_plan"
+                    app:tint="@color/nav_inactive_text" />
+
+                <TextView
+                    android:id="@+id/navHoppingText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:fontFamily="@font/inter"
+                    android:text="Hopping"
+                    android:textColor="@color/nav_inactive_text"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <!-- Badge Count -->
+                <TextView
+                    android:id="@+id/navHoppingBadge"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginStart="6dp"
+                    android:background="@drawable/bg_badge_circle"
+                    android:fontFamily="@font/inter"
+                    android:gravity="center"
+                    android:text="0"
+                    android:textColor="@color/on_primary"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
+            </LinearLayout>
 
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>

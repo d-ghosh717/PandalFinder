@@ -3,9 +3,17 @@ plugins {
     id 'org.jetbrains.kotlin.android'
 }
 
+def routeSecrets = new Properties()
+def routeSecretsFile = rootProject.file("secrets.properties")
+if (routeSecretsFile.exists()) {
+    routeSecretsFile.withInputStream { routeSecrets.load(it) }
+}
+def routesApiKey = routeSecrets.getProperty("ROUTES_API_KEY", "")
+
 android {
     namespace 'com.pandalfinder'
-    compileSdk 33
+    // MapLibre's current AndroidX transitive dependencies require API 34 to compile.
+    compileSdk 34
 
     defaultConfig {
         applicationId "com.pandalfinder"
@@ -13,6 +21,11 @@ android {
         targetSdk 33
         versionCode 1
         versionName "1.0"
+        buildConfigField "String", "GOOGLE_ROUTES_API_KEY", "\"${routesApiKey.replace('\\', '\\\\').replace('\"', '\\\"')}\""
+    }
+
+    buildFeatures {
+        buildConfig true
     }
 
     buildTypes {
@@ -38,7 +51,15 @@ dependencies {
     implementation 'com.google.android.material:material:1.9.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.recyclerview:recyclerview:1.3.1'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.2'
     
     // Google Play Services for Location
     implementation 'com.google.android.gms:play-services-location:21.0.1'
+
+    // MapLibre renders OpenStreetMap-compatible map styles without a Google Maps key.
+    implementation 'org.maplibre.gl:android-sdk:11.8.0'
+
+    // Firestore is deliberately configuration-free in source. Add google-services.json
+    // for the project's Firebase app before enabling live crowd reports.
+    implementation 'com.google.firebase:firebase-firestore-ktx:25.1.1'
 }

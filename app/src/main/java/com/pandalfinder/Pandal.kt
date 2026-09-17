@@ -188,9 +188,9 @@ Pandal("Jadavpur Athletic Club", 22.4889159, 88.3716305),
 Pandal("Bijoygarh 6 Pally Sarbojanin Shyama Puja Committee", 22.485933, 88.360159),
 
                 
-                // Howrah Side
-                Pandal("Howrah Station Area", 22.5833, 88.3412),
-                Pandal("Shibpur Mitra Sangha", 22.5672, 88.3356)
+                // Howrah Side — FLAGGED: invalid / river coordinates or unverified placeholders excluded
+                // Pandal("Howrah Station Area", 22.5833, 88.3412),
+                // Pandal("Shibpur Mitra Sangha", 22.5672, 88.3356)
             )
         }
     }

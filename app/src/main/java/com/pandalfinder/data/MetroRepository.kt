@@ -19,6 +19,8 @@ data class MetroResult(
 class MetroRepository {
     private val stations = MetroStation.allStations()
 
+    fun all(): List<MetroStation> = stations
+
     /**
      * Returns the nearest metro station to the given [pandal].
      * Calculation uses pandal coordinates, not user location.

@@ -1,0 +1,10 @@
+# Developer-only API configuration. Never commit real keys.
+secrets.properties
+local.properties
+.gradle/
+build/
+app/build/
+*.apk
+*.zip
+.idea/
+.DS_Store

@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="road_distance_unavailable">Road distance unavailable</string>
     <string name="app_name">Pandal Finder</string>
 
     <!-- Search -->
-    <string name="search_pandals">Search pandals</string>
+    <string name="search_pandals">Search places</string>
 
     <!-- Filters -->
-    <string name="filter_pandals">Pandals</string>
-    <string name="filter_nearby">Nearby</string>
+    <string name="filter_pandals">🛕 PANDALS</string>
+    <string name="filter_metro">🚇 METRO</string>
+    <string name="filter_toilets">🚻 TOILETS</string>
 
     <!-- Location -->
     <string name="location_finding">Finding pandals near you…</string>

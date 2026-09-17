@@ -1,54 +1,84 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Primary: Deep Vermilion / Sindoor Red -->
-    <color name="primary">#C62828</color>
-    <color name="primary_dark">#8B1A1A</color>
+    <!-- Primary: Durga Puja Sindoor Red -->
+    <color name="primary">#E52B00</color>
+    <color name="primary_dark">#B82200</color>
     <color name="on_primary">#FFFFFF</color>
 
-    <!-- Secondary: Warm Gold -->
-    <color name="secondary">#C6901E</color>
-    <color name="secondary_light">#E8B84D</color>
+    <!-- Secondary: Festive Orange -->
+    <color name="secondary">#F97E04</color>
+    <color name="secondary_dark">#D96A03</color>
+    <color name="secondary_light">#FBC222</color>
 
-    <!-- Backgrounds -->
-    <color name="background">#FFF8F0</color>
-    <color name="surface">#FFFCF8</color>
-    <color name="surface_variant">#F5E6D8</color>
+    <!-- Durga Puja Palette Accents -->
+    <color name="gold">#FBC222</color>
+    <color name="highlight">#FBEF00</color>
+    <color name="metro_green">#45A701</color>
+    <color name="metro_green_dark">#378601</color>
+
+    <!-- Surfaces & Backgrounds (Warm Cream Theme) -->
+    <color name="background">#FFF5E3</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="surface_floating">#FFFAF0</color>
+    <color name="surface_variant">#FFF0D9</color>
+    <color name="surface_warm">#FFF5E3</color>
 
     <!-- Text -->
-    <color name="text_primary">#1A1110</color>
-    <color name="text_secondary">#5C4D48</color>
+    <color name="text_primary">#1C1917</color>
+    <color name="text_secondary">#78716C</color>
+    <color name="text_tertiary">#A8A29E</color>
     <color name="text_on_dark">#FFFFFF</color>
 
-    <!-- UI Elements -->
-    <color name="outline">#9C8A84</color>
-    <color name="divider">#E8DBD4</color>
+    <!-- Outlines & Borders -->
+    <color name="outline">#EADBCE</color>
+    <color name="outline_strong">#D4C2B0</color>
+    <color name="divider">#EFE5D6</color>
     <color name="scrim">#33000000</color>
 
-    <!-- Crowd Level Colors -->
-    <color name="crowd_empty">#2E7D32</color>
-    <color name="crowd_light">#558B2F</color>
-    <color name="crowd_moderate">#EF6C00</color>
-    <color name="crowd_busy">#D32F2F</color>
-    <color name="crowd_extreme">#B71C1C</color>
+    <!-- Weather Pill Colors (Cool Blue) -->
+    <color name="weather_surface">#F0F7FF</color>
+    <color name="weather_outline">#D0E4FA</color>
+    <color name="weather_icon">#0284C7</color>
+    <color name="weather_text">#0369A1</color>
 
-    <!-- Metro -->
+    <!-- Crowd Pill Colors (Festive Orange / Amber) -->
+    <color name="crowd_surface">#FFF4E8</color>
+    <color name="crowd_outline">#FDD4AB</color>
+    <color name="crowd_icon">#F97E04</color>
+    <color name="crowd_text">#D96A03</color>
+
+    <!-- Metro Pill & Marker Colors (Green) -->
+    <color name="metro_surface">#F2FCEE</color>
+    <color name="metro_outline">#C5EBB4</color>
+    <color name="metro_icon">#45A701</color>
+    <color name="metro_text">#378601</color>
     <color name="metro_blue">#1565C0</color>
 
-    <!-- Selection -->
-    <color name="chip_selected_bg">#C62828</color>
-    <color name="chip_selected_text">#FFFFFF</color>
-    <color name="chip_unselected_bg">#FFFCF8</color>
-    <color name="chip_unselected_text">#1A1110</color>
+    <!-- Toilet Pill & Marker Colors (Teal / Sage Green) -->
+    <color name="toilet_surface">#EBF9F5</color>
+    <color name="toilet_outline">#BCE8DB</color>
+    <color name="toilet_icon">#0D9488</color>
+    <color name="toilet_text">#0F766E</color>
 
-    <!-- Legacy aliases (keep for any lingering references) -->
+    <!-- Hopping Accent Colors -->
+    <color name="hopping_surface">#FFF1F2</color>
+    <color name="hopping_outline">#FECDD3</color>
+
+    <!-- Chip Selection -->
+    <color name="chip_selected_bg">#E52B00</color>
+    <color name="chip_selected_text">#FFFFFF</color>
+    <color name="chip_unselected_bg">#FFFFFF</color>
+    <color name="chip_unselected_text">#1C1917</color>
+
+    <!-- Nav Pill States -->
+    <color name="nav_active_bg">#E52B00</color>
+    <color name="nav_active_text">#FFFFFF</color>
+    <color name="nav_inactive_text">#78716C</color>
+
+    <!-- Legacy aliases -->
     <color name="accent">@color/primary</color>
     <color name="accent_dark">@color/primary_dark</color>
     <color name="accent_on">@color/on_primary</color>
-    <color name="surface_background">@color/background</color>
-    <color name="durga_red">@color/primary</color>
-    <color name="durga_maroon">@color/primary_dark</color>
-    <color name="durga_gold">@color/secondary</color>
-    <color name="durga_orange">#B6411A</color>
     <color name="white">#FFFFFFFF</color>
     <color name="black">#FF000000</color>
 </resources>

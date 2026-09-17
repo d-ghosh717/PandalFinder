@@ -9,17 +9,20 @@
     android:paddingStart="20dp"
     android:paddingEnd="20dp"
     android:paddingTop="12dp"
-    android:paddingBottom="12dp">
+    android:paddingBottom="12dp"
+    android:background="?attr/selectableItemBackground">
 
-    <!-- Pandal icon -->
+    <!-- Icon Badge -->
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:id="@+id/resultIcon"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:gravity="center"
         android:text="🛕"
-        android:textSize="22sp"
+        android:textSize="20sp"
         android:layout_marginEnd="14dp" />
 
-    <!-- Name and area -->
+    <!-- Name and area/line -->
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -30,8 +33,9 @@
             android:id="@+id/resultName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:fontFamily="@font/inter"
             android:textColor="@color/text_primary"
-            android:textSize="17sp"
+            android:textSize="16sp"
             android:textStyle="bold"
             android:maxLines="2"
             android:ellipsize="end" />
@@ -41,19 +45,21 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
+            android:fontFamily="@font/inter"
             android:textColor="@color/text_secondary"
-            android:textSize="15sp" />
+            android:textSize="14sp" />
 
     </LinearLayout>
 
-    <!-- Distance -->
+    <!-- Distance / Tag -->
     <TextView
         android:id="@+id/resultDistance"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="12dp"
+        android:fontFamily="@font/inter"
         android:textColor="@color/primary"
-        android:textSize="14sp"
+        android:textSize="13sp"
         android:textStyle="bold" />
 
 </LinearLayout>

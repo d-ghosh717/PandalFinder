@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Outer Decorative Glow -->
+    <path
+        android:fillColor="#FBC222"
+        android:pathData="M54,20 C72.78,20 88,35.22 88,54 C88,72.78 72.78,88 54,88 C35.22,88 20,72.78 20,54 C20,35.22 35.22,20 54,20 Z" />
+
+    <!-- Inner Background Badge (Sindoor Red) -->
+    <path
+        android:fillColor="#E52B00"
+        android:pathData="M54,23 C71.12,23 85,36.88 85,54 C85,71.12 71.12,85 54,85 C36.88,85 23,71.12 23,54 C23,36.88 36.88,23 54,23 Z" />
+
+    <!-- Pandal / Temple Tiered Silhouette -->
+    <!-- Base platform -->
+    <path
+        android:fillColor="#FFF5E3"
+        android:pathData="M34,75 L74,75 L72,71 L36,71 Z" />
+    <path
+        android:fillColor="#FBC222"
+        android:pathData="M37,70 L71,70 L69,66 L39,66 Z" />
+    <!-- Temple Pillars & Arch -->
+    <path
+        android:fillColor="#FFF5E3"
+        android:pathData="M41,65 L44,65 L44,53 L41,53 Z M64,65 L67,65 L67,53 L64,53 Z" />
+    <!-- Tiered Roof & Shikhara (Dome/Spire) -->
+    <path
+        android:fillColor="#FFF5E3"
+        android:pathData="M38,53 L70,53 L66,45 L42,45 Z" />
+    <path
+        android:fillColor="#FBC222"
+        android:pathData="M43,44 L65,44 L60,37 L48,37 Z" />
+    <!-- Kalash / Finial / Trishul top -->
+    <path
+        android:fillColor="#FBEF00"
+        android:pathData="M52,36 L56,36 L54,30 Z" />
+    <!-- Center Durga Eye / Teardrop Motif -->
+    <path
+        android:fillColor="#FBC222"
+        android:pathData="M54,49 C50,54 50,59 54,63 C58,59 58,54 54,49 Z" />
+    <path
+        android:fillColor="#E52B00"
+        android:pathData="M54,54 m-2,0 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0" />
+</vector>
