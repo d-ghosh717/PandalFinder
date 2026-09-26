@@ -3,63 +3,105 @@
 ### Your Real-Time Durga Puja Companion for Kolkata
 
 > **Discover pandals. Find metro stations. Locate nearby toilets. Build
-> your hopping route. Navigate with ease.**
+> your hopping route. Track crowd updates. Share photos. Navigate with
+> ease.**
 
-PandalFinder is a modern Android application designed for **Durga Puja
-pandal hopping across Kolkata and Howrah**.
+**PandalFinder v2.0.0** is a modern Android application built for Durga
+Puja pandal hopping across Kolkata and Howrah.
 
-It combines live GPS, interactive maps, Google routing, Google Places,
-community-powered crowd/weather updates, metro discovery, and a
-multi-stop hopping planner into one lightweight festival navigation
-experience.
+It combines live GPS, an interactive festival map, Google Maps Platform
+services, Firebase-powered community updates, public toilet discovery,
+metro discovery, personal saved/visited collections, community photos,
+and a multi-stop hopping planner into one map-first festival experience.
 
 ------------------------------------------------------------------------
 
 ## ✨ What is PandalFinder?
 
 During Durga Puja, finding pandals is only part of the problem.
+PandalFinder brings discovery, routing, community information and
+personal trip planning together in one map-first experience.
 
-You also need to know:
-
--   📍 Where is the pandal?
--   🚶 How far is it?
--   🛵 How far is it by bike?
--   🚗 How far is it by car?
--   🌦️ What's the current weather?
--   👥 How crowded is it?
--   🚇 What's the nearest metro station?
--   🚻 Where is the nearest public toilet?
--   🗺️ How do I get there?
--   🛕 Which pandals should I visit next?
-
-**PandalFinder brings all of this together in one map-first
-experience.**
+- Interactive pandal map
+- Metro and public toilet discovery
+- Universal place search
+- Google road-route distances
+- Google Maps navigation
+- Community crowd reports
+- Community weather observations
+- Pandal photo sharing
+- Saved pandals
+- Pandal Passport
+- Multi-stop Hopping itineraries
+- Festival-focused UI
 
 ------------------------------------------------------------------------
 
-# 🚀 Features
+# 🚀 What’s New in v2.0.0
+
+Version 2.0.0 expands PandalFinder from a pandal map into a more
+complete community festival companion.
+
+### 🧭 My Pandal
+
+Saved pandals and the Pandal Passport are grouped into a single **My
+Pandal** section.
+
+``` text
+My Pandal
+├── Saved
+└── Pandal Passport
+```
+
+### 📸 Community Pandal Photos
+
+Users can contribute real pandal photographs. Images are stored in
+Firebase Cloud Storage while Firestore stores photo metadata. New photos
+can be synchronized to other users.
+
+### 👥 Shared Crowd Updates
+
+Recent crowd reports are stored in Firebase and can be synchronized
+between users viewing the same pandal.
+
+### 🌦️ Weather Updates
+
+Automatic weather remains available, with community/local observations
+where implemented. Recent observations are designed to expire rather
+than remain indefinitely current.
+
+### 🗺️ Improved Map Experience
+
+The map combines Pandals, Metro stations, Public Toilets, Festival Zones
+where real data exists, Nearby discovery and Crowd activity.
+
+### 🛣️ Real Route Distances
+
+Selected destinations can use Google Routes for road-based walking,
+two-wheeler and driving distances. The app should show an unavailable
+state instead of inventing a route when the service fails.
+
+------------------------------------------------------------------------
+
+# 🚀 Core Features
 
 ## 🗺️ Interactive Festival Map
 
 Explore Kolkata and Howrah through an interactive map containing real
 pandal locations.
 
-Each place has its own marker type:
+Supported place types include:
 
--   🛕 Pandals
--   🚇 Metro stations
--   🚻 Public toilets
+- Pandals
+- Metro stations
+- Public toilets
+- Festival zones where reliable data is available
 
-The map remains the primary interface of the application.
-
-------------------------------------------------------------------------
+The map remains the primary interface.
 
 ## 🔎 Universal Place Search
 
-One compact search bar lets users search across multiple place
-categories.
-
-Search for:
+Search across supported categories:
 
 ``` text
 Pandal names
@@ -68,351 +110,298 @@ Metro stations
 Public toilets
 ```
 
-Example:
-
-``` text
-Khidderpore
-Rabindra Sarobar
-Howrah
-Maidan
-```
-
-Search results identify the type of place before opening it.
-
-------------------------------------------------------------------------
-
-# 🎛️ Independent Map Filters
-
-PandalFinder provides three independent map filters:
+## 🎛️ Independent Map Filters
 
 ``` text
 [PANDALS] [METRO] [TOILETS]
 ```
 
-They can be combined freely.
+Filters can be combined freely, including showing all three
+simultaneously.
 
-### Examples
+## 🛕 Pandal Discovery
 
-``` text
-[PANDALS ✓] [METRO] [TOILETS]
-```
+A pandal detail view can provide:
 
-Shows pandals only.
-
-``` text
-[PANDALS] [METRO ✓] [TOILETS]
-```
-
-Shows metro stations only.
-
-``` text
-[PANDALS] [METRO] [TOILETS ✓]
-```
-
-Shows public toilets only.
-
-``` text
-[PANDALS ✓] [METRO ✓] [TOILETS ✓]
-```
-
-Shows all three simultaneously.
+- Pandal name
+- Area / location
+- Road distance
+- Walking distance
+- Two-wheeler distance
+- Driving distance
+- Current weather
+- Community crowd level
+- Nearest metro station
+- Community photos
+- Saved status
+- Visited status
+- Add to Hopping
+- Google Maps navigation
 
 ------------------------------------------------------------------------
 
-# 🛕 Pandal Discovery
+# 📸 Community Pandal Photos
 
-Tap any pandal marker to open its detailed information.
+Users can add photographs from the device gallery or camera.
 
-The pandal detail view provides:
+Upload flow:
 
--   Pandal name
--   Area / location
--   Road distance
--   Walking distance
--   Two-wheeler distance
--   Driving distance
--   Current weather
--   Community crowd level
--   Nearest metro station
--   Add to Hopping
--   Google Maps navigation
+``` text
+Pandal Detail
+     ↓
+Add Photo
+     ↓
+Camera / Gallery
+     ↓
+Preview
+     ↓
+Upload
+     ↓
+Firebase Cloud Storage
+     ↓
+Firestore metadata
+     ↓
+Community Gallery
+```
+
+Firestore stores metadata such as:
+
+``` text
+pandalId
+storagePath
+downloadUrl
+uploadedBy
+createdAt
+status
+```
+
+Image binary data should remain in Cloud Storage rather than being
+stored directly in Firestore.
+
+Uploads should use appropriate file-size, content-type and Firebase
+Security Rules.
+
+------------------------------------------------------------------------
+
+# ❤️ My Pandal
+
+The bottom navigation is intentionally minimal:
+
+``` text
+[ Map ] [ Hopping ] [ My Pandal ]
+```
+
+### Saved
+
+Save pandals for later. Saved state persists across app restarts.
+
+### Pandal Passport
+
+Track pandals you have visited and your festival progress.
+
+------------------------------------------------------------------------
+
+# 🛣️ Hopping
+
+Create a personalized multi-stop itinerary containing pandals, metro
+stations and toilets.
+
+Example:
+
+``` text
+1. Pandal
+2. Metro Station
+3. Public Restroom
+4. Pandal
+```
+
+Users can:
+
+- Add places
+- Remove places
+- Reorder stops
+- Prevent duplicate stops
+- Calculate route information
+- Start navigation through Google Maps
+
+The itinerary persists across app restarts.
 
 ------------------------------------------------------------------------
 
 # 🚗 Google Routes Integration
 
-PandalFinder uses Google's routing services for road-based distance
-calculations.
+The intended route flow is:
 
 ``` text
-Current GPS
-     │
-     ▼
+Current Device GPS
+        │
+        ▼
 Google Routes API
-     │
-     ├── 🚶 Walking
-     ├── 🛵 Two-wheeler
-     └── 🚗 Driving
+        │
+        ├── Walking
+        ├── Two-wheeler
+        └── Driving
 ```
 
-The application does **not** use straight-line distance for road-route
-information.
+Road-route information must not be replaced with fabricated or
+straight-line values.
 
 Example:
 
 ``` text
-🚶 7.8 km
-🛵 5.7 km
-🚗 5.8 km
+Walking       7.8 km
+Two-wheeler   5.7 km
+Driving       5.8 km
 ```
+
+Route requests should be made for the selected destination rather than
+every map marker.
 
 ------------------------------------------------------------------------
 
 # 🚇 Metro Discovery
 
-Metro stations can be displayed independently or alongside pandals.
-
 Tap a metro station to view:
 
--   Station name
--   Distance from current location
--   Add/remove from Hopping
--   Navigation
+- Station name
+- Distance from current location
+- Add/remove from Hopping
+- Navigation
 
-Example:
+## 🚻 Public Toilet Discovery
 
-``` text
-🚇 Rabindra Sarobar
+Toilets are discovered using Google Places services.
 
-1.8 km from you
+Tap a toilet to view:
 
-[ + ]    [ Navigation ]
-```
+- Restroom name
+- Address
+- Current distance
+- Add/remove from Hopping
+- Navigation
 
-------------------------------------------------------------------------
-
-# 🚻 Public Toilet Discovery
-
-PandalFinder can discover nearby public toilets using **Google Places
-API**.
-
-Toilets have their own marker style and can be displayed independently
-or alongside pandals and metro stations.
-
-Tap a toilet to see:
-
--   Restroom name
--   Address
--   Current distance
--   Add/remove from Hopping
--   Google Maps navigation
-
-Example:
-
-``` text
-🚻 Public Toilet
-
-Maidan, Kolkata
-
-850 m from you
-
-[ + ]    [ Navigation ]
-```
-
-------------------------------------------------------------------------
-
-# 🛣️ Hopping --- Build Your Own Route
-
-The **Hopping** section lets users create a personalized multi-stop
-festival itinerary.
-
-A route can contain:
-
-``` text
-1. 🛕 Khidderpore 75 Pally
-2. 🚇 Rabindra Sarobar
-3. 🚻 Pay & Use Restroom
-4. 🛕 Another Pandal
-```
-
-Users can:
-
--   Add places
--   Remove places
--   Reorder stops
--   Prevent duplicate stops
--   Calculate route information
--   Start the route through Google Maps
-
-The itinerary is persisted across app restarts.
-
-------------------------------------------------------------------------
-
-## 🧭 Mixed-Stop Routing
-
-PandalFinder isn't limited to pandal-only routes.
-
-``` text
-Current Location
-       │
-       ▼
-🛕 Pandal
-       │
-       ▼
-🚇 Metro Station
-       │
-       ▼
-🛕 Pandal
-       │
-       ▼
-🚻 Restroom
-       │
-       ▼
-🛕 Final Pandal
-```
-
-Every stop retains its:
-
--   Name
--   Type
--   Coordinates
--   Address/details
-
-------------------------------------------------------------------------
-
-# 🌦️ Community Weather
-
-Users near a pandal can report the current rain condition:
-
-``` text
-☀️ No rain
-🌦️ Drizzle
-🌧️ Raining
-⛈️ Heavy rain
-```
-
-Reports are stored in Firebase and expire after a limited period so
-outdated conditions don't remain indefinitely.
-
-Only users who are physically near a pandal or have recently visited it
-can submit local updates.
-
-> **Keep contributing to keep PandalFinder updated.**
+Toilet locations should come from real place data rather than fabricated
+coordinates.
 
 ------------------------------------------------------------------------
 
 # 👥 Community Crowd Reports
 
-Visitors can report crowd intensity using:
+Visitors can report crowd intensity on a 1–10 scale.
+
+| Level | Meaning        |
+|-------|----------------|
+| 1–2   | Empty          |
+| 3–4   | Light          |
+| 5–6   | Moderate       |
+| 7–8   | Very busy      |
+| 9     | Extremely busy |
+| 10    | Packed         |
+
+The scale represents crowd intensity, not an exact number of people.
+
+Recent reports are stored through Firebase and can be synchronized to
+other users. Where contribution validation is enabled, only
+nearby/recent visitors can submit reports.
+
+> **Keep contributing to keep PandalFinder updated.**
+
+------------------------------------------------------------------------
+
+# 🌦️ Weather
+
+PandalFinder supports automatic weather information and community/local
+observations where implemented.
+
+Examples include:
 
 ``` text
-1 ───────────── 10
+No rain
+Drizzle
+Raining
+Heavy rain
 ```
 
-    Level Meaning
-  ------- ----------------
-     1--2 Empty
-     3--4 Light
-     5--6 Moderate
-     7--8 Very busy
-        9 Extremely busy
-       10 Packed
-
-The scale represents **crowd intensity**, not an exact number of people.
-
-Only nearby/recent visitors can contribute.
+Automatic weather should come from the configured weather source.
+Community observations should represent recent local conditions and
+become stale after the configured validity period.
 
 ------------------------------------------------------------------------
 
 # 📍 Live Location
 
-PandalFinder uses the device's current GPS position for:
+Device GPS is used for:
 
--   Nearby discovery
--   Distance calculations
--   Route origins
--   Metro distance
--   Toilet distance
--   Contribution eligibility
--   Navigation
+- Nearby discovery
+- Distance calculations
+- Route origins
+- Metro distance
+- Toilet distance
+- Contribution eligibility
+- Navigation
 
 ------------------------------------------------------------------------
 
 # 🗺️ Navigation
 
-Every supported destination can be handed off directly to Google Maps.
+Supported destinations can be handed off to Google Maps:
 
 ``` text
 Pandal / Metro / Toilet
-          │
-          ▼
-     Navigation
-          │
-          ▼
+          ↓
+      Navigation
+          ↓
       Google Maps
-          │
-          ▼
- Turn-by-turn directions
 ```
 
 ------------------------------------------------------------------------
 
 # 🎨 Design
 
-PandalFinder uses a visual identity inspired by **Durga Puja and
-Kolkata**.
+PandalFinder uses a visual identity inspired by Durga Puja and Kolkata.
 
-### Core palette
+| Color           | Hex       |
+|-----------------|-----------|
+| Sindoor Red     | `#E52B00` |
+| Cream           | `#FFF5E3` |
+| Orange          | `#F97E04` |
+| Gold            | `#FBC222` |
+| Festival Yellow | `#FBEF00` |
+| Green           | `#45A701` |
 
-  Color             Hex
-  ----------------- -----------
-  Sindoor Red       `#E52B00`
-  Cream             `#FFF5E3`
-  Orange            `#F97E04`
-  Gold              `#FBC222`
-  Festival Yellow   `#FBEF00`
-  Green             `#45A701`
-
-The interface focuses on:
-
--   Warm festival colors
--   Modern Android design
--   Readable typography
--   Floating map controls
--   Rounded surfaces
--   Strong visual hierarchy
--   Minimal navigation
--   Outdoor usability
+The UI focuses on warm festival colors, modern Android design, readable
+typography, floating map controls, rounded surfaces, strong visual
+hierarchy and minimal navigation.
 
 ------------------------------------------------------------------------
 
 # 🧭 App Structure
 
 ``` text
-                    PANDALFINDER
-                         │
-                         ▼
-                 ┌───────────────┐
-                 │      MAP      │
-                 └───────┬───────┘
-                         │
-       ┌─────────────────┼─────────────────┐
-       ▼                 ▼                 ▼
-   🛕 PANDALS        🚇 METRO          🚻 TOILETS
-       │                 │                 │
-       └─────────────────┼─────────────────┘
-                         ▼
-                    PLACE CARD
-                         │
-              ┌──────────┴──────────┐
-              ▼                     ▼
-        + HOPPING              NAVIGATION
-              │                     │
-              ▼                     ▼
-        HOPPING PLAN           GOOGLE MAPS
-              │
-              ▼
-        MULTI-STOP ROUTE
+                       PANDALFINDER
+                            │
+                            ▼
+                           MAP
+                            │
+             ┌──────────────┼──────────────┐
+             ▼              ▼              ▼
+          PANDALS         METRO          TOILETS
+             │              │              │
+             └──────────────┼──────────────┘
+                            ▼
+                       PLACE CARD
+                       /                               ▼           ▼
+                  HOPPING     NAVIGATION
+                     │             │
+                     ▼             ▼
+               MULTI-STOP      GOOGLE MAPS
+                   PLAN
+                     │
+          ┌──────────┴──────────┐
+          ▼                     ▼
+      MY PANDAL             COMMUNITY
+      /       \              /         \
+   SAVED    PASSPORT      CROWD      PHOTOS
 ```
 
 ------------------------------------------------------------------------
@@ -421,35 +410,50 @@ The interface focuses on:
 
 ### Android
 
--   **Kotlin**
--   **Android SDK**
--   **Gradle**
--   **Google Play Services Location**
--   **Firebase**
--   **Firestore**
+- Kotlin
+- Android SDK
+- Gradle
+- Google Play Services Location
+- Firebase
+- Cloud Firestore
+- Firebase Cloud Storage
 
 ### Maps & Location
 
--   Interactive map rendering
--   Device GPS
--   Google Routes API
--   Google Places API
--   Google Maps navigation
+- Google Maps Platform
+- Google Routes API
+- Google Places API / Places API (New)
+- Google Maps navigation
+- Device GPS / location services
+
+### Community Data
+
+- Firebase Firestore
+- Firebase Cloud Storage
+- Realtime listeners where required
 
 ------------------------------------------------------------------------
 
-# 🔥 Firebase
+# 🔥 Firebase Architecture
 
-Firebase / Firestore is used for community-generated information such
-as:
+Firebase is used for shared community information:
 
 ``` text
-Crowd Reports
-Weather Reports
+Firestore
+├── Crowd Reports
+├── Weather / community observations
+├── Pandal photo metadata
+└── Other shared community data
+
+Cloud Storage
+└── Pandal photographs
 ```
 
-The app does not require traditional user accounts for its core
-experience.
+The core experience is designed without requiring traditional account
+creation.
+
+Production Firebase Security Rules should restrict writes and prevent
+users from modifying other users’ content.
 
 ------------------------------------------------------------------------
 
@@ -457,59 +461,61 @@ experience.
 
 ## Requirements
 
--   Android SDK
--   JDK
--   Gradle wrapper
--   Android device or emulator
--   USB debugging for physical-device testing
--   Google Cloud project
--   Firebase project
+- Android SDK
+- JDK
+- Gradle wrapper
+- Android device or emulator
+- USB debugging for physical-device testing
+- Google Cloud project
+- Firebase project
 
-------------------------------------------------------------------------
-
-## 🔑 Google Maps Platform
+## Google Maps Platform
 
 The application uses:
 
 ``` text
-Maps
+Maps SDK for Android
 Routes API
-Places API
+Places API (New)
 ```
 
 Required APIs must be enabled in the Google Cloud project.
 
+Configure API-key restrictions according to the actual Android and
+web-service request architecture.
+
 **Never commit API keys to GitHub.**
 
-Use local configuration such as:
+Use secure local configuration such as:
 
 ``` text
 local.properties
 ```
 
-or the project's secure build configuration.
+## Firebase
+
+Configure the Firebase Android project and enable the required services:
+
+``` text
+Cloud Firestore
+Cloud Storage
+```
+
+Configure Firebase Security Rules before production use.
 
 ------------------------------------------------------------------------
 
 # 📱 Running the App
 
-### 1. Configure Android SDK
+### Configure Android SDK
 
-Set the SDK location in:
-
-``` text
-local.properties
-```
-
-Example:
+Set the SDK location in `local.properties`:
 
 ``` properties
-sdk.dir=C:\\Users\\YourUsername\\AppData\\Local\\Android\\Sdk
+sdk.dir=C:\Users\YourUsername\AppData\Local\Android\Sdk
 ```
 
-### 2. Enable USB Debugging
-
-Enable:
+### Enable USB Debugging
 
 ``` text
 Settings
@@ -517,13 +523,13 @@ Settings
 → USB Debugging
 ```
 
-Then connect the device and verify:
+Verify the device:
 
 ``` bash
 adb devices
 ```
 
-### 3. Build
+### Build
 
 Windows:
 
@@ -537,7 +543,7 @@ macOS / Linux:
 ./gradlew assembleDebug
 ```
 
-### 4. Install
+### Install
 
 ``` bash
 adb install -r app/build/outputs/apk/debug/app-debug.apk
@@ -549,15 +555,19 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 
 ``` text
 VS Code
-    ↓
+   ↓
 Gradle CLI
-    ↓
+   ↓
 Debug APK
-    ↓
+   ↓
 ADB / USB Debugging
-    ↓
+   ↓
 Physical Android Device
 ```
+
+Real-device testing is recommended for GPS, Maps, Routes, Places,
+camera/photo picker, Firebase synchronization and Google Maps
+navigation.
 
 ------------------------------------------------------------------------
 
@@ -603,64 +613,85 @@ adb logcat
 
 # 🧩 Troubleshooting
 
-### Location isn't updating
+### Location isn’t updating
 
 Check:
 
--   GPS is enabled
--   Location permission is granted
--   Google Play Services is available
--   Device location settings are enabled
+- GPS is enabled
+- Location permission is granted
+- Google Play Services is available
+- Device location settings are enabled
 
-### Google Maps doesn't open
+### Google Maps doesn’t open
 
 Make sure Google Maps or another supported mapping application is
-installed.
+installed and the navigation destination is valid.
 
 ### Routes are unavailable
 
 Check:
 
--   Routes API is enabled
--   API key is valid
--   API key restrictions allow the required service
--   Billing is configured
--   Device has internet access
+- Routes API is enabled
+- API key is valid
+- Billing is configured where required
+- API-key restrictions match the actual request architecture
+- Origin coordinates are valid
+- Destination coordinates are valid
+- Device has internet access
+- Routes response parsing is correct
 
-### Toilets aren't appearing
+Use Logcat to inspect the actual Google Routes error. Never replace a
+failed route with a fabricated distance.
 
-Check:
-
--   Places API (New) is enabled
--   API key allows Places requests
--   Required Places endpoint is available
--   Device has internet access
-
-### Firebase updates aren't working
+### Toilets aren’t appearing
 
 Check:
 
--   Firebase configuration is present
--   Firestore is enabled
--   Firestore rules permit the intended operation
--   Device has internet access
--   Logcat for Firebase exceptions
+- Places API (New) is enabled
+- API key allows the required Places functionality
+- Current Places implementation matches the enabled API
+- Location permission is available where required
+- Device has internet access
+
+### Firebase updates aren’t working
+
+Check:
+
+- Firebase configuration is present
+- Firestore is enabled
+- Cloud Storage is enabled
+- Firebase Security Rules permit the intended operation
+- Realtime listeners are attached correctly
+- Device has internet access
+- Logcat for Firebase exceptions
+
+### Community photos aren’t appearing
+
+Check:
+
+- Storage upload completed
+- Firestore metadata write completed
+- Storage path/download URL is valid
+- Firestore listener is active
+- Storage and Firestore rules allow the intended read
+- The image can be loaded by the device
 
 ------------------------------------------------------------------------
 
 # 🗺️ Data Philosophy
 
-PandalFinder is designed around **real location data instead of
-fabricated values**.
+PandalFinder is designed around **real location and community data
+instead of fabricated values**.
 
 The application avoids:
 
--   Fake route distances
--   Fake toilet locations
--   Fake crowd values
--   Hardcoded current GPS positions
--   Map-center coordinates used as destinations
--   Artificial navigation routes
+- Fake route distances
+- Fake toilet locations
+- Fake crowd values
+- Hardcoded current GPS positions
+- Map-center coordinates used as destinations
+- Artificial navigation routes
+- Fake community reports
 
 When a service cannot provide reliable information, the application
 should report that state instead of pretending that a value is accurate.
@@ -669,7 +700,8 @@ should report that state instead of pretending that a value is accurate.
 
 # 🛡️ Privacy
 
-PandalFinder is designed to work without traditional account creation.
+PandalFinder is designed to work without traditional account creation
+for its core experience.
 
 Location is primarily used for:
 
@@ -681,50 +713,62 @@ Contribution eligibility
 Distance calculations
 ```
 
-Community contributions use only the information necessary to associate
-a report with a place and validate/display community updates.
+Community contributions should use only the information necessary to
+associate a contribution with a place and validate/display the
+contribution.
+
+Uploaded photographs should use appropriate Firebase Storage and
+Firestore security controls.
 
 ------------------------------------------------------------------------
 
 # 🗺️ Roadmap
 
-### ✅ Completed
+## ✅ Completed / v2.0.0
 
--   [x] Live GPS location
--   [x] Interactive pandal map
--   [x] Pandal discovery
--   [x] Pandal search
--   [x] Metro discovery
--   [x] Universal place search
--   [x] Independent pandal/metro/toilet filters
--   [x] Google Routes integration
--   [x] Walking route distance
--   [x] Two-wheeler route distance
--   [x] Driving route distance
--   [x] Google Maps navigation
--   [x] Automatic weather
--   [x] Community weather reports
--   [x] Community crowd reports
--   [x] Nearby/recent visitor contribution validation
--   [x] Firebase Firestore integration
--   [x] Google Places toilet discovery
--   [x] Toilet detail cards
--   [x] Metro detail cards
--   [x] Hopping itinerary
--   [x] Mixed pandal/metro/toilet routes
--   [x] Stop reordering
--   [x] Duplicate-stop prevention
--   [x] Persistent hopping plan
--   [x] Durga Puja visual identity
+- [x] Live GPS location
+- [x] Interactive pandal map
+- [x] Pandal discovery
+- [x] Pandal search
+- [x] Metro discovery
+- [x] Universal place search
+- [x] Independent pandal/metro/toilet filters
+- [x] Google Routes integration
+- [x] Walking route distance
+- [x] Two-wheeler route distance
+- [x] Driving route distance
+- [x] Google Maps navigation
+- [x] Automatic weather
+- [x] Community weather reports
+- [x] Community crowd reports
+- [x] Nearby/recent visitor contribution validation
+- [x] Firebase Firestore integration
+- [x] Google Places toilet discovery
+- [x] Toilet detail cards
+- [x] Metro detail cards
+- [x] Hopping itinerary
+- [x] Mixed pandal/metro/toilet routes
+- [x] Stop reordering
+- [x] Duplicate-stop prevention
+- [x] Persistent hopping plan
+- [x] Saved pandals
+- [x] Pandal Passport
+- [x] My Pandal section
+- [x] Community pandal photos
+- [x] Firebase Cloud Storage photo uploads
+- [x] Realtime community data architecture
+- [x] Durga Puja visual identity
+- [x] v2.0.0 release
 
-### 🚧 Future Ideas
+## 🚧 Future Ideas
 
--   [ ] Better route optimization
--   [ ] Festival/event timing information
--   [ ] More detailed accessibility information
--   [ ] Pandal photography
--   [ ] Offline map support
--   [ ] More community-generated festival information
+- [ ] Smarter route optimization
+- [ ] Festival/event timing information
+- [ ] More detailed accessibility information
+- [ ] Offline map/core data support
+- [ ] More community-generated festival information
+- [ ] Better photo moderation
+- [ ] Richer pandal information and verified details
 
 ------------------------------------------------------------------------
 
@@ -736,7 +780,7 @@ Contributions are welcome.
 git checkout -b feature/your-feature
 ```
 
-Make your changes, test them on a physical Android device, then:
+Make changes and test them on a physical Android device.
 
 ``` bash
 git add .
@@ -744,7 +788,7 @@ git commit -m "Add your feature"
 git push origin feature/your-feature
 ```
 
-Then open a pull request.
+Then open a pull request with a clear description of the change.
 
 ------------------------------------------------------------------------
 
@@ -752,15 +796,16 @@ Then open a pull request.
 
 Built with:
 
--   Kotlin
--   Android
--   Google Play Services
--   Google Maps Platform
--   Google Routes API
--   Google Places API
--   Firebase
--   Firestore
--   OpenStreetMap / map data where applicable
+- Kotlin
+- Android
+- Google Play Services
+- Google Maps Platform
+- Google Routes API
+- Google Places API
+- Firebase
+- Cloud Firestore
+- Firebase Cloud Storage
+- OpenStreetMap / map data where applicable
 
 ------------------------------------------------------------------------
 
@@ -769,3 +814,5 @@ Built with:
 ### Discover Kolkata. Build your route. Experience Durga Puja.
 
 **Made for pandal hoppers.**
+
+**Current release: v2.0.0**
