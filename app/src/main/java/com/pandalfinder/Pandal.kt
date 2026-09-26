@@ -9,6 +9,12 @@ data class Pandal(
     val id: String = "",
     val area: String = "Kolkata",
     val description: String? = null,
+    val theme: String? = null,
+    val establishedYear: Int? = null,
+    val knownFor: String? = null,
+    val festivalInfo: String? = null,
+    val entryInfo: String? = null,
+    val photoUrl: String? = null,
     var distanceMeters: Float = 0f
 ) {
     companion object {

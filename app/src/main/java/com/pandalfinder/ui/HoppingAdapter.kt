@@ -1,15 +1,18 @@
 package com.pandalfinder.ui
 
 import android.annotation.SuppressLint
+import android.content.res.ColorStateList
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.card.MaterialCardView
 import com.pandalfinder.MainActivity
 import com.pandalfinder.R
 import com.pandalfinder.data.HoppingStop
@@ -25,12 +28,14 @@ class HoppingAdapter(
 ) : RecyclerView.Adapter<HoppingAdapter.ViewHolder>() {
 
     class ViewHolder(v: View) : RecyclerView.ViewHolder(v) {
+        val routeConnectorLayout: View = v.findViewById(R.id.routeConnectorLayout)
+        val connectorLegDistance: TextView = v.findViewById(R.id.connectorLegDistance)
+        val stopCard: MaterialCardView = v.findViewById(R.id.stopCard)
         val stopIndex: TextView = v.findViewById(R.id.stopIndex)
-        val stopName: TextView = v.findViewById(R.id.stopName)
+        val stopTypeIconContainer: FrameLayout = v.findViewById(R.id.stopTypeIconContainer)
         val stopTypeIcon: ImageView = v.findViewById(R.id.stopTypeIcon)
+        val stopName: TextView = v.findViewById(R.id.stopName)
         val stopArea: TextView = v.findViewById(R.id.stopArea)
-        val legDistanceContainer: View = v.findViewById(R.id.legDistanceContainer)
-        val legDistance: TextView = v.findViewById(R.id.legDistance)
         val removeButton: ImageButton = v.findViewById(R.id.removeStopButton)
         val dragHandle: ImageView = v.findViewById(R.id.dragHandle)
     }
@@ -43,33 +48,56 @@ class HoppingAdapter(
     @SuppressLint("ClickableViewAccessibility")
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = items[position]
+        val context = holder.itemView.context
+
         holder.stopIndex.text = (position + 1).toString()
         holder.stopName.text = item.name
         holder.stopArea.text = item.subtitle
 
-        when (item.type) {
-            StopType.PANDAL -> {
-                holder.stopTypeIcon.setImageResource(R.drawable.ic_temple)
-                holder.stopTypeIcon.setColorFilter(ContextCompat.getColor(holder.itemView.context, R.color.primary))
+        // Route connector between stops
+        if (position > 0) {
+            holder.routeConnectorLayout.visibility = View.VISIBLE
+            if (position in legDistances.indices && legDistances[position] > 0) {
+                val distText = MainActivity.routeDistanceText(legDistances[position])
+                holder.connectorLegDistance.text = "↓  $distText to Stop ${position + 1}"
+            } else {
+                holder.connectorLegDistance.text = "↓  To Stop ${position + 1}"
             }
-            StopType.METRO -> {
-                holder.stopTypeIcon.setImageResource(R.drawable.ic_metro)
-                val color = item.metroRef?.lineColor ?: ContextCompat.getColor(holder.itemView.context, R.color.metro_icon)
-                holder.stopTypeIcon.setColorFilter(color)
-            }
-            StopType.TOILET -> {
-                holder.stopTypeIcon.setImageResource(R.drawable.ic_toilet)
-                holder.stopTypeIcon.setColorFilter(ContextCompat.getColor(holder.itemView.context, R.color.toilet_icon))
-            }
+        } else {
+            holder.routeConnectorLayout.visibility = View.GONE
         }
 
-        // Display leg distance if calculated
-        if (position in legDistances.indices && legDistances[position] > 0) {
-            val distText = MainActivity.routeDistanceText(legDistances[position])
-            holder.legDistanceContainer.visibility = View.VISIBLE
-            holder.legDistance.text = if (position == 0) "↓ $distText from your location" else "↓ $distText from Stop $position"
-        } else {
-            holder.legDistanceContainer.visibility = View.GONE
+        when (item.type) {
+            StopType.PANDAL -> {
+                holder.stopTypeIcon.setImageResource(R.drawable.ic_pandal_icon)
+                holder.stopTypeIcon.setColorFilter(ContextCompat.getColor(context, R.color.primary))
+                holder.stopTypeIconContainer.backgroundTintList =
+                    ContextCompat.getColorStateList(context, R.color.surface_variant)
+                holder.stopIndex.setTextColor(ContextCompat.getColor(context, R.color.primary))
+                holder.stopIndex.backgroundTintList =
+                    ContextCompat.getColorStateList(context, R.color.surface_variant)
+                holder.stopCard.strokeColor = ContextCompat.getColor(context, R.color.outline)
+            }
+            StopType.METRO -> {
+                holder.stopTypeIcon.setImageResource(R.drawable.ic_metro_train)
+                val color = item.metroRef?.lineColor ?: ContextCompat.getColor(context, R.color.metro_icon)
+                val badgeBg = item.metroRef?.lineBadgeBgColor ?: ContextCompat.getColor(context, R.color.metro_surface)
+                holder.stopTypeIcon.setColorFilter(color)
+                holder.stopTypeIconContainer.backgroundTintList = ColorStateList.valueOf(badgeBg)
+                holder.stopIndex.setTextColor(color)
+                holder.stopIndex.backgroundTintList = ColorStateList.valueOf(badgeBg)
+                holder.stopCard.strokeColor = ContextCompat.getColor(context, R.color.metro_outline)
+            }
+            StopType.TOILET -> {
+                holder.stopTypeIcon.setImageResource(R.drawable.ic_restroom)
+                val color = ContextCompat.getColor(context, R.color.toilet_icon)
+                val badgeBg = ContextCompat.getColor(context, R.color.toilet_surface)
+                holder.stopTypeIcon.setColorFilter(color)
+                holder.stopTypeIconContainer.backgroundTintList = ColorStateList.valueOf(badgeBg)
+                holder.stopIndex.setTextColor(color)
+                holder.stopIndex.backgroundTintList = ColorStateList.valueOf(badgeBg)
+                holder.stopCard.strokeColor = ContextCompat.getColor(context, R.color.toilet_outline)
+            }
         }
 
         holder.removeButton.setOnClickListener {
@@ -111,4 +139,3 @@ class HoppingAdapter(
         onItemMoved(fromPosition, toPosition)
     }
 }
-

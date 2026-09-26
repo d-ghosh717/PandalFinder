@@ -1,0 +1,28 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Stylized Durga Puja Pandal / Temple Dome & Kalash Icon -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M12,2 L12,4 M10.5,3 L13.5,3"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="1.2"
+        android:strokeLineCap="round"/>
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M12,3.8 C11.5,4.8 8,7.5 8,10.5 C8,11.5 8.5,12 9,12 L15,12 C15.5,12 16,11.5 16,10.5 C16,7.5 12.5,4.8 12,3.8 Z"/>
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M6,13 L18,13 L19,15 L5,15 Z"/>
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M5,15.5 L19,15.5 L19,20.5 L5,20.5 Z"/>
+    <path
+        android:fillColor="#E52B00"
+        android:pathData="M10,20.5 L10,17 C10,15.9 10.9,15 12,15 C13.1,15 14,15.9 14,17 L14,20.5 Z"/>
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M3,21 L21,21 L21,22.5 L3,22.5 Z"/>
+</vector>

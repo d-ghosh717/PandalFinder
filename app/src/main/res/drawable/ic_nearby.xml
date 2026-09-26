@@ -1,0 +1,22 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Nearby / GPS Radar Icon -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#1C1917"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M12,2 L12,4 M12,20 L12,22 M2,12 L4,12 M20,12 L22,12"/>
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#1C1917"
+        android:strokeWidth="2"
+        android:pathData="M12,19 C15.866,19 19,15.866 19,12 C19,8.134 15.866,5 12,5 C8.134,5 5,8.134 5,12 C5,15.866 8.134,19 12,19 Z"/>
+    <path
+        android:fillColor="#E52B00"
+        android:pathData="M12,14 C13.105,14 14,13.105 14,12 C14,10.895 13.105,10 12,10 C10.895,10 10,10.895 10,12 C10,13.105 10.895,14 12,14 Z"/>
+</vector>
