@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="100dp"
+    android:layout_height="120dp"
+    android:layout_marginEnd="10dp"
+    android:layout_marginTop="6dp"
+    android:layout_marginBottom="6dp">
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="92dp"
+        android:layout_height="112dp"
+        android:layout_gravity="bottom|start"
+        app:cardBackgroundColor="@color/surface_variant"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="0dp"
+        app:strokeColor="@color/outline"
+        app:strokeWidth="1dp">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/selectedThumbImage"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:contentDescription="Selected Photo" />
+
+            <!-- Uploading overlay with spinner -->
+            <FrameLayout
+                android:id="@+id/selectedThumbProgressOverlay"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#80000000"
+                android:visibility="gone">
+
+                <ProgressBar
+                    android:id="@+id/selectedThumbProgressBar"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_gravity="center"
+                    android:indeterminateTint="@android:color/white" />
+            </FrameLayout>
+
+            <!-- Success Checkmark Overlay -->
+            <FrameLayout
+                android:id="@+id/selectedThumbSuccessOverlay"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#664CAF50"
+                android:visibility="gone">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_check"
+                    app:tint="@android:color/white" />
+            </FrameLayout>
+
+            <!-- Error Failure Overlay -->
+            <FrameLayout
+                android:id="@+id/selectedThumbErrorOverlay"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#66F44336"
+                android:visibility="gone">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_alert"
+                    app:tint="@android:color/white" />
+            </FrameLayout>
+        </FrameLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Remove 'X' Button on top-right corner -->
+    <FrameLayout
+        android:id="@+id/removeThumbBtn"
+        android:layout_width="26dp"
+        android:layout_height="26dp"
+        android:layout_gravity="top|end"
+        android:background="@drawable/bg_lens_red"
+        android:clickable="true"
+        android:focusable="true">
+
+        <ImageView
+            android:layout_width="14dp"
+            android:layout_height="14dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_close"
+            app:tint="@android:color/white" />
+    </FrameLayout>
+
+</FrameLayout>

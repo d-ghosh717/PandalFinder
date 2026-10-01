@@ -38,12 +38,11 @@ class GooglePlacesRepository {
             val errorMsg = "Google API Key is blank in BuildConfig. " +
                 "Ensure secrets.properties contains ROUTES_API_KEY=<your-key> and rebuild."
             Log.e(TAG, errorMsg)
-            Log.e(TAG, "BuildConfig.GOOGLE_ROUTES_API_KEY = '${apiKey.take(8)}...' (length=${apiKey.length})")
             onResult(null, errorMsg)
             return
         }
 
-        Log.d(TAG, "fetchNearbyToilets: key present (${apiKey.take(8)}…), " +
+        Log.d(TAG, "fetchNearbyToilets: key configured, " +
             "origin=(${origin.latitude}, ${origin.longitude}), radius=$radiusMeters")
 
         val cacheKey = "${"%.3f".format(origin.latitude)}:${"%.3f".format(origin.longitude)}:$radiusMeters"
@@ -102,6 +101,9 @@ class GooglePlacesRepository {
             setRequestProperty("X-Goog-Api-Key", apiKey)
             setRequestProperty("X-Goog-FieldMask",
                 "places.id,places.displayName,places.formattedAddress,places.location,places.types")
+            // Android app restriction support for REST API
+            setRequestProperty("X-Android-Package", PACKAGE_NAME)
+            setRequestProperty("X-Android-Cert", CERT_SHA1)
         }
 
         connection.outputStream.bufferedWriter().use { it.write(requestBody.toString()) }
@@ -183,5 +185,7 @@ class GooglePlacesRepository {
         const val TAG = "GooglePlaces"
         const val NEARBY_SEARCH_URL = "https://places.googleapis.com/v1/places:searchNearby"
         const val CACHE_MILLIS = 5 * 60 * 1000L
+        const val PACKAGE_NAME = "com.pandalfinder"
+        const val CERT_SHA1 = "4F4C1806D054E172BF09FB0760599707D9BCFB5E"
     }
 }

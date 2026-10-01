@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="road_distance_unavailable">Road distance unavailable</string>
+    <string name="road_distance_unavailable">Route unavailable</string>
     <string name="app_name">Pandal Finder</string>
 
     <!-- Search -->

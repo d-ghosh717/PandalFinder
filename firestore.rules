@@ -1,0 +1,92 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ── Reusable Admin Authorization Function ──
+    // Admin status is derived solely from server-side Firestore records in /admins/{uid}.
+    // Client-supplied fields, local claims, or client tokens are never trusted.
+    function isAdmin() {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+        && get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.role == 'admin'
+        && get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.enabled == true;
+    }
+
+    // ── Admin Allowlist Collection ──
+    // Normal & anonymous users cannot create, update, or delete admin records.
+    // Admin records can only be created/modified by project owners via Firebase Console / Admin SDK.
+    match /admins/{adminId} {
+      allow read: if request.auth != null && (request.auth.uid == adminId || isAdmin());
+      allow write: if false;
+    }
+
+    // ── Pandal Community Photos Metadata ──
+    // Hard security requirement: The user who uploaded the photo is the ONLY normal user
+    // who can edit, replace, or delete that photo. Every other normal user is READ-ONLY.
+    // Authorized Admins have full moderation privileges.
+    match /pandalPhotos/{photoId} {
+      allow read: if true;
+
+      // Creation: Authenticated user only, uploadedBy must match auth UID, status must be active.
+      allow create: if request.auth != null
+                    && request.resource.data.uploadedBy == request.auth.uid
+                    && request.resource.data.status in ['active', 'hidden', 'flagged']
+                    && request.resource.data.storagePath is string
+                    && (request.resource.data.storagePath.matches('^[^/]+/[^/]+/[^/]+$') || request.resource.data.storagePath.matches('^pandal-?photos/[^/]+/[^/]+/[^/]+$'))
+                    && request.resource.data.downloadUrl is string
+                    && request.resource.data.downloadUrl.size() > 0
+                    && request.resource.data.pandalId is string
+                    && request.resource.data.pandalId.size() > 0;
+
+      // Update: Owner can update their own photo (ownership is strictly immutable), or Admin can moderate.
+      allow update: if request.auth != null && (
+                      (resource.data.uploadedBy == request.auth.uid
+                       && request.resource.data.uploadedBy == resource.data.uploadedBy
+                       && request.resource.data.pandalId == resource.data.pandalId
+                       && request.resource.data.id == resource.data.id)
+                      ||
+                      isAdmin()
+                    );
+
+      // Deletion: Photo owner OR authorized admin only.
+      allow delete: if (request.auth != null && resource.data.uploadedBy == request.auth.uid) || isAdmin();
+    }
+
+    // ── Crowd Reports ──
+    // Normal users can submit authenticated reports for active pandals with levels 1..10.
+    // Updates/Deletions are restricted to authorized admins only.
+    match /crowdReports/{reportId} {
+      allow read: if true;
+      allow create: if request.auth != null
+                    && request.resource.data.userId == request.auth.uid
+                    && request.resource.data.pandalId is string
+                    && request.resource.data.pandalId.size() > 0
+                    && (
+                      (request.resource.data.level is int && request.resource.data.level >= 1 && request.resource.data.level <= 10) ||
+                      (request.resource.data.crowdLevel is int && request.resource.data.crowdLevel >= 1 && request.resource.data.crowdLevel <= 10)
+                    );
+      allow update, delete: if isAdmin();
+    }
+
+    // ── Weather Reports ──
+    // Normal users can submit authenticated weather observations.
+    // Updates/Deletions are restricted to authorized admins only.
+    match /weatherReports/{reportId} {
+      allow read: if true;
+      allow create: if request.auth != null
+                    && request.resource.data.userId == request.auth.uid
+                    && request.resource.data.pandalId is string
+                    && request.resource.data.pandalId.size() > 0
+                    && (
+                      request.resource.data.condition in ['NO_RAIN', 'DRIZZLE', 'RAINING', 'HEAVY_RAIN'] ||
+                      request.resource.data.weatherCondition in ['NO_RAIN', 'DRIZZLE', 'RAINING', 'HEAVY_RAIN']
+                    );
+      allow update, delete: if isAdmin();
+    }
+
+    // ── Default Deny All Other Collections ──
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Solid Warm Festival Cream Base -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#FFF7E8" />
+        </shape>
+    </item>
+    <!-- Soft Liquid-Glass Warm Red/Orange Light Bloom behind the Logo -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:type="radial"
+                android:gradientRadius="180dp"
+                android:centerX="0.5"
+                android:centerY="0.45"
+                android:startColor="#33FF3B20"
+                android:centerColor="#14F97E04"
+                android:endColor="#00000000" />
+        </shape>
+    </item>
+</layer-list>

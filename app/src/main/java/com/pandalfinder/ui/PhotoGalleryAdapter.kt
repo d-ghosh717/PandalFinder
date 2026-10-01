@@ -22,8 +22,6 @@ class PhotoGalleryAdapter(
 
     private val executor = Executors.newFixedThreadPool(2)
     private val main = Handler(Looper.getMainLooper())
-    private val memoryCache = mutableMapOf<String, Bitmap>()
-
     fun updatePhotos(newPhotos: List<PandalPhoto>) {
         photos = newPhotos
         notifyDataSetChanged()
@@ -48,7 +46,7 @@ class PhotoGalleryAdapter(
         fun bind(photo: PandalPhoto) {
             itemView.setOnClickListener { onPhotoClick(photo) }
 
-            val cached = memoryCache[photo.downloadUrl]
+            val cached = HeroPhotoAdapter.sharedMemoryCache[photo.downloadUrl]
             if (cached != null) {
                 image.setImageBitmap(cached)
                 progress.visibility = View.GONE
@@ -68,7 +66,7 @@ class PhotoGalleryAdapter(
 
                 main.post {
                     if (bitmap != null) {
-                        memoryCache[photo.downloadUrl] = bitmap
+                        HeroPhotoAdapter.sharedMemoryCache[photo.downloadUrl] = bitmap
                         image.setImageBitmap(bitmap)
                     }
                     progress.visibility = View.GONE

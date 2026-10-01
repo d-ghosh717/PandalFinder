@@ -1,83 +1,130 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Primary: Durga Puja Sindoor Red -->
+    <!-- Primary: Durga Puja Sindoor Red & Gradients -->
     <color name="primary">#E52B00</color>
+    <color name="primary_light">#FF3B20</color>
     <color name="primary_dark">#B82200</color>
+    <color name="primary_glow">#33E52B00</color>
+    <color name="primary_gradient_start">#FF3B20</color>
+    <color name="primary_gradient_end">#E52B00</color>
+    <color name="primary_container">#FFF0EB</color>
     <color name="on_primary">#FFFFFF</color>
 
-    <!-- Secondary: Festive Orange -->
+    <!-- Secondary: Festive Marigold Orange & Gold -->
     <color name="secondary">#F97E04</color>
     <color name="secondary_dark">#D96A03</color>
     <color name="secondary_light">#FBC222</color>
+    <color name="secondary_glow">#33F97E04</color>
+    <color name="gold_gradient_start">#FBC222</color>
+    <color name="gold_gradient_end">#F97E04</color>
 
     <!-- Durga Puja Palette Accents -->
     <color name="gold">#FBC222</color>
+    <color name="accent_gold">#D97706</color>
     <color name="highlight">#FBEF00</color>
     <color name="metro_green">#45A701</color>
     <color name="metro_green_dark">#378601</color>
+    <color name="metro_green_glow">#3345A701</color>
 
-    <!-- Surfaces & Backgrounds (Warm Cream Theme) -->
-    <color name="background">#FFF5E3</color>
+    <!-- Surfaces & Backgrounds (PandalFinder Warm Cream + Liquid Glass Theme) -->
+    <color name="background">#FFF7E8</color>
+    <color name="background_gradient_top">#FFF9F0</color>
+    <color name="background_gradient_bottom">#FFF1DE</color>
     <color name="surface">#FFFFFF</color>
-    <color name="surface_floating">#FFFAF0</color>
-    <color name="surface_variant">#FFF0D9</color>
-    <color name="surface_warm">#FFF5E3</color>
+    <color name="surface_floating">#FFFFFE</color>
+    <color name="surface_variant">#FFF9F2</color>
+    <color name="surface_warm">#FFF7E8</color>
+    <color name="glass_warm">#FFF8ED</color>
+    <color name="glass_peach">#FFF4E5</color>
 
-    <!-- Text -->
-    <color name="text_primary">#1C1917</color>
-    <color name="text_secondary">#78716C</color>
-    <color name="text_tertiary">#A8A29E</color>
+    <!-- Liquid Glass Surfaces (Warm, Bright, Dimensional, ZERO dull gray) -->
+    <color name="glass_surface">#FFFFFE</color>
+    <color name="glass_surface_warm">#FFFFFDF9</color>
+    <color name="glass_surface_floating">#FFFFFF</color>
+    <color name="glass_surface_tinted">#FFF9F2</color>
+    <color name="glass_surface_photo">#FFF4E5</color>
+    <color name="glass_surface_dark">#99171717</color>
+    <color name="warm_surface_glass">#FFFFF8ED</color>
+    <color name="glass_tint_red">#1AE52B00</color>
+    <color name="glass_stroke">#99FFFFFF</color>
+    <color name="glass_stroke_primary">#4DE52B00</color>
+    <color name="glass_stroke_warm">#40E52B00</color>
+    <color name="glass_stroke_gold">#59F97E04</color>
+    <color name="glass_stroke_blue">#BFE8FF</color>
+    <color name="glass_stroke_peach">#FFD8B3</color>
+    <color name="glass_glow_primary">#26E52B00</color>
+    <color name="glass_glow_crowd">#26F97E04</color>
+    <color name="glass_glow_weather">#260284C7</color>
+
+    <!-- Text (Charcoal & Muted Contrast Hierarchy) -->
+    <color name="text_primary">#171411</color>
+    <color name="text_secondary">#756F68</color>
+    <color name="text_tertiary">#9E978F</color>
     <color name="text_on_dark">#FFFFFF</color>
 
-    <!-- Outlines & Borders -->
-    <color name="outline">#EADBCE</color>
-    <color name="outline_strong">#D4C2B0</color>
-    <color name="divider">#EFE5D6</color>
-    <color name="scrim">#33000000</color>
+    <!-- Outlines & Borders (Warm Cream/Peach, never gray) -->
+    <color name="outline">#FFE8D0</color>
+    <color name="outline_glass">#99FFFFFF</color>
+    <color name="outline_strong">#E5CFB8</color>
+    <color name="divider">#FFF0DC</color>
+    <color name="scrim">#4D000000</color>
 
-    <!-- Weather Pill Colors (Cool Blue) -->
-    <color name="weather_surface">#F0F7FF</color>
-    <color name="weather_outline">#D0E4FA</color>
+    <!-- Weather Pill Colors (Cool Blue Glass & Frost) -->
+    <color name="weather_surface">#EEF8FF</color>
+    <color name="weather_surface_glass">#F5EEF8FF</color>
+    <color name="weather_outline">#BFE8FF</color>
     <color name="weather_icon">#0284C7</color>
     <color name="weather_text">#0369A1</color>
+    <color name="weather_blue">#0284C7</color>
+    <color name="weather_gradient_start">#38BDF8</color>
+    <color name="weather_gradient_end">#0284C7</color>
 
-    <!-- Crowd Pill Colors (Festive Orange / Amber) -->
-    <color name="crowd_surface">#FFF4E8</color>
-    <color name="crowd_outline">#FDD4AB</color>
+    <!-- Crowd Pill Colors (Warm Amber Frosted Glass) -->
+    <color name="crowd_surface">#FFF3DF</color>
+    <color name="crowd_surface_glass">#F5FFF3DF</color>
+    <color name="crowd_outline">#FFD39A</color>
     <color name="crowd_icon">#F97E04</color>
-    <color name="crowd_text">#D96A03</color>
+    <color name="crowd_text">#C2410C</color>
+    <color name="crowd_gradient_start">#FB923C</color>
+    <color name="crowd_gradient_end">#EA580C</color>
 
-    <!-- Metro Line Colors -->
-    <color name="metro_surface">#F2FCEE</color>
-    <color name="metro_outline">#C5EBB4</color>
-    <color name="metro_icon">#45A701</color>
-    <color name="metro_text">#378601</color>
+    <!-- Metro Line Colors (Fresh Green Frosted Glass) -->
+    <color name="metro_surface">#F0FBEF</color>
+    <color name="metro_surface_glass">#F5F0FBEF</color>
+    <color name="metro_outline">#BFE8B8</color>
+    <color name="metro_icon">#16A34A</color>
+    <color name="metro_text">#15803D</color>
     <color name="metro_blue">#1565C0</color>
     <color name="metro_line_green">#2E7D32</color>
     <color name="metro_purple">#7B1FA2</color>
     <color name="metro_orange">#E65100</color>
     <color name="metro_yellow">#F57F17</color>
 
-    <!-- Toilet Pill & Marker Colors (Teal / Sage Green) -->
-    <color name="toilet_surface">#EBF9F5</color>
-    <color name="toilet_outline">#BCE8DB</color>
+    <!-- Toilet Pill & Marker Colors (Teal Glass) -->
+    <color name="toilet_surface">#F0FDFA</color>
+    <color name="toilet_surface_glass">#F2F0FAF8</color>
+    <color name="toilet_outline">#99F6E4</color>
     <color name="toilet_icon">#0D9488</color>
     <color name="toilet_text">#0F766E</color>
 
-    <!-- Hopping Accent Colors -->
+    <!-- Hopping Accent Colors & Mesh Backdrop -->
     <color name="hopping_surface">#FFF1F2</color>
     <color name="hopping_outline">#FECDD3</color>
+    <color name="hopping_mesh_top">#FFF0D8</color>
+    <color name="hopping_mesh_mid">#FFF7EE</color>
+    <color name="hopping_mesh_bottom">#FFFAF5</color>
+    <color name="hopping_glow_aura">#33F97E04</color>
 
     <!-- Chip Selection -->
     <color name="chip_selected_bg">#E52B00</color>
     <color name="chip_selected_text">#FFFFFF</color>
     <color name="chip_unselected_bg">#FFFFFF</color>
-    <color name="chip_unselected_text">#1C1917</color>
+    <color name="chip_unselected_text">#171717</color>
 
     <!-- Nav Pill States -->
     <color name="nav_active_bg">#E52B00</color>
     <color name="nav_active_text">#FFFFFF</color>
-    <color name="nav_inactive_text">#78716C</color>
+    <color name="nav_inactive_text">#756F68</color>
 
     <!-- Legacy aliases -->
     <color name="accent">@color/primary</color>

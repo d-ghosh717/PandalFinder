@@ -38,7 +38,7 @@ class ContributionEligibility(context: Context) {
         return if (isRecentVisitor) {
             EligibilityResult(true, "Recent visit verified on this device.", deviceId)
         } else {
-            EligibilityResult(false, "Move closer to the pandal or mark a recent visit to update.", deviceId)
+            EligibilityResult(false, "Move within 500m of the pandal or mark a recent visit to update.", deviceId)
         }
     }
 
@@ -53,7 +53,7 @@ class ContributionEligibility(context: Context) {
         }.let(location::distanceTo)
 
     companion object {
-        const val CONTRIBUTION_RADIUS_METERS = 200f
+        const val CONTRIBUTION_RADIUS_METERS = 500f
         const val RECENT_VISIT_MILLIS = 45 * 60 * 1000L // 45 minutes
     }
 }

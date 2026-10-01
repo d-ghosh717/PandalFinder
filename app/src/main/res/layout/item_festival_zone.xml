@@ -3,19 +3,20 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginTop="5dp"
-    android:layout_marginBottom="5dp"
-    app:cardBackgroundColor="@color/surface"
-    app:cardCornerRadius="16dp"
-    app:cardElevation="2dp"
-    app:strokeColor="@color/outline"
-    app:strokeWidth="1dp">
+    android:layout_marginTop="6dp"
+    android:layout_marginBottom="6dp"
+    app:cardBackgroundColor="@android:color/transparent"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="3dp"
+    app:strokeColor="@android:color/transparent"
+    app:strokeWidth="0dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/bg_glass_tile_ripple"
         android:orientation="vertical"
-        android:padding="14dp">
+        android:padding="16dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -53,7 +54,7 @@
             android:id="@+id/zoneDescription"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="5dp"
             android:fontFamily="@font/inter"
             android:textColor="@color/text_secondary"
             android:textSize="13sp" />
@@ -61,13 +62,13 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="14dp"
             android:orientation="horizontal">
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnExploreZone"
                 android:layout_width="0dp"
-                android:layout_height="40dp"
+                android:layout_height="42dp"
                 android:layout_weight="1"
                 android:fontFamily="@font/inter"
                 android:text="Explore on Map"
@@ -85,8 +86,8 @@
                 android:id="@+id/btnAddZoneToHopping"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:layout_marginStart="8dp"
+                android:layout_height="42dp"
+                android:layout_marginStart="10dp"
                 android:minWidth="0dp"
                 android:fontFamily="@font/inter"
                 android:text="Add to Trail"
@@ -97,7 +98,8 @@
                 app:cornerRadius="14dp"
                 app:icon="@drawable/ic_add"
                 app:iconTint="@color/primary"
-                app:strokeColor="@color/outline" />
+                app:strokeColor="@color/outline"
+                app:strokeWidth="1.2dp" />
         </LinearLayout>
 
     </LinearLayout>

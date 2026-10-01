@@ -61,15 +61,15 @@
             app:tint="@color/text_secondary" />
     </LinearLayout>
 
-    <!-- Stats Pill: 5 stops • 14.8 km • ~4h 10m -->
+    <!-- Stats Pill (Gold Liquid Glass) -->
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="14dp"
-        app:cardBackgroundColor="@color/surface_variant"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="0dp"
-        app:strokeColor="@color/outline"
+        app:cardBackgroundColor="@color/crowd_surface_glass"
+        app:cardCornerRadius="18dp"
+        app:cardElevation="2dp"
+        app:strokeColor="@color/glass_stroke_gold"
         app:strokeWidth="1dp">
 
         <LinearLayout
@@ -117,14 +117,16 @@
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_marginTop="16dp"
+        android:background="@drawable/bg_btn_glow_primary"
         android:fontFamily="@font/inter"
         android:text="Add to Hopping Trail"
         android:textAllCaps="false"
         android:textColor="@color/on_primary"
         android:textSize="15sp"
         android:textStyle="bold"
-        app:backgroundTint="@color/primary"
-        app:cornerRadius="16dp"
+        app:backgroundTint="@null"
+        app:cornerRadius="18dp"
+        app:elevation="4dp"
         app:icon="@drawable/ic_route_plan"
         app:iconGravity="textStart"
         app:iconTint="@color/on_primary" />

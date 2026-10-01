@@ -8,7 +8,10 @@ import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.graphics.*
 import android.location.Location
+import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.*
 import android.view.inputmethod.InputMethodManager
@@ -128,42 +131,393 @@ class MainActivity : AppCompatActivity() {
     private lateinit var alerts: FestivalAlertRepository
     private lateinit var networkMonitor: NetworkMonitor
     private lateinit var photos: PhotoRepository
+    private lateinit var authRepo: AuthRepository
+    private lateinit var contributions: ContributionsRepository
+    private lateinit var adminRepo: AdminRepository
 
     private val mainHandler = android.os.Handler(android.os.Looper.getMainLooper())
     private var pendingUploadPandalId: String? = null
-    private var pendingUploadLayout: View? = null
-    private var pendingUploadProgressBar: ProgressBar? = null
-    private var pendingUploadProgressText: TextView? = null
+    private var pendingUploadPandal: Pandal? = null
+    private var pendingReplacePhoto: com.pandalfinder.data.PandalPhoto? = null
+    private var onPhotoReplacedCallback: (() -> Unit)? = null
+    private var tempCameraUri: Uri? = null
 
-    private val photoPicker = registerForActivityResult(androidx.activity.result.contract.ActivityResultContracts.GetContent()) { uri: android.net.Uri? ->
-        val pId = pendingUploadPandalId
-        if (uri != null && pId != null) {
-            pendingUploadLayout?.visibility = View.VISIBLE
-            pendingUploadProgressBar?.progress = 0
-            pendingUploadProgressText?.text = "Uploading 0%"
+    // Multi-photo upload dialog & adapter references
+    private var activeMultiPhotoDialog: androidx.appcompat.app.AlertDialog? = null
+    private var activeSelectedPhotosAdapter: com.pandalfinder.ui.SelectedPhotosAdapter? = null
+    private val selectedPhotoItems = mutableListOf<com.pandalfinder.ui.SelectedPhotoItem>()
 
-            photos.uploadPhoto(
-                context = this,
-                pandalId = pId,
-                imageUri = uri,
-                onProgress = { progress ->
-                    mainHandler.post {
-                        pendingUploadProgressBar?.progress = progress
-                        pendingUploadProgressText?.text = "Uploading $progress%"
+    private val singleGalleryPicker = registerForActivityResult(androidx.activity.result.contract.ActivityResultContracts.GetContent()) { uri: Uri? ->
+        if (uri != null) {
+            val replacePhoto = pendingReplacePhoto
+            if (replacePhoto != null) {
+                val cb = onPhotoReplacedCallback
+                pendingReplacePhoto = null
+                onPhotoReplacedCallback = null
+                showPhotoReplacePreview(replacePhoto, uri, cb)
+            }
+        } else {
+            pendingReplacePhoto = null
+            onPhotoReplacedCallback = null
+        }
+    }
+
+    private val multiGalleryPicker = registerForActivityResult(androidx.activity.result.contract.ActivityResultContracts.GetMultipleContents()) { uris: List<Uri>? ->
+        if (!uris.isNullOrEmpty()) {
+            val replacePhoto = pendingReplacePhoto
+            if (replacePhoto != null) {
+                val cb = onPhotoReplacedCallback
+                pendingReplacePhoto = null
+                onPhotoReplacedCallback = null
+                val firstUri = uris.firstOrNull()
+                if (firstUri != null) {
+                    showPhotoReplacePreview(replacePhoto, firstUri, cb)
+                }
+            } else {
+                val p = pendingUploadPandal ?: currentDetailPandal
+                if (p != null) {
+                    if (activeMultiPhotoDialog?.isShowing == true) {
+                        addUrisToMultiPreview(uris)
+                    } else {
+                        showMultiPhotoUploadPreview(p, uris)
                     }
-                },
+                }
+            }
+        } else {
+            pendingReplacePhoto = null
+            onPhotoReplacedCallback = null
+        }
+    }
+
+    private val cameraLauncher = registerForActivityResult(androidx.activity.result.contract.ActivityResultContracts.TakePicture()) { success: Boolean ->
+        if (success && tempCameraUri != null) {
+            val uri = tempCameraUri!!
+            val replacePhoto = pendingReplacePhoto
+            if (replacePhoto != null) {
+                val cb = onPhotoReplacedCallback
+                pendingReplacePhoto = null
+                onPhotoReplacedCallback = null
+                showPhotoReplacePreview(replacePhoto, uri, cb)
+            } else {
+                val p = pendingUploadPandal ?: currentDetailPandal
+                if (p != null) {
+                    if (activeMultiPhotoDialog?.isShowing == true) {
+                        addUrisToMultiPreview(listOf(uri))
+                    } else {
+                        showMultiPhotoUploadPreview(p, listOf(uri))
+                    }
+                }
+            }
+        } else {
+            pendingReplacePhoto = null
+            onPhotoReplacedCallback = null
+        }
+    }
+
+    private fun addUrisToMultiPreview(newUris: List<Uri>) {
+        val existingUris = selectedPhotoItems.map { it.uri }.toSet()
+        val uniqueNew = newUris.filterNot { existingUris.contains(it) }
+
+        val availableSlots = 10 - selectedPhotoItems.size
+        if (uniqueNew.size > availableSlots) {
+            Toast.makeText(this, "Maximum 10 photos per upload.", Toast.LENGTH_SHORT).show()
+        }
+        val toAdd = uniqueNew.take(availableSlots)
+        if (toAdd.isNotEmpty()) {
+            val startPos = selectedPhotoItems.size
+            toAdd.forEach { selectedPhotoItems.add(com.pandalfinder.ui.SelectedPhotoItem(it)) }
+            activeSelectedPhotosAdapter?.notifyItemRangeInserted(startPos, toAdd.size)
+            activeSelectedPhotosAdapter?.notifyItemChanged(selectedPhotoItems.size)
+        }
+    }
+
+    private fun showChoosePhotoSourceDialog(pandal: Pandal) {
+        pendingUploadPandal = pandal
+        pendingReplacePhoto = null
+        onPhotoReplacedCallback = null
+        val view = layoutInflater.inflate(R.layout.dialog_choose_photo_source, null)
+        val sheet = BottomSheetDialog(this)
+        sheet.setContentView(view)
+
+        view.findViewById<TextView>(R.id.chooseSourcePandalName).text = pandal.name
+
+        view.findViewById<View>(R.id.sourceCameraCard).setOnClickListener {
+            sheet.dismiss()
+            val tempFile = java.io.File(cacheDir, "camera_${System.currentTimeMillis()}.jpg")
+            val uri = androidx.core.content.FileProvider.getUriForFile(this, "${packageName}.fileprovider", tempFile)
+            tempCameraUri = uri
+            cameraLauncher.launch(uri)
+        }
+
+        view.findViewById<View>(R.id.sourceGalleryCard).setOnClickListener {
+            sheet.dismiss()
+            multiGalleryPicker.launch("image/*")
+        }
+
+        sheet.show()
+    }
+
+    private fun showReplacePhotoSourceDialog(photo: com.pandalfinder.data.PandalPhoto, pandalName: String, onReplaced: () -> Unit) {
+        pendingReplacePhoto = photo
+        onPhotoReplacedCallback = onReplaced
+        pendingUploadPandal = null
+        val view = layoutInflater.inflate(R.layout.dialog_choose_photo_source, null)
+        val sheet = BottomSheetDialog(this)
+        sheet.setContentView(view)
+
+        view.findViewById<TextView>(R.id.chooseSourcePandalName).text = "Replace photo: $pandalName"
+
+        view.findViewById<View>(R.id.sourceCameraCard).setOnClickListener {
+            sheet.dismiss()
+            val tempFile = java.io.File(cacheDir, "camera_replace_${System.currentTimeMillis()}.jpg")
+            val uri = androidx.core.content.FileProvider.getUriForFile(this, "${packageName}.fileprovider", tempFile)
+            tempCameraUri = uri
+            cameraLauncher.launch(uri)
+        }
+
+        view.findViewById<View>(R.id.sourceGalleryCard).setOnClickListener {
+            sheet.dismiss()
+            singleGalleryPicker.launch("image/*")
+        }
+
+        sheet.show()
+    }
+
+    private fun showPhotoReplacePreview(
+        photo: com.pandalfinder.data.PandalPhoto,
+        uri: Uri,
+        onReplaced: (() -> Unit)?
+    ) {
+        val view = layoutInflater.inflate(R.layout.dialog_photo_preview, null)
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(this)
+            .setView(view)
+            .create()
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        val pandal = pandals.all().find { it.id == photo.pandalId || "pandal:${it.id}" == photo.pandalId }
+        view.findViewById<TextView>(R.id.photoPreviewSubtitle).text = "Replace photo for ${pandal?.name ?: "Pandal"}"
+        val previewImg = view.findViewById<ImageView>(R.id.photoPreviewImage)
+        previewImg.setImageURI(uri)
+
+        view.findViewById<View>(R.id.photoPreviewCancelBtn).setOnClickListener {
+            dialog.dismiss()
+        }
+
+        view.findViewById<View>(R.id.photoPreviewUploadBtn).setOnClickListener {
+            dialog.dismiss()
+            Toast.makeText(this, "Uploading replacement photo...", Toast.LENGTH_SHORT).show()
+            photos.replacePhoto(
+                context = this,
+                oldPhoto = photo,
+                newImageUri = uri,
+                onProgress = { /* progress */ },
                 onComplete = { result ->
                     mainHandler.post {
-                        pendingUploadLayout?.visibility = View.GONE
                         result.onSuccess {
-                            Toast.makeText(this, "Photo uploaded successfully!", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this, "Photo updated successfully!", Toast.LENGTH_SHORT).show()
+                            onReplaced?.invoke()
                         }.onFailure { err ->
-                            Toast.makeText(this, "Upload failed: ${err.localizedMessage}", Toast.LENGTH_LONG).show()
+                            val errMsg = err.localizedMessage ?: "Failed to replace photo."
+                            androidx.appcompat.app.AlertDialog.Builder(this)
+                                .setTitle("Update Failed")
+                                .setMessage(errMsg)
+                                .setPositiveButton("OK", null)
+                                .show()
                         }
                     }
                 }
             )
         }
+
+        dialog.show()
+    }
+
+    private fun showMultiPhotoUploadPreview(pandal: Pandal, initialUris: List<Uri>) {
+        val view = layoutInflater.inflate(R.layout.dialog_multi_photo_preview, null)
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(this)
+            .setView(view)
+            .create()
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        activeMultiPhotoDialog = dialog
+        selectedPhotoItems.clear()
+
+        val uniqueUris = initialUris.distinct()
+        if (uniqueUris.size > 10) {
+            Toast.makeText(this, "Maximum 10 photos per upload. Selected first 10.", Toast.LENGTH_SHORT).show()
+        }
+        uniqueUris.take(10).forEach { uri ->
+            selectedPhotoItems.add(com.pandalfinder.ui.SelectedPhotoItem(uri))
+        }
+
+        val subtitleView = view.findViewById<TextView>(R.id.multiPhotoSubtitle)
+        val countTextView = view.findViewById<TextView>(R.id.multiPhotoCountText)
+        val recyclerView = view.findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.selectedPhotosRecyclerView)
+        val progressLayout = view.findViewById<View>(R.id.batchProgressLayout)
+        val progressLabel = view.findViewById<TextView>(R.id.batchProgressLabel)
+        val progressPercent = view.findViewById<TextView>(R.id.batchProgressPercent)
+        val progressBar = view.findViewById<ProgressBar>(R.id.batchProgressBar)
+        val summaryText = view.findViewById<TextView>(R.id.batchSummaryText)
+        val cancelBtn = view.findViewById<com.google.android.material.button.MaterialButton>(R.id.multiPhotoCancelBtn)
+        val uploadBtn = view.findViewById<com.google.android.material.button.MaterialButton>(R.id.multiPhotoUploadBtn)
+
+        subtitleView.text = pandal.name
+
+        fun updateUIState() {
+            val count = selectedPhotoItems.size
+            countTextView.text = "$count photo${if (count != 1) "s" else ""} selected (Max 10)"
+            uploadBtn.text = "Upload $count Photo${if (count != 1) "s" else ""}"
+            uploadBtn.isEnabled = count > 0
+        }
+
+        lateinit var adapter: com.pandalfinder.ui.SelectedPhotosAdapter
+        adapter = com.pandalfinder.ui.SelectedPhotosAdapter(
+            items = selectedPhotoItems,
+            maxLimit = 10,
+            onRemove = { index ->
+                if (index in selectedPhotoItems.indices) {
+                    selectedPhotoItems.removeAt(index)
+                    adapter.notifyItemRemoved(index)
+                    adapter.notifyItemRangeChanged(index, selectedPhotoItems.size - index + 1)
+                    updateUIState()
+                    if (selectedPhotoItems.isEmpty()) {
+                        dialog.dismiss()
+                    }
+                }
+            },
+            onAddMore = {
+                showChoosePhotoSourceDialog(pandal)
+            }
+        )
+        activeSelectedPhotosAdapter = adapter
+        recyclerView.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(this, androidx.recyclerview.widget.LinearLayoutManager.HORIZONTAL, false)
+        recyclerView.adapter = adapter
+
+        updateUIState()
+
+        cancelBtn.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        fun startBatchUpload(itemsToUpload: List<com.pandalfinder.ui.SelectedPhotoItem>) {
+            if (itemsToUpload.isEmpty()) return
+
+            adapter.setUploading(true)
+            cancelBtn.isEnabled = false
+            uploadBtn.isEnabled = false
+            summaryText.visibility = View.GONE
+            progressLayout.visibility = View.VISIBLE
+
+            val totalCount = itemsToUpload.size
+            progressBar.max = totalCount * 100
+            progressBar.progress = 0
+            progressLabel.text = "Uploading photos (1 of $totalCount)..."
+            progressPercent.text = "0%"
+
+            val urisToUpload = itemsToUpload.map { it.uri }
+
+            photos.uploadPhotosBatch(
+                context = this,
+                pandalId = pandal.id,
+                imageUris = urisToUpload,
+                onItemStart = { idx, _ ->
+                    mainHandler.post {
+                        val itemIndex = selectedPhotoItems.indexOfFirst { it.uri == urisToUpload[idx] }
+                        if (itemIndex != -1) {
+                            adapter.updateItemStatus(itemIndex, com.pandalfinder.ui.UploadStatus.UPLOADING)
+                        }
+                        progressLabel.text = "Uploading photo (${idx + 1} of $totalCount)..."
+                    }
+                },
+                onItemProgress = { idx, itemProgress ->
+                    mainHandler.post {
+                        val currentOverall = idx * 100 + itemProgress
+                        progressBar.progress = currentOverall
+                        val pct = ((currentOverall.toFloat() / (totalCount * 100)) * 100).toInt().coerceIn(0, 100)
+                        progressPercent.text = "$pct%"
+                    }
+                },
+                onItemComplete = { idx, uri, result ->
+                    mainHandler.post {
+                        val itemIndex = selectedPhotoItems.indexOfFirst { it.uri == uri }
+                        if (itemIndex != -1) {
+                            val status = if (result.isSuccess) com.pandalfinder.ui.UploadStatus.SUCCESS else com.pandalfinder.ui.UploadStatus.FAILED
+                            val errMsg = result.exceptionOrNull()?.localizedMessage
+                            adapter.updateItemStatus(itemIndex, status, errMsg)
+                        }
+                    }
+                },
+                onBatchComplete = { successCount, failedCount, results ->
+                    mainHandler.post {
+                        adapter.setUploading(false)
+                        cancelBtn.isEnabled = true
+                        cancelBtn.text = "Close"
+                        progressLayout.visibility = View.GONE
+
+                        if (failedCount == 0) {
+                            Toast.makeText(this, "$successCount photo${if (successCount != 1) "s" else ""} uploaded successfully!", Toast.LENGTH_SHORT).show()
+                            dialog.dismiss()
+                        } else if (successCount > 0) {
+                            summaryText.visibility = View.VISIBLE
+                            summaryText.text = "$successCount of $totalCount photos uploaded. $failedCount photo(s) failed."
+                            uploadBtn.text = "Retry $failedCount Failed Photo${if (failedCount != 1) "s" else ""}"
+                            uploadBtn.isEnabled = true
+                            uploadBtn.setOnClickListener {
+                                val failedItems = selectedPhotoItems.filter { it.status == com.pandalfinder.ui.UploadStatus.FAILED }
+                                startBatchUpload(failedItems)
+                            }
+                        } else {
+                            summaryText.visibility = View.VISIBLE
+                            summaryText.text = "All $failedCount photo(s) failed to upload. Check connection and retry."
+                            uploadBtn.text = "Retry Upload"
+                            uploadBtn.isEnabled = true
+                            uploadBtn.setOnClickListener {
+                                startBatchUpload(selectedPhotoItems)
+                            }
+                        }
+                    }
+                }
+            )
+        }
+
+        uploadBtn.setOnClickListener {
+            startBatchUpload(selectedPhotoItems)
+        }
+
+        dialog.setOnDismissListener {
+            activeMultiPhotoDialog = null
+            activeSelectedPhotosAdapter = null
+            selectedPhotoItems.clear()
+        }
+
+        dialog.show()
+    }
+
+    private fun animateButtonPress(view: View, onEnd: (() -> Unit)? = null) {
+        view.animate()
+            .scaleX(0.92f)
+            .scaleY(0.92f)
+            .setDuration(90)
+            .withEndAction {
+                view.animate()
+                    .scaleX(1.0f)
+                    .scaleY(1.0f)
+                    .setDuration(140)
+                    .setInterpolator(android.view.animation.OvershootInterpolator(2.5f))
+                    .withEndAction {
+                        onEnd?.invoke()
+                    }
+                    .start()
+            }
+            .start()
+    }
+
+    private fun animateIconSpin(icon: View) {
+        icon.animate()
+            .rotationBy(360f)
+            .setDuration(550)
+            .setInterpolator(android.view.animation.DecelerateInterpolator())
+            .start()
     }
 
     // ── State ──
@@ -173,6 +527,8 @@ class MainActivity : AppCompatActivity() {
     private var shownStations = emptyList<MetroStation>()
     private var shownToilets = emptyList<PublicToilet>()
     private var liveCrowdMap = mapOf<String, Int>()
+    private var lastCrowdLoadedDay: String = ""
+    private var refreshCurrentDetailCrowd: (() -> Unit)? = null
     private var filterShowPandals = true
     private var filterShowMetro = false
     private var filterShowToilets = false
@@ -184,29 +540,52 @@ class MainActivity : AppCompatActivity() {
     private var selectedMarkerPosition: LatLng? = null
     private val markerBitmapCache = mutableMapOf<String, Bitmap>()
 
+    private val dateChangeReceiver = object : android.content.BroadcastReceiver() {
+        override fun onReceive(context: android.content.Context?, intent: android.content.Intent?) {
+            val currentDay = getTodayDateKey()
+            if (currentDay != lastCrowdLoadedDay) {
+                lastCrowdLoadedDay = currentDay
+                loadLiveCrowdHeatmap()
+                refreshCurrentDetailCrowd?.invoke()
+            }
+        }
+    }
+
+    private fun getTodayDateKey(): String {
+        val cal = java.util.Calendar.getInstance()
+        return "${cal.get(java.util.Calendar.YEAR)}-${cal.get(java.util.Calendar.MONTH)}-${cal.get(java.util.Calendar.DAY_OF_MONTH)}"
+    }
+
     // ────────────────────────────────────────────────────────
     //  Lifecycle
     // ────────────────────────────────────────────────────────
 
     override fun onCreate(state: Bundle?) {
+        // Enforce warm Durga Puja festival light mode globally (eliminates system dark mode black screen flash)
+        androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO)
         super.onCreate(state)
 
         // Initialize Firebase
         if (com.google.firebase.FirebaseApp.getApps(this).isEmpty()) {
             try {
-                com.google.firebase.FirebaseApp.initializeApp(
-                    this,
-                    com.google.firebase.FirebaseOptions.Builder()
-                        .setApiKey("AIzaSyBFfA06Yr7eIyXMCaEE8RWPvcSFRnau8Pw")
-                        .setApplicationId("1:333025667530:web:0d3f2ca9275298fb694733")
-                        .setDatabaseUrl("https://pandalquest-default-rtdb.firebaseio.com")
-                        .setProjectId("pandalquest")
-                        .setStorageBucket("pandalquest.firebasestorage.app")
-                        .build()
-                )
-                Log.d(TAG, "Firebase initialized successfully")
+                com.google.firebase.FirebaseApp.initializeApp(this)
+                Log.d(TAG, "Firebase initialized successfully from google-services")
             } catch (e: Exception) {
-                Log.e(TAG, "Firebase initialization failed", e)
+                try {
+                    com.google.firebase.FirebaseApp.initializeApp(
+                        this,
+                        com.google.firebase.FirebaseOptions.Builder()
+                            .setApiKey("AIzaSyAB6FzuFNUd9OCd0nciRTKr8crKfSrJdAc")
+                            .setApplicationId("1:333025667530:android:d653e917a23e08c1694733")
+                            .setDatabaseUrl("https://pandalquest-default-rtdb.firebaseio.com")
+                            .setProjectId("pandalquest")
+                            .setStorageBucket("pandalquest.firebasestorage.app")
+                            .build()
+                    )
+                    Log.d(TAG, "Firebase initialized successfully via fallback options")
+                } catch (e2: Exception) {
+                    Log.e(TAG, "Firebase initialization failed", e2)
+                }
             }
         }
 
@@ -229,13 +608,87 @@ class MainActivity : AppCompatActivity() {
         alerts = FestivalAlertRepository()
         networkMonitor = NetworkMonitor(this)
         photos = PhotoRepository()
+        authRepo = AuthRepository()
+        authRepo.initAndSignInAnonymously()
+        contributions = ContributionsRepository()
+        adminRepo = AdminRepository()
 
         initViews(state)
+        startLaunchAnimation()
         setupHoppingTab()
         setupFloatingNav()
         setupNetworkAndAlerts()
         showLocationExplanation()
         loadLiveCrowdHeatmap()
+    }
+
+    private fun startLaunchAnimation() {
+        val launchOverlay = findViewById<View>(R.id.launchOverlay) ?: return
+        val logoLens = findViewById<View>(R.id.launchLogoLens)
+        val specularSweep = findViewById<View>(R.id.launchSpecularSweep)
+        val appTitle = findViewById<View>(R.id.launchAppTitle)
+        val appSubtitle = findViewById<View>(R.id.launchAppSubtitle)
+
+        // Warm background is immediately visible from frame 1
+        // Set initial state for animated elements
+        logoLens?.alpha = 0f
+        logoLens?.scaleX = 0.90f
+        logoLens?.scaleY = 0.90f
+        appTitle?.alpha = 0f
+        appTitle?.translationY = dp(12).toFloat()
+        appSubtitle?.alpha = 0f
+        appSubtitle?.translationY = dp(10).toFloat()
+
+        // 0–120ms: Logo alpha 0 -> 1, scale 0.90 -> 1.0
+        logoLens?.animate()
+            ?.alpha(1f)
+            ?.scaleX(1.0f)
+            ?.scaleY(1.0f)
+            ?.setDuration(120)
+            ?.setInterpolator(android.view.animation.DecelerateInterpolator())
+            ?.withEndAction {
+                // 120–350ms: Subtle glow moves across/behind logo
+                specularSweep?.visibility = View.VISIBLE
+                specularSweep?.translationX = -dp(60).toFloat()
+                specularSweep?.animate()
+                    ?.translationX(dp(60).toFloat())
+                    ?.setDuration(230)
+                    ?.setInterpolator(android.view.animation.AccelerateDecelerateInterpolator())
+                    ?.withEndAction {
+                        specularSweep.visibility = View.INVISIBLE
+                    }
+                    ?.start()
+            }
+            ?.start()
+
+        // 350–500ms: PandalFinder text fades in with slight upward movement
+        appTitle?.animate()
+            ?.alpha(1f)
+            ?.translationY(0f)
+            ?.setStartDelay(350)
+            ?.setDuration(150)
+            ?.setInterpolator(android.view.animation.DecelerateInterpolator())
+            ?.start()
+
+        // 500–650ms: Subtitle fades in
+        appSubtitle?.animate()
+            ?.alpha(1f)
+            ?.translationY(0f)
+            ?.setStartDelay(500)
+            ?.setDuration(150)
+            ?.setInterpolator(android.view.animation.DecelerateInterpolator())
+            ?.start()
+
+        // 650–800ms: Seamless crossfade directly into map
+        mainHandler.postDelayed({
+            launchOverlay.animate()
+                .alpha(0f)
+                .setDuration(150)
+                .withEndAction {
+                    launchOverlay.visibility = View.GONE
+                }
+                .start()
+        }, 650)
     }
 
     private fun initViews(state: Bundle?) {
@@ -489,6 +942,56 @@ class MainActivity : AppCompatActivity() {
         emptyStateTonightsPlanButton.setOnClickListener {
             showTonightsPlanSheet()
         }
+
+        findViewById<View?>(R.id.btnMyLocation)?.setOnClickListener {
+            handleMyLocationClick()
+        }
+    }
+
+    private fun handleMyLocationClick() {
+        if (!hasLocation()) {
+            requestLocationPermission()
+            return
+        }
+
+        val fusedClient = LocationServices.getFusedLocationProviderClient(this)
+        try {
+            fusedClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
+                .addOnSuccessListener { loc ->
+                    if (loc != null) {
+                        this.location = loc
+                        val latLng = LatLng(loc.latitude, loc.longitude)
+                        val cameraPosition = CameraPosition.Builder()
+                            .target(latLng)
+                            .zoom(15.0)
+                            .build()
+                        map?.animateCamera(org.maplibre.android.camera.CameraUpdateFactory.newCameraPosition(cameraPosition), 800)
+                        Toast.makeText(this, "Centered on your location", Toast.LENGTH_SHORT).show()
+                    } else {
+                        fusedClient.lastLocation.addOnSuccessListener { lastLoc ->
+                            if (lastLoc != null) {
+                                this.location = lastLoc
+                                val latLng = LatLng(lastLoc.latitude, lastLoc.longitude)
+                                val cameraPosition = CameraPosition.Builder()
+                                    .target(latLng)
+                                    .zoom(15.0)
+                                    .build()
+                                map?.animateCamera(org.maplibre.android.camera.CameraUpdateFactory.newCameraPosition(cameraPosition), 800)
+                                Toast.makeText(this, "Centered on your location", Toast.LENGTH_SHORT).show()
+                            } else {
+                                Toast.makeText(this, "Acquiring GPS location… Please ensure GPS is enabled.", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
+                }
+                .addOnFailureListener { e ->
+                    Log.e(TAG, "Failed to get current location: ${e.message}", e)
+                    Toast.makeText(this, "Unable to get current location", Toast.LENGTH_SHORT).show()
+                }
+        } catch (e: SecurityException) {
+            Log.e(TAG, "Location permission missing: ${e.message}", e)
+            requestLocationPermission()
+        }
     }
 
     private fun setupNetworkAndAlerts() {
@@ -523,7 +1026,7 @@ class MainActivity : AppCompatActivity() {
             if (crowds.isNotEmpty()) {
                 crowdLegendText.text = "Crowd (${crowds.size} active)"
             } else {
-                crowdLegendText.text = "Crowd Live"
+                crowdLegendText.text = "Crowd"
             }
             markerBitmapCache.clear()
             if (filterShowPandals) {
@@ -533,46 +1036,56 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateFilterPillStyles() {
-        val primaryBg = ContextCompat.getColorStateList(this, R.color.primary)
-        val surfaceBg = ContextCompat.getColorStateList(this, R.color.surface_floating)
         val onPrimaryText = ContextCompat.getColor(this, R.color.on_primary)
         val textPrimary = ContextCompat.getColor(this, R.color.text_primary)
 
         if (filterShowPandals) {
-            pandalsFilterButton.backgroundTintList = primaryBg
+            pandalsFilterButton.setBackgroundResource(R.drawable.bg_filter_pill_pandal_active)
+            pandalsFilterButton.backgroundTintList = null
             pandalsFilterButton.setTextColor(onPrimaryText)
             pandalsFilterButton.iconTint = ContextCompat.getColorStateList(this, R.color.on_primary)
             pandalsFilterButton.strokeWidth = 0
         } else {
-            pandalsFilterButton.backgroundTintList = surfaceBg
+            pandalsFilterButton.setBackgroundResource(R.drawable.bg_filter_pill_inactive)
+            pandalsFilterButton.backgroundTintList = null
             pandalsFilterButton.setTextColor(textPrimary)
             pandalsFilterButton.iconTint = ContextCompat.getColorStateList(this, R.color.primary)
-            pandalsFilterButton.strokeWidth = dp(1)
+            pandalsFilterButton.strokeWidth = 0
         }
 
         if (filterShowMetro) {
-            metroFilterButton.backgroundTintList = primaryBg
+            metroFilterButton.setBackgroundResource(R.drawable.bg_filter_pill_metro_active)
+            metroFilterButton.backgroundTintList = null
             metroFilterButton.setTextColor(onPrimaryText)
             metroFilterButton.iconTint = ContextCompat.getColorStateList(this, R.color.on_primary)
             metroFilterButton.strokeWidth = 0
         } else {
-            metroFilterButton.backgroundTintList = surfaceBg
+            metroFilterButton.setBackgroundResource(R.drawable.bg_filter_pill_inactive)
+            metroFilterButton.backgroundTintList = null
             metroFilterButton.setTextColor(textPrimary)
             metroFilterButton.iconTint = ContextCompat.getColorStateList(this, R.color.metro_icon)
-            metroFilterButton.strokeWidth = dp(1)
+            metroFilterButton.strokeWidth = 0
         }
 
         if (filterShowToilets) {
-            toiletsFilterButton.backgroundTintList = primaryBg
+            toiletsFilterButton.setBackgroundResource(R.drawable.bg_filter_pill_toilets_active)
+            toiletsFilterButton.backgroundTintList = null
             toiletsFilterButton.setTextColor(onPrimaryText)
             toiletsFilterButton.iconTint = ContextCompat.getColorStateList(this, R.color.on_primary)
             toiletsFilterButton.strokeWidth = 0
         } else {
-            toiletsFilterButton.backgroundTintList = surfaceBg
+            toiletsFilterButton.setBackgroundResource(R.drawable.bg_filter_pill_inactive)
+            toiletsFilterButton.backgroundTintList = null
             toiletsFilterButton.setTextColor(textPrimary)
             toiletsFilterButton.iconTint = ContextCompat.getColorStateList(this, R.color.toilet_icon)
-            toiletsFilterButton.strokeWidth = dp(1)
+            toiletsFilterButton.strokeWidth = 0
         }
+
+        zonesFilterButton.setBackgroundResource(R.drawable.bg_filter_pill_inactive)
+        zonesFilterButton.backgroundTintList = null
+        zonesFilterButton.setTextColor(textPrimary)
+        zonesFilterButton.iconTint = ContextCompat.getColorStateList(this, R.color.secondary)
+        zonesFilterButton.strokeWidth = 0
 
         updateFloatingBadges()
     }
@@ -805,8 +1318,31 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onStart() { super.onStart(); mapView.onStart() }
-    override fun onResume() { super.onResume(); mapView.onResume() }
-    override fun onPause() { mapView.onPause(); super.onPause() }
+    override fun onResume() {
+        super.onResume()
+        mapView.onResume()
+        val currentDay = getTodayDateKey()
+        if (currentDay != lastCrowdLoadedDay) {
+            lastCrowdLoadedDay = currentDay
+            loadLiveCrowdHeatmap()
+            refreshCurrentDetailCrowd?.invoke()
+        }
+        val filter = android.content.IntentFilter().apply {
+            addAction(android.content.Intent.ACTION_DATE_CHANGED)
+            addAction(android.content.Intent.ACTION_TIMEZONE_CHANGED)
+            addAction(android.content.Intent.ACTION_TIME_CHANGED)
+        }
+        try {
+            registerReceiver(dateChangeReceiver, filter)
+        } catch (_: Exception) {}
+    }
+    override fun onPause() {
+        mapView.onPause()
+        try {
+            unregisterReceiver(dateChangeReceiver)
+        } catch (_: Exception) {}
+        super.onPause()
+    }
     override fun onStop() { mapView.onStop(); super.onStop() }
     override fun onDestroy() { mapView.onDestroy(); super.onDestroy() }
 
@@ -1537,39 +2073,112 @@ class MainActivity : AppCompatActivity() {
             updateFilterPillStyles()
         }
 
-        // ── Community Photo Gallery (Parts 9-14) ──
+        // ── Top Hero Image Carousel (Above Pandal Name - Real Photos Only) ──
+        val heroCard = view.findViewById<View>(R.id.heroCard)
+        val heroViewPager = view.findViewById<androidx.viewpager2.widget.ViewPager2>(R.id.heroViewPager)
+        val heroPageIndicator = view.findViewById<TextView>(R.id.heroPageIndicator)
+        val closeHeroBtn = view.findViewById<View>(R.id.closeSheetHero)
+        val galleryCountBadge = view.findViewById<TextView>(R.id.galleryCountBadge)
+
+        closeHeroBtn?.setOnClickListener { sheet.dismiss() }
+
+        lateinit var heroAdapter: com.pandalfinder.ui.HeroPhotoAdapter
+        heroAdapter = com.pandalfinder.ui.HeroPhotoAdapter(emptyList()) { photo ->
+            showFullscreenPhotoViewer(heroAdapter.getPhotos(), heroViewPager.currentItem, item.name)
+        }
+        heroViewPager.adapter = heroAdapter
+
+        val heroHandler = Handler(Looper.getMainLooper())
+        var heroAutoScrollRunnable: Runnable? = null
+
+        fun stopHeroAutoScroll() {
+            heroAutoScrollRunnable?.let { heroHandler.removeCallbacks(it) }
+            heroAutoScrollRunnable = null
+        }
+
+        fun scheduleHeroAutoScroll() {
+            stopHeroAutoScroll()
+            val count = heroAdapter.itemCount
+            if (count <= 1) return
+
+            val runnable = object : Runnable {
+                override fun run() {
+                    if (currentDetailPandal?.id == item.id && currentDetailSheetView === view && heroAdapter.itemCount > 1) {
+                        val nextItem = (heroViewPager.currentItem + 1) % heroAdapter.itemCount
+                        heroViewPager.setCurrentItem(nextItem, true)
+                        heroHandler.postDelayed(this, 4500L)
+                    }
+                }
+            }
+            heroAutoScrollRunnable = runnable
+            heroHandler.postDelayed(runnable, 4500L)
+        }
+
+        heroViewPager.registerOnPageChangeCallback(object : androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
+                val count = heroAdapter.itemCount
+                if (count > 0) {
+                    heroPageIndicator.text = "${position + 1} / $count"
+                    heroPageIndicator.visibility = if (count > 1) View.VISIBLE else View.GONE
+                }
+            }
+
+            override fun onPageScrollStateChanged(state: Int) {
+                super.onPageScrollStateChanged(state)
+                if (state == androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_DRAGGING) {
+                    stopHeroAutoScroll()
+                } else if (state == androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_IDLE) {
+                    scheduleHeroAutoScroll()
+                }
+            }
+        })
+
+        // ── Community Photo Gallery & Separate Add Photo Card ──
         val photoRecycler = view.findViewById<RecyclerView>(R.id.pandalPhotosRecyclerView)
         val photoPlaceholder = view.findViewById<View>(R.id.pandalPhotoPlaceholder)
-        val addPhotoBtn = view.findViewById<MaterialButton>(R.id.addPhotoButton)
-        val uploadProgressLayout = view.findViewById<LinearLayout>(R.id.photoUploadProgressLayout)
-        val uploadProgressBar = view.findViewById<ProgressBar>(R.id.photoUploadProgressBar)
-        val uploadProgressText = view.findViewById<TextView>(R.id.photoUploadProgressText)
+        val addPhotoCard = view.findViewById<MaterialCardView>(R.id.addPhotoCard)
 
         val photoAdapter = com.pandalfinder.ui.PhotoGalleryAdapter(emptyList()) { photo ->
-            showFullPhotoDialog(photo)
+            showFullPhotoDialog(photo, heroAdapter.getPhotos(), item.name)
         }
         photoRecycler.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         photoRecycler.adapter = photoAdapter
 
         val photoListener = photos.listenToPhotos(item.id) { photoList ->
             if (currentDetailPandal?.id == item.id && currentDetailSheetView === view) {
+                heroAdapter.updatePhotos(photoList)
                 photoAdapter.updatePhotos(photoList)
+
                 if (photoList.isNotEmpty()) {
+                    heroCard.visibility = View.VISIBLE
+                    if (photoList.size > 1) {
+                        heroPageIndicator.text = "1 / ${photoList.size}"
+                        heroPageIndicator.visibility = View.VISIBLE
+                        scheduleHeroAutoScroll()
+                    } else {
+                        heroPageIndicator.visibility = View.GONE
+                        stopHeroAutoScroll()
+                    }
+
                     photoRecycler.visibility = View.VISIBLE
                     photoPlaceholder.visibility = View.GONE
+                    galleryCountBadge.visibility = View.VISIBLE
+                    galleryCountBadge.text = if (photoList.size == 1) "1 photo" else "${photoList.size} photos"
                 } else {
+                    stopHeroAutoScroll()
+                    heroCard.visibility = View.GONE
+                    heroPageIndicator.visibility = View.GONE
+
                     photoRecycler.visibility = View.GONE
                     photoPlaceholder.visibility = View.VISIBLE
+                    galleryCountBadge.visibility = View.GONE
                 }
             }
         }
 
-        addPhotoBtn.setOnClickListener {
-            pendingUploadPandalId = item.id
-            pendingUploadLayout = uploadProgressLayout
-            pendingUploadProgressBar = uploadProgressBar
-            pendingUploadProgressText = uploadProgressText
-            photoPicker.launch("image/*")
+        addPhotoCard.setOnClickListener {
+            showChoosePhotoSourceDialog(item)
         }
 
         // ── Optional Metadata Section (Part 13: Theme, Established, Known For) ──
@@ -1617,7 +2226,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // ── Weather (Authoritative Open-Meteo + Refresh) ──
+        // ── Weather (Authoritative Open-Meteo + Community Firestore Realtime + Refresh) ──
         val weatherStatus = view.findViewById<TextView>(R.id.weatherStatus)
         val weatherUpdated = view.findViewById<TextView>(R.id.weatherUpdated)
         val weatherCardIcon = view.findViewById<ImageView>(R.id.weatherCardIcon)
@@ -1626,10 +2235,42 @@ class MainActivity : AppCompatActivity() {
 
         fun loadWeather() {
             weatherReports.latest(item) { communityReport, _ ->
-                if (communityReport != null) {
-                    weatherStatus.text = "${communityReport.condition.emoji} ${communityReport.condition.label}"
-                    weatherUpdated.text = "Community report · Updated ${ago(communityReport.timestamp)}"
-                    when (communityReport.condition) {
+                if (currentDetailPandal?.id == item.id && currentDetailSheetView === view) {
+                    if (communityReport != null) {
+                        weatherStatus.text = "${communityReport.condition.emoji} ${communityReport.condition.label}"
+                        weatherUpdated.text = "Community report · Updated ${ago(communityReport.timestamp)}"
+                        when (communityReport.condition) {
+                            CommunityWeather.NO_RAIN -> weatherCardIcon.setImageResource(R.drawable.ic_weather_sun)
+                            CommunityWeather.DRIZZLE -> weatherCardIcon.setImageResource(R.drawable.ic_weather_drizzle)
+                            CommunityWeather.RAINING -> weatherCardIcon.setImageResource(R.drawable.ic_weather_rain)
+                            CommunityWeather.HEAVY_RAIN -> weatherCardIcon.setImageResource(R.drawable.ic_weather_thunder)
+                        }
+                    } else {
+                        weather.currentFor(item) { result ->
+                            if (currentDetailPandal?.id == item.id && currentDetailSheetView === view) {
+                                if (result != null) {
+                                    weatherCardIcon.setImageResource(R.drawable.ic_weather)
+                                    weatherStatus.text = "${result.emoji} ${result.label}"
+                                    weatherUpdated.text = "Live weather · Updated ${ago(result.fetchedAt)}"
+                                } else {
+                                    weatherCardIcon.setImageResource(R.drawable.ic_weather)
+                                    weatherStatus.text = getString(R.string.weather_no_data)
+                                    weatherUpdated.text = getString(R.string.weather_unavailable)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        loadWeather()
+
+        val weatherListener = weatherReports.listenToWeather(item.id) { report ->
+            if (currentDetailPandal?.id == item.id && currentDetailSheetView === view) {
+                if (report != null) {
+                    weatherStatus.text = "${report.condition.emoji} ${report.condition.label}"
+                    weatherUpdated.text = "Community report · Updated ${ago(report.timestamp)}"
+                    when (report.condition) {
                         CommunityWeather.NO_RAIN -> weatherCardIcon.setImageResource(R.drawable.ic_weather_sun)
                         CommunityWeather.DRIZZLE -> weatherCardIcon.setImageResource(R.drawable.ic_weather_drizzle)
                         CommunityWeather.RAINING -> weatherCardIcon.setImageResource(R.drawable.ic_weather_rain)
@@ -1637,21 +2278,26 @@ class MainActivity : AppCompatActivity() {
                     }
                 } else {
                     weather.currentFor(item) { result ->
-                        if (result != null) {
-                            weatherCardIcon.setImageResource(R.drawable.ic_weather)
-                            weatherStatus.text = "${result.emoji} ${result.label}"
-                            weatherUpdated.text = "Live weather · Updated ${ago(result.fetchedAt)}"
-                        } else {
-                            weatherCardIcon.setImageResource(R.drawable.ic_weather)
-                            weatherStatus.text = getString(R.string.weather_no_data)
-                            weatherUpdated.text = getString(R.string.weather_unavailable)
+                        if (currentDetailPandal?.id == item.id && currentDetailSheetView === view) {
+                            if (result != null) {
+                                weatherCardIcon.setImageResource(R.drawable.ic_weather)
+                                weatherStatus.text = "${result.emoji} ${result.label}"
+                                weatherUpdated.text = "Live weather · Updated ${ago(result.fetchedAt)}"
+                            } else {
+                                weatherCardIcon.setImageResource(R.drawable.ic_weather)
+                                weatherStatus.text = getString(R.string.weather_no_data)
+                                weatherUpdated.text = getString(R.string.weather_unavailable)
+                            }
                         }
                     }
                 }
             }
         }
-        loadWeather()
-        view.findViewById<MaterialButton>(R.id.weatherRefreshButton).setOnClickListener {
+
+        val weatherRefreshBtn = view.findViewById<MaterialButton>(R.id.weatherRefreshButton)
+        weatherRefreshBtn.setOnClickListener {
+            animateButtonPress(weatherRefreshBtn)
+            animateIconSpin(weatherCardIcon)
             loadWeather()
             Toast.makeText(this, "Refreshing weather…", Toast.LENGTH_SHORT).show()
         }
@@ -1677,7 +2323,7 @@ class MainActivity : AppCompatActivity() {
                     val timeText = result.updatedAt?.let { "Updated ${ago(it)}" } ?: ""
                     crowdUpdated.text = "$countText · $timeText"
                 } else {
-                    crowdStatus.text = "No reports yet"
+                    crowdStatus.text = "No reports today"
                     crowdLabel.text = ""
                     crowdUpdated.text = "Be the first to report crowd level"
                 }
@@ -1692,6 +2338,7 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+        refreshCurrentDetailCrowd = { refreshCrowd() }
         refreshCrowd()
 
         val crowdListener = crowd.listenToPandalCrowd(item.id) { status ->
@@ -1703,15 +2350,40 @@ class MainActivity : AppCompatActivity() {
                     val timeText = status.updatedAt?.let { "Updated ${ago(it)}" } ?: ""
                     crowdUpdated.text = "$countText · $timeText"
                 } else {
-                    crowdStatus.text = "No reports yet"
+                    crowdStatus.text = "No reports today"
                     crowdLabel.text = ""
                     crowdUpdated.text = "Be the first to report crowd level"
                 }
             }
         }
 
-        view.findViewById<MaterialButton>(R.id.updateCrowdButton).setOnClickListener {
-            showCrowdUpdateSheet(item) { refreshCrowd() }
+        val updateCrowdBtn = view.findViewById<MaterialButton>(R.id.updateCrowdButton)
+        updateCrowdBtn.setOnClickListener {
+            animateButtonPress(updateCrowdBtn) {
+                val userLoc = location
+                if (userLoc == null || !isValidCoordinate(userLoc.latitude, userLoc.longitude)) {
+                    Toast.makeText(this, "Acquiring GPS location... Please enable location to report crowd.", Toast.LENGTH_SHORT).show()
+                    requestLocationPermission()
+                    return@animateButtonPress
+                }
+
+                val pandalLoc = Location("").apply {
+                    latitude = item.latitude
+                    longitude = item.longitude
+                }
+                val distanceMeters = userLoc.distanceTo(pandalLoc)
+
+                if (distanceMeters <= 500f) {
+                    showCrowdUpdateSheet(item) { refreshCrowd() }
+                } else {
+                    val distStr = if (distanceMeters >= 1000f) "%.1f km".format(distanceMeters / 1000f) else "${distanceMeters.toInt()} m"
+                    Toast.makeText(
+                        this,
+                        "Move within 500 m of this pandal to report crowd. (You're $distStr away)",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
         }
 
         // ── Nearest Metro (Part 14) ──
@@ -1766,20 +2438,30 @@ class MainActivity : AppCompatActivity() {
         }
 
         sheet.setOnDismissListener {
+            stopHeroAutoScroll()
             crowdListener?.remove()
             photoListener?.remove()
+            weatherListener?.remove()
             currentDetailPandal = null
             currentDetailSheetView = null
-            pendingUploadPandalId = null
-            pendingUploadLayout = null
-            pendingUploadProgressBar = null
-            pendingUploadProgressText = null
+            refreshCurrentDetailCrowd = null
         }
 
         sheet.setOnShowListener {
-            val behavior = BottomSheetBehavior.from(sheet.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)!!)
-            behavior.peekHeight = dp(620)
-            behavior.state = BottomSheetBehavior.STATE_COLLAPSED
+            val bottomSheet = sheet.findViewById<FrameLayout>(com.google.android.material.R.id.design_bottom_sheet)
+            if (bottomSheet != null) {
+                val behavior = BottomSheetBehavior.from(bottomSheet)
+                val displayMetrics = resources.displayMetrics
+                val targetHeight = (displayMetrics.heightPixels * 0.90).toInt()
+                bottomSheet.layoutParams.height = targetHeight
+                bottomSheet.requestLayout()
+                view.layoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT
+                view.requestLayout()
+                behavior.skipCollapsed = false
+                behavior.isFitToContents = true
+                behavior.peekHeight = (displayMetrics.heightPixels * 0.72).toInt()
+                behavior.state = BottomSheetBehavior.STATE_COLLAPSED
+            }
         }
         sheet.show()
     }
@@ -1888,24 +2570,34 @@ class MainActivity : AppCompatActivity() {
 
         buttons.forEach { (btn, lvl) ->
             btn.setOnClickListener {
-                updateLevelDisplay(lvl)
+                animateButtonPress(btn) {
+                    updateLevelDisplay(lvl)
+                }
             }
         }
 
         submitBtn.setOnClickListener {
-            submitBtn.isEnabled = false
-            submitBtn.text = "Saving..."
+            animateButtonPress(submitBtn) {
+                submitBtn.isEnabled = false
+                submitBtn.text = "Saving..."
 
-            val devId = android.provider.Settings.Secure.getString(contentResolver, android.provider.Settings.Secure.ANDROID_ID) ?: "device_user"
-            crowd.submit(pandal, selectedLevel, devId, location) { error ->
-                if (error != null) {
-                    submitBtn.isEnabled = true
-                    submitBtn.text = "Submit Crowd Report"
-                    Toast.makeText(this, "Crowd update failed: ${error.localizedMessage}", Toast.LENGTH_LONG).show()
-                } else {
-                    Toast.makeText(this, "Crowd updated: $selectedLevel/10", Toast.LENGTH_SHORT).show()
-                    sheet.dismiss()
-                    onUpdated()
+                val devId = android.provider.Settings.Secure.getString(contentResolver, android.provider.Settings.Secure.ANDROID_ID) ?: "device_user"
+                authRepo.getOrCreateUid { uid ->
+                    crowd.submit(pandal, selectedLevel, uid, devId, location) { error ->
+                        mainHandler.post {
+                            if (error != null) {
+                                submitBtn.isEnabled = true
+                                submitBtn.text = "Submit Crowd Report"
+                                Log.e(TAG, "Crowd update failed: ${error.message}", error)
+                                Toast.makeText(this, "Crowd update failed: ${error.localizedMessage ?: "Network or permission error"}", Toast.LENGTH_LONG).show()
+                            } else {
+                                Toast.makeText(this, "Crowd updated: $selectedLevel/10", Toast.LENGTH_SHORT).show()
+                                sheet.dismiss()
+                                onUpdated()
+                                loadLiveCrowdHeatmap()
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -1914,7 +2606,73 @@ class MainActivity : AppCompatActivity() {
         sheet.show()
     }
 
-    private fun showFullPhotoDialog(photo: com.pandalfinder.data.PandalPhoto) {
+    private fun showFullscreenPhotoViewer(
+        photoList: List<com.pandalfinder.data.PandalPhoto>,
+        initialPosition: Int = 0,
+        pandalName: String? = null
+    ) {
+        if (photoList.isEmpty()) return
+
+        val dialog = android.app.Dialog(this, android.R.style.Theme_Black_NoTitleBar_Fullscreen)
+        val view = layoutInflater.inflate(R.layout.dialog_fullscreen_photo_viewer, null)
+        dialog.setContentView(view)
+        dialog.window?.setLayout(
+            android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+            android.view.ViewGroup.LayoutParams.MATCH_PARENT
+        )
+        dialog.window?.setBackgroundDrawableResource(android.R.color.black)
+
+        val viewPager = view.findViewById<androidx.viewpager2.widget.ViewPager2>(R.id.fullscreenViewPager)
+        val topBar = view.findViewById<View>(R.id.fullscreenTopBar)
+        val closeBtn = view.findViewById<View>(R.id.closeFullscreenBtn)
+        val titleText = view.findViewById<TextView>(R.id.fullscreenPandalTitle)
+        val subtitleText = view.findViewById<TextView>(R.id.fullscreenPhotoSubtitle)
+        val counterText = view.findViewById<TextView>(R.id.fullscreenPhotoCounter)
+
+        titleText.text = pandalName ?: "Pandal Photo"
+
+        var isTopBarVisible = true
+        val adapter = com.pandalfinder.ui.FullscreenPhotoViewerAdapter(photoList) {
+            isTopBarVisible = !isTopBarVisible
+            topBar.animate()
+                .alpha(if (isTopBarVisible) 1f else 0f)
+                .translationY(if (isTopBarVisible) 0f else -topBar.height.toFloat())
+                .setDuration(180)
+                .start()
+        }
+
+        viewPager.adapter = adapter
+        viewPager.orientation = androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
+
+        fun updateHeader(position: Int) {
+            if (position in photoList.indices) {
+                val photo = photoList[position]
+                subtitleText.text = if (photo.createdAt > 0) "Uploaded ${ago(photo.createdAt)}" else "Community photo"
+                counterText.text = "${position + 1} / ${photoList.size}"
+                counterText.visibility = if (photoList.size > 1) View.VISIBLE else View.GONE
+            }
+        }
+
+        viewPager.registerOnPageChangeCallback(object : androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
+                updateHeader(position)
+            }
+        })
+
+        val safePosition = initialPosition.coerceIn(0, photoList.size - 1)
+        viewPager.setCurrentItem(safePosition, false)
+        updateHeader(safePosition)
+
+        closeBtn.setOnClickListener { dialog.dismiss() }
+        dialog.show()
+    }
+
+    private fun showFullPhotoDialog(
+        photo: com.pandalfinder.data.PandalPhoto,
+        photoList: List<com.pandalfinder.data.PandalPhoto> = listOf(photo),
+        pandalName: String? = null
+    ) {
         val view = layoutInflater.inflate(R.layout.dialog_photo_view, null)
         val dialog = BottomSheetDialog(this)
         dialog.setContentView(view)
@@ -1927,39 +2685,73 @@ class MainActivity : AppCompatActivity() {
 
         timeText.text = if (photo.createdAt > 0) "Uploaded ${ago(photo.createdAt)}" else "Community photo"
 
-        java.util.concurrent.Executors.newSingleThreadExecutor().execute {
-            val bmp = runCatching {
-                val stream = java.net.URL(photo.downloadUrl).openStream()
-                val decoded = BitmapFactory.decodeStream(stream)
-                stream.close()
-                decoded
-            }.getOrNull()
+        val cached = com.pandalfinder.ui.ImageCache[photo.downloadUrl]
+        if (cached != null) {
+            progress.visibility = View.GONE
+            fullImage.setImageBitmap(cached)
+        } else {
+            java.util.concurrent.Executors.newSingleThreadExecutor().execute {
+                val bmp = runCatching {
+                    val stream = java.net.URL(photo.downloadUrl).openStream()
+                    val decoded = BitmapFactory.decodeStream(stream)
+                    stream.close()
+                    decoded
+                }.getOrNull()
 
-            mainHandler.post {
-                progress.visibility = View.GONE
-                if (bmp != null) {
-                    fullImage.setImageBitmap(bmp)
+                mainHandler.post {
+                    progress.visibility = View.GONE
+                    if (bmp != null) {
+                        com.pandalfinder.ui.ImageCache[photo.downloadUrl] = bmp
+                        fullImage.setImageBitmap(bmp)
+                    }
                 }
             }
         }
 
+        fullImage.setOnClickListener {
+            val idx = photoList.indexOfFirst { it.id == photo.id }.coerceAtLeast(0)
+            showFullscreenPhotoViewer(photoList, idx, pandalName)
+        }
+
         photos.currentUserId { currentUid ->
-            if (photo.uploadedBy.isNotBlank() && photo.uploadedBy == currentUid) {
+            val isOwner = photo.uploadedBy.isNotBlank() && photo.uploadedBy == currentUid
+            val isAdmin = adminRepo.isAdminLoggedIn
+            if (isOwner || isAdmin) {
                 deleteBtn.visibility = View.VISIBLE
+                deleteBtn.text = if (isAdmin && !isOwner) "Moderate / Delete Photo" else "Delete This Photo"
                 deleteBtn.setOnClickListener {
                     deleteBtn.isEnabled = false
                     deleteBtn.text = "Deleting..."
-                    photos.deletePhoto(photo) { err ->
-                        if (err != null) {
-                            Toast.makeText(this, "Failed to delete: ${err.localizedMessage}", Toast.LENGTH_SHORT).show()
-                            deleteBtn.isEnabled = true
-                            deleteBtn.text = "Delete This Photo"
-                        } else {
-                            Toast.makeText(this, "Photo deleted", Toast.LENGTH_SHORT).show()
-                            dialog.dismiss()
+                    if (isAdmin && !isOwner) {
+                        adminRepo.deletePhotoAsAdmin(photo) { err ->
+                            mainHandler.post {
+                                if (err != null) {
+                                    Toast.makeText(this, "Failed to delete: ${err.localizedMessage}", Toast.LENGTH_SHORT).show()
+                                    deleteBtn.isEnabled = true
+                                    deleteBtn.text = "Moderate / Delete Photo"
+                                } else {
+                                    Toast.makeText(this, "Photo deleted as Admin", Toast.LENGTH_SHORT).show()
+                                    dialog.dismiss()
+                                }
+                            }
+                        }
+                    } else {
+                        photos.deletePhoto(photo) { err ->
+                            mainHandler.post {
+                                if (err != null) {
+                                    Toast.makeText(this, "Failed to delete: ${err.localizedMessage}", Toast.LENGTH_SHORT).show()
+                                    deleteBtn.isEnabled = true
+                                    deleteBtn.text = "Delete This Photo"
+                                } else {
+                                    Toast.makeText(this, "Photo deleted", Toast.LENGTH_SHORT).show()
+                                    dialog.dismiss()
+                                }
+                            }
                         }
                     }
                 }
+            } else {
+                deleteBtn.visibility = View.GONE
             }
         }
 
@@ -2007,22 +2799,26 @@ class MainActivity : AppCompatActivity() {
 
         fun updateRadiusButtons(active: MaterialButton) {
             val primaryBg = ContextCompat.getColorStateList(this, R.color.primary)
-            val surfaceBg = ContextCompat.getColorStateList(this, R.color.surface_variant)
+            val surfaceBg = ContextCompat.getColorStateList(this, R.color.surface_floating)
+            val strokePrimary = ContextCompat.getColorStateList(this, R.color.glass_stroke_primary)
+            val strokeGlass = ContextCompat.getColorStateList(this, R.color.glass_stroke)
             listOf(r1, r3, r5).forEach { btn ->
                 if (btn == active) {
                     btn.backgroundTintList = primaryBg
                     btn.setTextColor(ContextCompat.getColor(this, R.color.on_primary))
+                    btn.strokeColor = strokePrimary
                 } else {
                     btn.backgroundTintList = surfaceBg
                     btn.setTextColor(ContextCompat.getColor(this, R.color.text_primary))
+                    btn.strokeColor = strokeGlass
                 }
             }
             renderNearbyList()
         }
 
-        r1.setOnClickListener { selectedRadius = 1000f; updateRadiusButtons(r1) }
-        r3.setOnClickListener { selectedRadius = 3000f; updateRadiusButtons(r3) }
-        r5.setOnClickListener { selectedRadius = 5000f; updateRadiusButtons(r5) }
+        r1.setOnClickListener { animateButtonPress(r1); selectedRadius = 1000f; updateRadiusButtons(r1) }
+        r3.setOnClickListener { animateButtonPress(r3); selectedRadius = 3000f; updateRadiusButtons(r3) }
+        r5.setOnClickListener { animateButtonPress(r5); selectedRadius = 5000f; updateRadiusButtons(r5) }
 
         renderNearbyList()
         sheet.show()
@@ -2049,12 +2845,35 @@ class MainActivity : AppCompatActivity() {
         val passportCountView = view.findViewById<TextView>(R.id.myPandalPassportCount)
         passportCountView.text = if (visitedCount == 1) "1 pandal visited ($percent%)" else "$visitedCount pandals visited ($percent%)"
 
+        val passportProgressBar = view.findViewById<ProgressBar>(R.id.myPandalPassportProgressBar)
+        passportProgressBar?.progress = percent
+
         val progressTextView = view.findViewById<TextView>(R.id.myPandalPassportProgressText)
         val areaMap = passport.getAreaBreakdown()
         if (areaMap.isNotEmpty()) {
             progressTextView.text = "${areaMap.size} areas explored • Tap to view passport"
         } else {
             progressTextView.text = "Track Puja progress & collected pandals"
+        }
+
+        val photosCountText = view.findViewById<TextView>(R.id.userPhotosCountText)
+        val crowdCountText = view.findViewById<TextView>(R.id.userCrowdCountText)
+        val contributionsSubtitle = view.findViewById<TextView>(R.id.myContributionsSubtitle)
+
+        authRepo.getOrCreateUid { uid ->
+            contributions.fetchUserContributions(uid) { userContribs ->
+                mainHandler.post {
+                    photosCountText.text = userContribs.photosCount.toString()
+                    crowdCountText.text = userContribs.crowdReportsCount.toString()
+                    val total = userContribs.total
+                    contributionsSubtitle.text = if (total == 0) "No community contributions yet" else "$total total community contributions"
+                }
+            }
+        }
+
+        view.findViewById<View>(R.id.btnMyPhotosManage).setOnClickListener {
+            sheet.dismiss()
+            showMyPhotosSheet()
         }
 
         view.findViewById<View>(R.id.myPandalSavedCard).setOnClickListener {
@@ -2067,6 +2886,407 @@ class MainActivity : AppCompatActivity() {
             showPassportSheet()
         }
 
+        // Hidden 7-tap admin portal trigger on the version label
+        val versionLabel = view.findViewById<TextView>(R.id.appVersionLabel)
+        var versionTapCount = 0
+        var lastTapTime = 0L
+
+        versionLabel.setOnClickListener {
+            val now = System.currentTimeMillis()
+            if (now - lastTapTime > 3000L) {
+                versionTapCount = 1
+            } else {
+                versionTapCount++
+            }
+            lastTapTime = now
+
+            if (versionTapCount >= 7) {
+                versionTapCount = 0
+                sheet.dismiss()
+                if (adminRepo.isAdminLoggedIn) {
+                    showAdminPanelSheet()
+                } else {
+                    showAdminLoginDialog()
+                }
+            }
+        }
+
+        sheet.show()
+    }
+
+    // ────────────────────────────────────────────────────────
+    //  Admin Authentication & Admin Dashboard
+    // ────────────────────────────────────────────────────────
+
+    private fun showAdminLoginDialog() {
+        val view = layoutInflater.inflate(R.layout.dialog_admin_login, null)
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(this)
+            .setView(view)
+            .create()
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        val emailInput = view.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.adminEmailInput)
+        val passwordInput = view.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.adminPasswordInput)
+        val errorText = view.findViewById<TextView>(R.id.adminLoginErrorText)
+        val progressBar = view.findViewById<ProgressBar>(R.id.adminLoginProgress)
+        val signInBtn = view.findViewById<MaterialButton>(R.id.adminSignInBtn)
+        val closeBtn = view.findViewById<View>(R.id.adminLoginCloseBtn)
+
+        closeBtn.setOnClickListener { dialog.dismiss() }
+
+        signInBtn.setOnClickListener {
+            val email = emailInput.text?.toString().orEmpty().trim()
+            val password = passwordInput.text?.toString().orEmpty()
+
+            if (email.isBlank() || password.isBlank()) {
+                errorText.text = "Please enter both admin email and password."
+                errorText.visibility = View.VISIBLE
+                return@setOnClickListener
+            }
+
+            errorText.visibility = View.GONE
+            progressBar.visibility = View.VISIBLE
+            signInBtn.isEnabled = false
+            signInBtn.text = "Verifying..."
+
+            adminRepo.signInAdmin(email, password, authRepo) { result ->
+                mainHandler.post {
+                    progressBar.visibility = View.GONE
+                    signInBtn.isEnabled = true
+                    signInBtn.text = "Sign In"
+
+                    result.onSuccess {
+                        dialog.dismiss()
+                        Toast.makeText(this, "Admin session verified", Toast.LENGTH_SHORT).show()
+                        showAdminPanelSheet()
+                    }.onFailure {
+                        // Generic error message without revealing account existence
+                        errorText.text = "Admin access denied."
+                        errorText.visibility = View.VISIBLE
+                    }
+                }
+            }
+        }
+
+        dialog.show()
+    }
+
+    private fun showAdminPanelSheet() {
+        val sheet = BottomSheetDialog(this)
+        val view = layoutInflater.inflate(R.layout.sheet_admin_panel, null)
+        sheet.setContentView(view)
+
+        view.findViewById<View>(R.id.closeAdminPanelBtn).setOnClickListener { sheet.dismiss() }
+
+        val subtitle = view.findViewById<TextView>(R.id.adminAccountSubtitle)
+        val adminEmail = adminRepo.currentAdminEmail ?: "Authorized Administrator"
+        subtitle.text = "Signed in as $adminEmail"
+
+        val tabPhotos = view.findViewById<MaterialCardView>(R.id.adminTabPhotos)
+        val tabPhotosText = view.findViewById<TextView>(R.id.adminTabPhotosText)
+        val tabCrowd = view.findViewById<MaterialCardView>(R.id.adminTabCrowd)
+        val tabCrowdText = view.findViewById<TextView>(R.id.adminTabCrowdText)
+        val tabWeather = view.findViewById<MaterialCardView>(R.id.adminTabWeather)
+        val tabWeatherText = view.findViewById<TextView>(R.id.adminTabWeatherText)
+
+        val loadingProgress = view.findViewById<ProgressBar>(R.id.adminLoadingProgress)
+        val sectionSubtitle = view.findViewById<TextView>(R.id.adminSectionSubtitle)
+        val emptyText = view.findViewById<TextView>(R.id.adminEmptyText)
+        val recyclerView = view.findViewById<RecyclerView>(R.id.adminContentRecyclerView)
+        recyclerView.layoutManager = LinearLayoutManager(this)
+
+        val pandalMap = pandals.all().associateBy { it.id }
+
+        var currentTab = "photos" // "photos", "crowd", "weather"
+
+        fun updateTabStyles() {
+            if (currentTab == "photos") {
+                tabPhotos.setCardBackgroundColor(ContextCompat.getColor(this, R.color.hopping_surface))
+                tabPhotos.strokeColor = ContextCompat.getColor(this, R.color.hopping_outline)
+                tabPhotosText.setTextColor(ContextCompat.getColor(this, R.color.primary))
+                tabPhotosText.setTypeface(null, android.graphics.Typeface.BOLD)
+            } else {
+                tabPhotos.setCardBackgroundColor(ContextCompat.getColor(this, R.color.surface_variant))
+                tabPhotos.strokeColor = ContextCompat.getColor(this, R.color.outline)
+                tabPhotosText.setTextColor(ContextCompat.getColor(this, R.color.text_secondary))
+                tabPhotosText.setTypeface(null, android.graphics.Typeface.NORMAL)
+            }
+
+            if (currentTab == "crowd") {
+                tabCrowd.setCardBackgroundColor(ContextCompat.getColor(this, R.color.hopping_surface))
+                tabCrowd.strokeColor = ContextCompat.getColor(this, R.color.hopping_outline)
+                tabCrowdText.setTextColor(ContextCompat.getColor(this, R.color.primary))
+                tabCrowdText.setTypeface(null, android.graphics.Typeface.BOLD)
+            } else {
+                tabCrowd.setCardBackgroundColor(ContextCompat.getColor(this, R.color.surface_variant))
+                tabCrowd.strokeColor = ContextCompat.getColor(this, R.color.outline)
+                tabCrowdText.setTextColor(ContextCompat.getColor(this, R.color.text_secondary))
+                tabCrowdText.setTypeface(null, android.graphics.Typeface.NORMAL)
+            }
+
+            if (currentTab == "weather") {
+                tabWeather.setCardBackgroundColor(ContextCompat.getColor(this, R.color.weather_surface))
+                tabWeather.strokeColor = ContextCompat.getColor(this, R.color.weather_outline)
+                tabWeatherText.setTextColor(ContextCompat.getColor(this, R.color.weather_blue))
+                tabWeatherText.setTypeface(null, android.graphics.Typeface.BOLD)
+            } else {
+                tabWeather.setCardBackgroundColor(ContextCompat.getColor(this, R.color.surface_variant))
+                tabWeather.strokeColor = ContextCompat.getColor(this, R.color.outline)
+                tabWeatherText.setTextColor(ContextCompat.getColor(this, R.color.text_secondary))
+                tabWeatherText.setTypeface(null, android.graphics.Typeface.NORMAL)
+            }
+        }
+
+        fun loadPhotos() {
+            currentTab = "photos"
+            updateTabStyles()
+            loadingProgress.visibility = View.VISIBLE
+            emptyText.visibility = View.GONE
+            recyclerView.visibility = View.GONE
+            sectionSubtitle.text = "Loading community photos..."
+
+            adminRepo.fetchAdminPhotos { photosList ->
+                mainHandler.post {
+                    loadingProgress.visibility = View.GONE
+                    if (photosList.isEmpty()) {
+                        emptyText.visibility = View.VISIBLE
+                        emptyText.text = "No community photos found."
+                        recyclerView.visibility = View.GONE
+                        sectionSubtitle.text = "0 photos"
+                    } else {
+                        emptyText.visibility = View.GONE
+                        recyclerView.visibility = View.VISIBLE
+                        sectionSubtitle.text = "${photosList.size} community photos across all pandals"
+
+                        val adapter = com.pandalfinder.ui.AdminPhotosAdapter(
+                            photos = photosList,
+                            pandalMap = pandalMap,
+                            onPhotoClick = { photo ->
+                                showFullPhotoDialog(photo, photosList, pandalMap[photo.pandalId]?.name ?: "Admin Moderation")
+                            },
+                            onDeleteClick = { photo ->
+                                androidx.appcompat.app.AlertDialog.Builder(this)
+                                    .setTitle("Admin Moderation")
+                                    .setMessage("Delete photo permanently from Storage and Firestore?")
+                                    .setPositiveButton("Delete") { _, _ ->
+                                        Toast.makeText(this, "Deleting photo...", Toast.LENGTH_SHORT).show()
+                                        adminRepo.deletePhotoAsAdmin(photo) { err ->
+                                            mainHandler.post {
+                                                if (err != null) {
+                                                    Toast.makeText(this, "Failed: ${err.localizedMessage}", Toast.LENGTH_SHORT).show()
+                                                } else {
+                                                    Toast.makeText(this, "Photo deleted by Admin", Toast.LENGTH_SHORT).show()
+                                                    loadPhotos()
+                                                }
+                                            }
+                                        }
+                                    }
+                                    .setNegativeButton("Cancel", null)
+                                    .show()
+                            }
+                        )
+                        recyclerView.adapter = adapter
+                    }
+                }
+            }
+        }
+
+        fun loadCrowd() {
+            currentTab = "crowd"
+            updateTabStyles()
+            loadingProgress.visibility = View.VISIBLE
+            emptyText.visibility = View.GONE
+            recyclerView.visibility = View.GONE
+            sectionSubtitle.text = "Loading crowd reports..."
+
+            adminRepo.fetchRecentCrowdReports { reportsList ->
+                mainHandler.post {
+                    loadingProgress.visibility = View.GONE
+                    if (reportsList.isEmpty()) {
+                        emptyText.visibility = View.VISIBLE
+                        emptyText.text = "No crowd reports found."
+                        recyclerView.visibility = View.GONE
+                        sectionSubtitle.text = "0 reports"
+                    } else {
+                        emptyText.visibility = View.GONE
+                        recyclerView.visibility = View.VISIBLE
+                        sectionSubtitle.text = "${reportsList.size} crowd reports"
+
+                        val adapter = com.pandalfinder.ui.AdminCrowdAdapter(
+                            reports = reportsList,
+                            pandalMap = pandalMap,
+                            onDeleteClick = { report ->
+                                androidx.appcompat.app.AlertDialog.Builder(this)
+                                    .setTitle("Admin Delete Report")
+                                    .setMessage("Delete this crowd report?")
+                                    .setPositiveButton("Delete") { _, _ ->
+                                        adminRepo.deleteCrowdReport(report.id) { err ->
+                                            mainHandler.post {
+                                                if (err != null) {
+                                                    Toast.makeText(this, "Failed: ${err.localizedMessage}", Toast.LENGTH_SHORT).show()
+                                                } else {
+                                                    Toast.makeText(this, "Report deleted", Toast.LENGTH_SHORT).show()
+                                                    loadCrowd()
+                                                }
+                                            }
+                                        }
+                                    }
+                                    .setNegativeButton("Cancel", null)
+                                    .show()
+                            }
+                        )
+                        recyclerView.adapter = adapter
+                    }
+                }
+            }
+        }
+
+        fun loadWeather() {
+            currentTab = "weather"
+            updateTabStyles()
+            loadingProgress.visibility = View.VISIBLE
+            emptyText.visibility = View.GONE
+            recyclerView.visibility = View.GONE
+            sectionSubtitle.text = "Loading weather reports..."
+
+            adminRepo.fetchRecentWeatherReports { reportsList ->
+                mainHandler.post {
+                    loadingProgress.visibility = View.GONE
+                    if (reportsList.isEmpty()) {
+                        emptyText.visibility = View.VISIBLE
+                        emptyText.text = "No weather reports found."
+                        recyclerView.visibility = View.GONE
+                        sectionSubtitle.text = "0 reports"
+                    } else {
+                        emptyText.visibility = View.GONE
+                        recyclerView.visibility = View.VISIBLE
+                        sectionSubtitle.text = "${reportsList.size} weather reports"
+
+                        val adapter = com.pandalfinder.ui.AdminWeatherAdapter(
+                            reports = reportsList,
+                            pandalMap = pandalMap,
+                            onDeleteClick = { report ->
+                                androidx.appcompat.app.AlertDialog.Builder(this)
+                                    .setTitle("Admin Delete Weather Report")
+                                    .setMessage("Delete this weather report?")
+                                    .setPositiveButton("Delete") { _, _ ->
+                                        adminRepo.deleteWeatherReport(report.id) { err ->
+                                            mainHandler.post {
+                                                if (err != null) {
+                                                    Toast.makeText(this, "Failed: ${err.localizedMessage}", Toast.LENGTH_SHORT).show()
+                                                } else {
+                                                    Toast.makeText(this, "Weather report deleted", Toast.LENGTH_SHORT).show()
+                                                    loadWeather()
+                                                }
+                                            }
+                                        }
+                                    }
+                                    .setNegativeButton("Cancel", null)
+                                    .show()
+                            }
+                        )
+                        recyclerView.adapter = adapter
+                    }
+                }
+            }
+        }
+
+        tabPhotos.setOnClickListener { loadPhotos() }
+        tabCrowd.setOnClickListener { loadCrowd() }
+        tabWeather.setOnClickListener { loadWeather() }
+
+        view.findViewById<View>(R.id.adminSignOutBtn).setOnClickListener {
+            adminRepo.signOutAdmin(authRepo) {
+                mainHandler.post {
+                    Toast.makeText(this, "Signed out of admin session", Toast.LENGTH_SHORT).show()
+                    sheet.dismiss()
+                }
+            }
+        }
+
+        loadPhotos()
+        sheet.show()
+    }
+
+    private fun showMyPhotosSheet() {
+        val sheet = BottomSheetDialog(this)
+        val view = layoutInflater.inflate(R.layout.sheet_my_photos, null)
+        sheet.setContentView(view)
+
+        view.findViewById<View>(R.id.closeMyPhotosSheet).setOnClickListener { sheet.dismiss() }
+
+        val loadingProgress = view.findViewById<ProgressBar>(R.id.myPhotosLoadingProgress)
+        val emptyLayout = view.findViewById<View>(R.id.myPhotosEmptyLayout)
+        val subtitle = view.findViewById<TextView>(R.id.myPhotosCountSubtitle)
+        val recyclerView = view.findViewById<RecyclerView>(R.id.myPhotosRecyclerView)
+        recyclerView.layoutManager = LinearLayoutManager(this)
+
+        val pandalMap = pandals.all().associateBy { it.id }
+
+        fun refreshUserPhotos() {
+            loadingProgress.visibility = View.VISIBLE
+            emptyLayout.visibility = View.GONE
+            recyclerView.visibility = View.GONE
+
+            authRepo.getOrCreateUid { uid ->
+                contributions.fetchUserPhotos(uid) { userPhotoList ->
+                    mainHandler.post {
+                        loadingProgress.visibility = View.GONE
+                        if (userPhotoList.isEmpty()) {
+                            emptyLayout.visibility = View.VISIBLE
+                            recyclerView.visibility = View.GONE
+                            subtitle.text = "No photos uploaded yet"
+                        } else {
+                            emptyLayout.visibility = View.GONE
+                            recyclerView.visibility = View.VISIBLE
+                            subtitle.text = if (userPhotoList.size == 1) "1 photo uploaded" else "${userPhotoList.size} photos uploaded"
+
+                            val adapter = com.pandalfinder.ui.MyPhotosAdapter(
+                                photos = userPhotoList,
+                                pandalMap = pandalMap,
+                                onPhotoClick = { photo ->
+                                    val pandal = pandalMap[photo.pandalId] ?: pandalMap["pandal:${photo.pandalId}"]
+                                    showFullscreenPhotoViewer(userPhotoList, userPhotoList.indexOf(photo).coerceAtLeast(0), pandal?.name ?: "My Photo")
+                                },
+                                onReplace = { photo ->
+                                    val pandal = pandalMap[photo.pandalId] ?: pandalMap["pandal:${photo.pandalId}"]
+                                    val pandalName = pandal?.name ?: "Pandal"
+                                    showReplacePhotoSourceDialog(photo, pandalName) {
+                                        refreshUserPhotos()
+                                    }
+                                },
+                                onDelete = { photo ->
+                                    val pandal = pandalMap[photo.pandalId] ?: pandalMap["pandal:${photo.pandalId}"]
+                                    val pandalName = pandal?.name ?: "Pandal"
+                                    androidx.appcompat.app.AlertDialog.Builder(this)
+                                        .setTitle("Delete Photo")
+                                        .setMessage("Are you sure you want to delete your photo for $pandalName? This cannot be undone.")
+                                        .setPositiveButton("Delete") { _, _ ->
+                                            Toast.makeText(this, "Deleting photo...", Toast.LENGTH_SHORT).show()
+                                            photos.deletePhoto(photo) { err ->
+                                                mainHandler.post {
+                                                    if (err != null) {
+                                                        val msg = err.localizedMessage ?: "Deletion failed"
+                                                        Toast.makeText(this, "Failed to delete: $msg", Toast.LENGTH_LONG).show()
+                                                    } else {
+                                                        Toast.makeText(this, "Photo deleted successfully", Toast.LENGTH_SHORT).show()
+                                                        refreshUserPhotos()
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        .setNegativeButton("Cancel", null)
+                                        .show()
+                                }
+                            )
+                            recyclerView.adapter = adapter
+                        }
+                    }
+                }
+            }
+        }
+
+        refreshUserPhotos()
         sheet.show()
     }
 
@@ -2372,16 +3592,21 @@ class MainActivity : AppCompatActivity() {
             submit.isEnabled = false
             progress.visibility = View.VISIBLE
 
-            weatherReports.submit(item, chosen, eligibilityResult.deviceId, location) { error ->
-                progress.visibility = View.GONE
-                if (error == null) {
-                    Toast.makeText(this, "Weather update submitted. Thank you for contributing!", Toast.LENGTH_SHORT).show()
-                    onRefreshed()
-                    sheet.dismiss()
-                } else {
-                    Log.e(TAG, "Failed to submit weather report", error)
-                    Toast.makeText(this, "Failed to submit: ${error.localizedMessage ?: "Unknown error"}", Toast.LENGTH_LONG).show()
-                    submit.isEnabled = true
+            val devId = eligibilityResult.deviceId
+            authRepo.getOrCreateUid { uid ->
+                weatherReports.submit(item, chosen, uid, devId, location) { error ->
+                    mainHandler.post {
+                        progress.visibility = View.GONE
+                        if (error == null) {
+                            Toast.makeText(this, "Weather update submitted. Thank you for contributing!", Toast.LENGTH_SHORT).show()
+                            onRefreshed()
+                            sheet.dismiss()
+                        } else {
+                            Log.e(TAG, "Failed to submit weather report: ${error.message}", error)
+                            Toast.makeText(this, "Failed to submit: ${error.localizedMessage ?: "Unknown error"}", Toast.LENGTH_LONG).show()
+                            submit.isEnabled = true
+                        }
+                    }
                 }
             }
         }
@@ -2458,17 +3683,22 @@ class MainActivity : AppCompatActivity() {
             submit.isEnabled = false
             progress.visibility = View.VISIBLE
 
-            crowd.submit(item, chosen, eligibilityResult.deviceId, location) { error ->
-                progress.visibility = View.GONE
-                if (error == null) {
-                    Toast.makeText(this, "Crowd update submitted. Thank you for contributing!", Toast.LENGTH_SHORT).show()
-                    onRefreshed()
-                    loadLiveCrowdHeatmap()
-                    sheet.dismiss()
-                } else {
-                    Log.e(TAG, "Failed to submit crowd report", error)
-                    Toast.makeText(this, "Failed to submit: ${error.localizedMessage ?: "Unknown error"}", Toast.LENGTH_LONG).show()
-                    submit.isEnabled = true
+            val devId = eligibilityResult.deviceId
+            authRepo.getOrCreateUid { uid ->
+                crowd.submit(item, chosen, uid, devId, location) { error ->
+                    mainHandler.post {
+                        progress.visibility = View.GONE
+                        if (error == null) {
+                            Toast.makeText(this, "Crowd update submitted. Thank you for contributing!", Toast.LENGTH_SHORT).show()
+                            onRefreshed()
+                            loadLiveCrowdHeatmap()
+                            sheet.dismiss()
+                        } else {
+                            Log.e(TAG, "Failed to submit crowd report: ${error.message}", error)
+                            Toast.makeText(this, "Failed to submit: ${error.localizedMessage ?: "Unknown error"}", Toast.LENGTH_LONG).show()
+                            submit.isEnabled = true
+                        }
+                    }
                 }
             }
         }
@@ -2567,7 +3797,8 @@ private class SearchResultAdapter(
             PlaceType.PANDAL -> {
                 holder.icon.setImageResource(R.drawable.ic_pandal_icon)
                 holder.icon.setColorFilter(ContextCompat.getColor(context, R.color.primary))
-                holder.iconContainer.backgroundTintList = ContextCompat.getColorStateList(context, R.color.surface_variant)
+                holder.iconContainer.setBackgroundResource(R.drawable.bg_lens_red)
+                holder.iconContainer.backgroundTintList = null
                 holder.name.text = item.name
                 holder.area.text = item.subtitle
                 holder.distance.text = if (item.distanceMeters > 0) {
@@ -2576,10 +3807,9 @@ private class SearchResultAdapter(
             }
             PlaceType.METRO -> {
                 holder.icon.setImageResource(R.drawable.ic_metro_train)
-                val lineColor = item.metroStation?.lineColor ?: ContextCompat.getColor(context, R.color.metro_icon)
-                holder.icon.setColorFilter(lineColor)
-                val badgeBg = item.metroStation?.lineBadgeBgColor ?: ContextCompat.getColor(context, R.color.surface_variant)
-                holder.iconContainer.backgroundTintList = ColorStateList.valueOf(badgeBg)
+                holder.icon.setColorFilter(ContextCompat.getColor(context, R.color.metro_icon))
+                holder.iconContainer.setBackgroundResource(R.drawable.bg_lens_metro)
+                holder.iconContainer.backgroundTintList = null
                 holder.name.text = item.name
                 holder.area.text = item.subtitle
                 holder.distance.text = if (item.distanceMeters > 0) {
@@ -2589,7 +3819,8 @@ private class SearchResultAdapter(
             PlaceType.TOILET -> {
                 holder.icon.setImageResource(R.drawable.ic_restroom)
                 holder.icon.setColorFilter(ContextCompat.getColor(context, R.color.toilet_icon))
-                holder.iconContainer.backgroundTintList = ContextCompat.getColorStateList(context, R.color.toilet_surface)
+                holder.iconContainer.setBackgroundResource(R.drawable.bg_lens_toilet)
+                holder.iconContainer.backgroundTintList = null
                 holder.name.text = item.name
                 holder.area.text = item.subtitle
                 holder.distance.text = if (item.distanceMeters > 0) {

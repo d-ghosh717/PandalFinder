@@ -7,10 +7,10 @@
     android:layout_marginEnd="10dp"
     android:clickable="true"
     android:focusable="true"
-    app:cardBackgroundColor="@color/surface_variant"
+    app:cardBackgroundColor="@color/surface_floating"
     app:cardCornerRadius="16dp"
-    app:cardElevation="0dp"
-    app:strokeColor="@color/outline"
+    app:cardElevation="2dp"
+    app:strokeColor="@color/glass_stroke"
     app:strokeWidth="1dp">
 
     <FrameLayout

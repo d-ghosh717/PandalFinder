@@ -266,14 +266,15 @@
             android:layout_width="match_parent"
             android:layout_height="52dp"
             android:layout_marginTop="20dp"
+            android:background="@drawable/bg_btn_glow_primary"
             android:fontFamily="@font/inter"
             android:text="Submit Crowd Report"
             android:textAllCaps="false"
             android:textColor="@color/on_primary"
             android:textSize="16sp"
             android:textStyle="bold"
-            app:backgroundTint="@color/primary"
-            app:cornerRadius="16dp" />
+            app:backgroundTint="@null"
+            app:cornerRadius="20dp" />
 
     </LinearLayout>
 </ScrollView>

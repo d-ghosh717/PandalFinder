@@ -73,11 +73,12 @@
             android:fontFamily="@font/inter"
             android:text="Within 1 km"
             android:textAllCaps="false"
+            android:textColor="@color/text_primary"
             android:textSize="12sp"
             android:textStyle="bold"
-            app:backgroundTint="@color/surface_variant"
+            app:backgroundTint="@color/surface_floating"
             app:cornerRadius="19dp"
-            app:strokeColor="@color/outline"
+            app:strokeColor="@color/glass_stroke"
             app:strokeWidth="1dp" />
 
         <com.google.android.material.button.MaterialButton
@@ -89,10 +90,13 @@
             android:fontFamily="@font/inter"
             android:text="Within 3 km"
             android:textAllCaps="false"
+            android:textColor="@color/on_primary"
             android:textSize="12sp"
             android:textStyle="bold"
             app:backgroundTint="@color/primary"
-            app:cornerRadius="19dp" />
+            app:cornerRadius="19dp"
+            app:strokeColor="@color/glass_stroke_primary"
+            app:strokeWidth="1dp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/radius5km"
@@ -103,11 +107,12 @@
             android:fontFamily="@font/inter"
             android:text="Within 5 km"
             android:textAllCaps="false"
+            android:textColor="@color/text_primary"
             android:textSize="12sp"
             android:textStyle="bold"
-            app:backgroundTint="@color/surface_variant"
+            app:backgroundTint="@color/surface_floating"
             app:cornerRadius="19dp"
-            app:strokeColor="@color/outline"
+            app:strokeColor="@color/glass_stroke"
             app:strokeWidth="1dp" />
     </LinearLayout>
 

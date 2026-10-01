@@ -1,494 +1,524 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="@drawable/bg_bottom_sheet"
-    android:fillViewport="true">
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_bottom_sheet">
 
-    <LinearLayout
+    <!-- ── 1. SCROLLABLE PANDAL DETAIL CONTENT ── -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/detailNestedScrollView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingStart="20dp"
-        android:paddingTop="12dp"
-        android:paddingEnd="20dp"
-        android:paddingBottom="28dp">
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:fillViewport="true"
+        android:paddingBottom="96dp">
 
-        <!-- Drag handle -->
-        <View
-            android:layout_width="36dp"
-            android:layout_height="4dp"
-            android:layout_gravity="center_horizontal"
-            android:background="@drawable/sheet_handle"
-            android:contentDescription="Drag handle" />
-
-        <!-- Top Action Bar: Pandal Icon, Title & Close Button -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="14dp"
-            android:gravity="top"
-            android:orientation="horizontal">
-
-            <ImageView
-                android:layout_width="28dp"
-                android:layout_height="28dp"
-                android:layout_marginTop="3dp"
-                android:contentDescription="Pandal"
-                android:src="@drawable/ic_pandal_icon"
-                app:tint="@color/primary" />
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/detailName"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:ellipsize="end"
-                    android:fontFamily="@font/inter"
-                    android:maxLines="2"
-                    android:textColor="@color/text_primary"
-                    android:textSize="24sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/detailArea"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:fontFamily="@font/inter"
-                    android:maxLines="1"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="15sp" />
-            </LinearLayout>
-
-            <ImageButton
-                android:id="@+id/closeSheet"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Close pandal details"
-                android:src="@drawable/ic_close"
-                app:tint="@color/text_secondary" />
-        </LinearLayout>
-
-        <!-- Quick Action Badges: [ ♡ Save ] and [ 🛕 Passport / Visited ] -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:orientation="horizontal">
-
-            <!-- Favorite Button -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/favoriteButton"
-                android:layout_width="wrap_content"
-                android:layout_height="38dp"
-                android:clickable="true"
-                android:focusable="true"
-                app:cardBackgroundColor="@color/surface_variant"
-                app:cardCornerRadius="19dp"
-                app:cardElevation="0dp"
-                app:strokeColor="@color/outline"
-                app:strokeWidth="1dp">
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:paddingStart="14dp"
-                    android:paddingEnd="14dp">
-
-                    <ImageView
-                        android:id="@+id/favoriteIcon"
-                        android:layout_width="18dp"
-                        android:layout_height="18dp"
-                        android:src="@drawable/ic_heart_outline"
-                        app:tint="@color/primary" />
-
-                    <TextView
-                        android:id="@+id/favoriteText"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="6dp"
-                        android:fontFamily="@font/inter"
-                        android:text="Save"
-                        android:textColor="@color/text_primary"
-                        android:textSize="13sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Passport Visited Button -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/passportButton"
-                android:layout_width="wrap_content"
-                android:layout_height="38dp"
-                android:layout_marginStart="10dp"
-                android:clickable="true"
-                android:focusable="true"
-                app:cardBackgroundColor="@color/surface_variant"
-                app:cardCornerRadius="19dp"
-                app:cardElevation="0dp"
-                app:strokeColor="@color/outline"
-                app:strokeWidth="1dp">
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:paddingStart="14dp"
-                    android:paddingEnd="14dp">
-
-                    <ImageView
-                        android:id="@+id/passportIcon"
-                        android:layout_width="18dp"
-                        android:layout_height="18dp"
-                        android:src="@drawable/ic_passport"
-                        app:tint="@color/text_secondary" />
-
-                    <TextView
-                        android:id="@+id/passportText"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="6dp"
-                        android:fontFamily="@font/inter"
-                        android:text="Mark Visited"
-                        android:textColor="@color/text_primary"
-                        android:textSize="13sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-        </LinearLayout>
-
-        <!-- Pandal Community Photo Gallery Area (Part 9-14) -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/pandalPhotoCard"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="14dp"
-            app:cardBackgroundColor="@color/surface_variant"
-            app:cardCornerRadius="18dp"
-            app:cardElevation="0dp"
-            app:strokeColor="@color/outline"
-            app:strokeWidth="1dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="12dp">
-
-                <!-- Header Row with [ + Add Photo ] Button -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:fontFamily="@font/inter"
-                        android:text="Pandal Photos"
-                        android:textColor="@color/text_primary"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/addPhotoButton"
-                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="36dp"
-                        android:fontFamily="@font/inter"
-                        android:minWidth="0dp"
-                        android:paddingStart="12dp"
-                        android:paddingEnd="12dp"
-                        android:text="+ Add Photo"
-                        android:textAllCaps="false"
-                        android:textColor="@color/primary"
-                        android:textSize="12sp"
-                        android:textStyle="bold"
-                        app:cornerRadius="18dp"
-                        app:strokeColor="@color/primary" />
-                </LinearLayout>
-
-                <!-- Upload Progress Layout -->
-                <LinearLayout
-                    android:id="@+id/photoUploadProgressLayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:visibility="gone">
-
-                    <ProgressBar
-                        android:id="@+id/photoUploadProgressBar"
-                        style="?android:attr/progressBarStyleHorizontal"
-                        android:layout_width="0dp"
-                        android:layout_height="8dp"
-                        android:layout_weight="1"
-                        android:max="100" />
-
-                    <TextView
-                        android:id="@+id/photoUploadProgressText"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:fontFamily="@font/inter"
-                        android:text="Uploading 0%"
-                        android:textColor="@color/primary"
-                        android:textSize="11sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-
-                <!-- Horizontal Photo Gallery RecyclerView -->
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/pandalPhotosRecyclerView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:clipToPadding="false"
-                    android:orientation="horizontal"
-                    android:visibility="gone" />
-
-                <!-- Empty Photo State -->
-                <LinearLayout
-                    android:id="@+id/pandalPhotoPlaceholder"
-                    android:layout_width="match_parent"
-                    android:layout_height="100dp"
-                    android:layout_marginTop="6dp"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <ImageView
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"
-                        android:src="@drawable/ic_photo_placeholder"
-                        app:tint="@color/primary" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:fontFamily="@font/inter"
-                        android:text="No photos yet · Be the first to add one"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="12sp" />
-                </LinearLayout>
-
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- Optional Pandal Information Section (Part 13) -->
-        <LinearLayout
-            android:id="@+id/pandalInfoSection"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
             android:orientation="vertical"
-            android:visibility="gone">
+            android:paddingStart="20dp"
+            android:paddingTop="12dp"
+            android:paddingEnd="20dp"
+            android:paddingBottom="16dp">
 
-            <TextView
-                android:id="@+id/infoTheme"
+            <!-- Subtle Drag Handle -->
+            <View
+                android:layout_width="36dp"
+                android:layout_height="4dp"
+                android:layout_gravity="center_horizontal"
+                android:background="@drawable/sheet_handle"
+                android:contentDescription="Drag handle" />
+
+            <!-- ── 1. HIGHLIGHT IMAGE / HERO PHOTO (Visible ONLY when real photos exist) ── -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/heroCard"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/inter"
-                android:textColor="@color/text_primary"
-                android:textSize="14sp"
-                android:visibility="gone" />
+                android:layout_height="210dp"
+                android:layout_marginTop="12dp"
+                android:visibility="gone"
+                app:cardBackgroundColor="@android:color/transparent"
+                app:cardCornerRadius="22dp"
+                app:cardElevation="3dp"
+                app:strokeColor="@color/glass_stroke"
+                app:strokeWidth="1.2dp">
 
-            <TextView
-                android:id="@+id/infoEstablished"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:fontFamily="@font/inter"
-                android:textColor="@color/text_secondary"
-                android:textSize="13sp"
-                android:visibility="gone" />
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
 
-            <TextView
-                android:id="@+id/infoKnownFor"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:fontFamily="@font/inter"
-                android:textColor="@color/text_secondary"
-                android:textSize="13sp"
-                android:visibility="gone" />
-        </LinearLayout>
+                    <!-- ViewPager2 for Swipeable & Auto-scrolling Hero Photos -->
+                    <androidx.viewpager2.widget.ViewPager2
+                        android:id="@+id/heroViewPager"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
 
-        <!-- Road Distance -->
-        <TextView
-            android:id="@+id/detailDistance"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="14dp"
-            android:fontFamily="@font/inter"
-            android:textColor="@color/primary"
-            android:textSize="22sp"
-            android:textStyle="bold" />
+                    <!-- Close Button on Hero Overlay -->
+                    <ImageButton
+                        android:id="@+id/closeSheetHero"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:layout_gravity="top|end"
+                        android:layout_margin="10dp"
+                        android:background="@drawable/bg_glass_circle_btn"
+                        android:contentDescription="Close pandal details"
+                        android:elevation="4dp"
+                        android:padding="6dp"
+                        android:src="@drawable/ic_close"
+                        app:tint="@color/text_primary" />
 
-        <!-- Travel Mode Chips -->
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:layout_marginTop="8dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
+                    <!-- Liquid Glass Page Indicator Capsule (e.g. 1 / 4) -->
+                    <TextView
+                        android:id="@+id/heroPageIndicator"
+                        android:layout_width="wrap_content"
+                        android:layout_height="26dp"
+                        android:layout_gravity="bottom|end"
+                        android:layout_margin="12dp"
+                        android:background="@drawable/bg_glass_card_warm"
+                        android:elevation="4dp"
+                        android:fontFamily="@font/inter"
+                        android:gravity="center"
+                        android:paddingStart="10dp"
+                        android:paddingEnd="10dp"
+                        android:text="1 / 1"
+                        android:textColor="@color/text_primary"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:visibility="gone" />
+                </FrameLayout>
+            </com.google.android.material.card.MaterialCardView>
 
-            <com.google.android.material.chip.Chip
-                android:id="@+id/timeWalk"
-                android:layout_width="wrap_content"
-                android:layout_height="36dp"
-                android:layout_marginEnd="8dp"
-                android:fontFamily="@font/inter"
-                android:text="—"
-                android:textColor="@color/text_primary"
-                android:textSize="13sp"
-                app:chipIcon="@drawable/ic_walk"
-                app:chipSurfaceColor="@color/surface_variant" />
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/timeBike"
-                android:layout_width="wrap_content"
-                android:layout_height="36dp"
-                android:layout_marginEnd="8dp"
-                android:fontFamily="@font/inter"
-                android:text="—"
-                android:textColor="@color/text_primary"
-                android:textSize="13sp"
-                app:chipIcon="@drawable/ic_bike"
-                app:chipSurfaceColor="@color/surface_variant" />
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/timeCar"
-                android:layout_width="wrap_content"
-                android:layout_height="36dp"
-                android:fontFamily="@font/inter"
-                android:text="—"
-                android:textColor="@color/text_primary"
-                android:textSize="13sp"
-                app:chipIcon="@drawable/ic_car"
-                app:chipSurfaceColor="@color/surface_variant" />
-        </LinearLayout>
-
-        <!-- Weather Card (Cool Blue) -->
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="14dp"
-            app:cardBackgroundColor="@color/weather_surface"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="0dp"
-            app:strokeColor="@color/weather_outline"
-            app:strokeWidth="1dp">
-
+            <!-- ── 2. PANDAL NAME & 3. AREA / LOCATION ── -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:padding="14dp">
-
-                <ImageView
-                    android:id="@+id/weatherCardIcon"
-                    android:layout_width="26dp"
-                    android:layout_height="26dp"
-                    android:contentDescription="Weather"
-                    android:src="@drawable/ic_weather"
-                    app:tint="@color/weather_icon" />
+                android:layout_marginTop="14dp"
+                android:gravity="top"
+                android:orientation="horizontal">
 
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="12dp"
                     android:layout_weight="1"
                     android:orientation="vertical">
 
                     <TextView
+                        android:id="@+id/detailName"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:ellipsize="end"
                         android:fontFamily="@font/inter"
-                        android:text="Weather"
-                        android:textColor="@color/weather_text"
-                        android:textSize="14sp" />
-
-                    <TextView
-                        android:id="@+id/weatherStatus"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="1dp"
-                        android:fontFamily="@font/inter"
+                        android:maxLines="2"
                         android:textColor="@color/text_primary"
-                        android:textSize="18sp"
+                        android:textSize="22sp"
                         android:textStyle="bold" />
 
                     <TextView
-                        android:id="@+id/weatherUpdated"
+                        android:id="@+id/detailArea"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="1dp"
+                        android:layout_marginTop="2dp"
                         android:fontFamily="@font/inter"
+                        android:maxLines="1"
                         android:textColor="@color/text_secondary"
-                        android:textSize="12sp" />
+                        android:textSize="14sp" />
                 </LinearLayout>
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/weatherRefreshButton"
-                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="38dp"
-                    android:minWidth="0dp"
-                    android:fontFamily="@font/inter"
-                    android:text="Update"
-                    android:textAllCaps="false"
-                    android:textColor="@color/weather_text"
-                    app:cornerRadius="19dp"
-                    app:strokeColor="@color/weather_outline" />
+                <!-- Regular Close Button -->
+                <ImageButton
+                    android:id="@+id/closeSheet"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/bg_glass_circle_btn"
+                    android:contentDescription="Close pandal details"
+                    android:padding="6dp"
+                    android:src="@drawable/ic_close"
+                    app:tint="@color/text_primary" />
             </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
 
-        <!-- Crowd Card (Warm Gold/Amber) -->
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            app:cardBackgroundColor="@color/crowd_surface"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="0dp"
-            app:strokeColor="@color/crowd_outline"
-            app:strokeWidth="1dp">
-
+            <!-- ── 4. SAVE + MARK VISITED (Directly below Name & Area) ── -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="14dp">
+                android:layout_marginTop="12dp"
+                android:orientation="horizontal">
+
+                <!-- Save / Favorite Button -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/favoriteButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="38dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    app:cardBackgroundColor="@color/glass_surface_warm"
+                    app:cardCornerRadius="19dp"
+                    app:cardElevation="1dp"
+                    app:strokeColor="@color/glass_stroke"
+                    app:strokeWidth="1.2dp">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingStart="14dp"
+                        android:paddingEnd="14dp">
+
+                        <ImageView
+                            android:id="@+id/favoriteIcon"
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:src="@drawable/ic_heart_outline"
+                            app:tint="@color/primary" />
+
+                        <TextView
+                            android:id="@+id/favoriteText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="6dp"
+                            android:fontFamily="@font/inter"
+                            android:text="Save"
+                            android:textColor="@color/text_primary"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Passport Visited Button -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/passportButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="38dp"
+                    android:layout_marginStart="10dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    app:cardBackgroundColor="@color/glass_surface_warm"
+                    app:cardCornerRadius="19dp"
+                    app:cardElevation="1dp"
+                    app:strokeColor="@color/glass_stroke"
+                    app:strokeWidth="1.2dp">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingStart="14dp"
+                        android:paddingEnd="14dp">
+
+                        <ImageView
+                            android:id="@+id/passportIcon"
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:src="@drawable/ic_passport"
+                            app:tint="@color/text_secondary" />
+
+                        <TextView
+                            android:id="@+id/passportText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="6dp"
+                            android:fontFamily="@font/inter"
+                            android:text="Mark Visited"
+                            android:textColor="@color/text_primary"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+
+            <!-- ── 5. ROAD DISTANCE SECTION (Immediately after Save / Mark Visited) ── -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/detailDistance"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/inter"
+                    android:textColor="@color/text_primary"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <!-- Travel Mode Chips: Walk, Bike, Car -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="38dp"
+                    android:layout_marginTop="6dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/timeWalk"
+                        android:layout_width="wrap_content"
+                        android:layout_height="34dp"
+                        android:layout_marginEnd="8dp"
+                        android:fontFamily="@font/inter"
+                        android:text="—"
+                        android:textColor="@color/text_primary"
+                        android:textSize="12sp"
+                        app:chipBackgroundColor="@color/glass_surface_warm"
+                        app:chipCornerRadius="17dp"
+                        app:chipIcon="@drawable/ic_walk"
+                        app:chipIconTint="@color/primary"
+                        app:chipStrokeColor="@color/glass_stroke"
+                        app:chipStrokeWidth="1dp" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/timeBike"
+                        android:layout_width="wrap_content"
+                        android:layout_height="34dp"
+                        android:layout_marginEnd="8dp"
+                        android:fontFamily="@font/inter"
+                        android:text="—"
+                        android:textColor="@color/text_primary"
+                        android:textSize="12sp"
+                        app:chipBackgroundColor="@color/glass_surface_warm"
+                        app:chipCornerRadius="17dp"
+                        app:chipIcon="@drawable/ic_bike"
+                        app:chipIconTint="@color/primary"
+                        app:chipStrokeColor="@color/glass_stroke"
+                        app:chipStrokeWidth="1dp" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/timeCar"
+                        android:layout_width="wrap_content"
+                        android:layout_height="34dp"
+                        android:fontFamily="@font/inter"
+                        android:text="—"
+                        android:textColor="@color/text_primary"
+                        android:textSize="12sp"
+                        app:chipBackgroundColor="@color/glass_surface_warm"
+                        app:chipCornerRadius="17dp"
+                        app:chipIcon="@drawable/ic_car"
+                        app:chipIconTint="@color/primary"
+                        app:chipStrokeColor="@color/glass_stroke"
+                        app:chipStrokeWidth="1dp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- ── 6. IMAGE GALLERY / PANDAL PHOTOS SECTION ── -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/pandalPhotoCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                app:cardBackgroundColor="@android:color/transparent"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="2dp"
+                app:strokeColor="@android:color/transparent"
+                app:strokeWidth="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_glass_card_photo"
+                    android:orientation="vertical"
+                    android:padding="14dp">
+
+                    <!-- Header Row with Photo Count -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:fontFamily="@font/inter"
+                            android:text="Pandal Photos"
+                            android:textColor="@color/text_primary"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/galleryCountBadge"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/inter"
+                            android:textColor="@color/primary"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            android:visibility="gone" />
+                    </LinearLayout>
+
+                    <!-- Horizontal Photo Gallery RecyclerView -->
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/pandalPhotosRecyclerView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:clipToPadding="false"
+                        android:orientation="horizontal"
+                        android:visibility="gone" />
+
+                    <!-- Empty Photo State inside Gallery -->
+                    <LinearLayout
+                        android:id="@+id/pandalPhotoPlaceholder"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:layout_marginTop="4dp"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/inter"
+                            android:text="No community photos yet"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Compact Glass Action: [+ Add Photo] -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/addPhotoCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:clickable="true"
+                android:focusable="true"
+                app:cardBackgroundColor="@android:color/transparent"
+                app:cardCornerRadius="18dp"
+                app:cardElevation="2dp"
+                app:strokeColor="@android:color/transparent"
+                app:strokeWidth="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_glass_tile_ripple"
+                    android:orientation="vertical"
+                    android:padding="12dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <FrameLayout
+                            android:layout_width="38dp"
+                            android:layout_height="38dp"
+                            android:background="@drawable/bg_lens_red">
+
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:layout_gravity="center"
+                                android:contentDescription="Add photo"
+                                android:src="@drawable/ic_camera"
+                                app:tint="@color/primary" />
+                        </FrameLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/inter"
+                                android:text="Add Photo"
+                                android:textColor="@color/primary"
+                                android:textSize="14sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="1dp"
+                                android:fontFamily="@font/inter"
+                                android:text="Share a photo of this pandal"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_chevron_right"
+                            app:tint="@color/primary" />
+                    </LinearLayout>
+
+                    <!-- Upload Progress Layout -->
+                    <LinearLayout
+                        android:id="@+id/photoUploadProgressLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:visibility="gone">
+
+                        <ProgressBar
+                            android:id="@+id/photoUploadProgressBar"
+                            style="?android:attr/progressBarStyleHorizontal"
+                            android:layout_width="0dp"
+                            android:layout_height="8dp"
+                            android:layout_weight="1"
+                            android:max="100" />
+
+                        <TextView
+                            android:id="@+id/photoUploadProgressText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:fontFamily="@font/inter"
+                            android:text="Uploading 0%"
+                            android:textColor="@color/primary"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ── 7. LIVE WEATHER CARD (Cool Blue Frosted Glass) ── -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                app:cardBackgroundColor="@color/weather_surface_glass"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/weather_outline"
+                app:strokeWidth="1dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:padding="15dp">
 
-                    <ImageView
-                        android:layout_width="26dp"
-                        android:layout_height="26dp"
-                        android:contentDescription="Crowd"
-                        android:src="@drawable/ic_crowd"
-                        app:tint="@color/crowd_icon" />
+                    <FrameLayout
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:background="@drawable/bg_badge_circle"
+                        android:backgroundTint="@color/weather_surface">
+
+                        <ImageView
+                            android:id="@+id/weatherCardIcon"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_gravity="center"
+                            android:contentDescription="Weather"
+                            android:src="@drawable/ic_weather"
+                            app:tint="@color/weather_icon" />
+                    </FrameLayout>
 
                     <LinearLayout
                         android:layout_width="0dp"
@@ -501,30 +531,23 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:fontFamily="@font/inter"
-                            android:text="Crowd"
-                            android:textColor="@color/crowd_text"
-                            android:textSize="14sp" />
+                            android:text="Live Weather"
+                            android:textColor="@color/weather_text"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
 
                         <TextView
-                            android:id="@+id/crowdStatus"
+                            android:id="@+id/weatherStatus"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="1dp"
                             android:fontFamily="@font/inter"
                             android:textColor="@color/text_primary"
-                            android:textSize="18sp"
+                            android:textSize="16sp"
                             android:textStyle="bold" />
 
                         <TextView
-                            android:id="@+id/crowdLabel"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="@font/inter"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="13sp" />
-
-                        <TextView
-                            android:id="@+id/crowdUpdated"
+                            android:id="@+id/weatherUpdated"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="1dp"
@@ -534,179 +557,353 @@
                     </LinearLayout>
 
                     <com.google.android.material.button.MaterialButton
-                        android:id="@+id/updateCrowdButton"
+                        android:id="@+id/weatherRefreshButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="38dp"
+                        android:minWidth="0dp"
+                        android:background="@drawable/bg_btn_glow_weather"
+                        android:fontFamily="@font/inter"
+                        android:text="Update"
+                        android:textAllCaps="false"
+                        android:textColor="@color/weather_text"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        android:paddingStart="14dp"
+                        android:paddingEnd="14dp"
+                        app:backgroundTint="@null"
+                        app:cornerRadius="19dp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ── 8. LIVE CROWD CARD (Warm Amber Frosted Glass) ── -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:cardBackgroundColor="@color/crowd_surface_glass"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/crowd_outline"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="15dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <FrameLayout
+                            android:layout_width="44dp"
+                            android:layout_height="44dp"
+                            android:background="@drawable/bg_badge_circle"
+                            android:backgroundTint="@color/crowd_surface">
+
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:layout_gravity="center"
+                                android:contentDescription="Crowd"
+                                android:src="@drawable/ic_crowd"
+                                app:tint="@color/crowd_icon" />
+                        </FrameLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/inter"
+                                android:text="Live Crowd"
+                                android:textColor="@color/crowd_text"
+                                android:textSize="13sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/crowdStatus"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="1dp"
+                                android:fontFamily="@font/inter"
+                                android:textColor="@color/text_primary"
+                                android:textSize="16sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/crowdLabel"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/inter"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="13sp" />
+
+                            <TextView
+                                android:id="@+id/crowdUpdated"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="1dp"
+                                android:fontFamily="@font/inter"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/updateCrowdButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="38dp"
+                            android:minWidth="0dp"
+                            android:background="@drawable/bg_btn_glow_crowd"
+                            android:fontFamily="@font/inter"
+                            android:text="Update"
+                            android:textAllCaps="false"
+                            android:textColor="@color/crowd_text"
+                            android:textSize="13sp"
+                            android:textStyle="bold"
+                            android:paddingStart="14dp"
+                            android:paddingEnd="14dp"
+                            app:backgroundTint="@null"
+                            app:cornerRadius="19dp" />
+                    </LinearLayout>
+
+                    <!-- Best Time To Visit -->
+                    <LinearLayout
+                        android:id="@+id/bestTimeContainer"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:background="@drawable/bg_option_selected"
+                        android:orientation="vertical"
+                        android:padding="10dp">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/inter"
+                            android:text="Best time tonight"
+                            android:textColor="@color/text_primary"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/bestTimeSummary"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="3dp"
+                            android:fontFamily="@font/inter"
+                            android:text="Not enough crowd data yet."
+                            android:textColor="@color/text_secondary"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ── 9. NEAREST METRO CARD (Emerald Frosted Glass) ── -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:cardBackgroundColor="@color/metro_surface_glass"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/metro_outline"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="15dp">
+
+                    <FrameLayout
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:background="@drawable/bg_badge_circle"
+                        android:backgroundTint="@color/metro_surface">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_gravity="center"
+                            android:contentDescription="Nearest metro"
+                            android:src="@drawable/ic_metro_train"
+                            app:tint="@color/metro_icon" />
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/inter"
+                            android:text="Nearest Metro"
+                            android:textColor="@color/metro_text"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/metroName"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="1dp"
+                            android:fontFamily="@font/inter"
+                            android:textColor="@color/text_primary"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/metroWalkTime"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="1dp"
+                            android:fontFamily="@font/inter"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="12sp"
+                            android:visibility="gone" />
+                    </LinearLayout>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/metroNavigateButton"
                         style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                         android:layout_width="wrap_content"
                         android:layout_height="38dp"
                         android:minWidth="0dp"
                         android:fontFamily="@font/inter"
-                        android:text="Update"
+                        android:text="Navigate"
                         android:textAllCaps="false"
-                        android:textColor="@color/crowd_text"
-                        app:cornerRadius="19dp"
-                        app:strokeColor="@color/crowd_outline" />
-                </LinearLayout>
-
-                <!-- Best Time To Visit (Part 9) -->
-                <LinearLayout
-                    android:id="@+id/bestTimeContainer"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:background="@drawable/bg_option_selected"
-                    android:orientation="vertical"
-                    android:padding="10dp">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/inter"
-                        android:text="Best time tonight"
-                        android:textColor="@color/text_primary"
+                        android:textColor="@color/metro_text"
                         android:textSize="13sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/bestTimeSummary"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="3dp"
-                        android:fontFamily="@font/inter"
-                        android:text="Not enough crowd data yet."
-                        android:textColor="@color/text_secondary"
-                        android:textSize="12sp" />
+                        android:textStyle="bold"
+                        android:paddingStart="14dp"
+                        android:paddingEnd="14dp"
+                        app:cornerRadius="19dp"
+                        app:strokeColor="@color/metro_outline" />
                 </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- Nearest Metro Card (Part 14) -->
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            app:cardBackgroundColor="@color/metro_surface"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="0dp"
-            app:strokeColor="@color/metro_outline"
-            app:strokeWidth="1dp">
-
+            <!-- ── 10. Optional Pandal Information Section (Theme, Established, Known For) ── -->
             <LinearLayout
+                android:id="@+id/pandalInfoSection"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:padding="14dp">
+                android:layout_marginTop="12dp"
+                android:orientation="vertical"
+                android:visibility="gone">
 
-                <ImageView
-                    android:layout_width="26dp"
-                    android:layout_height="26dp"
-                    android:contentDescription="Nearest metro"
-                    android:src="@drawable/ic_metro_train"
-                    app:tint="@color/metro_icon" />
-
-                <LinearLayout
-                    android:layout_width="0dp"
+                <TextView
+                    android:id="@+id/infoTheme"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="12dp"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/inter"
-                        android:text="Nearest Metro"
-                        android:textColor="@color/metro_text"
-                        android:textSize="14sp" />
-
-                    <TextView
-                        android:id="@+id/metroName"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="1dp"
-                        android:fontFamily="@font/inter"
-                        android:textColor="@color/text_primary"
-                        android:textSize="15sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/metroWalkTime"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="1dp"
-                        android:fontFamily="@font/inter"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="12sp"
-                        android:visibility="gone" />
-                </LinearLayout>
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/metroNavigateButton"
-                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="38dp"
-                    android:minWidth="0dp"
                     android:fontFamily="@font/inter"
-                    android:text="Navigate"
-                    android:textAllCaps="false"
-                    android:textColor="@color/metro_text"
-                    app:cornerRadius="19dp"
-                    app:strokeColor="@color/metro_outline" />
+                    android:textColor="@color/text_primary"
+                    android:textSize="14sp"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/infoEstablished"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:fontFamily="@font/inter"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/infoKnownFor"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:fontFamily="@font/inter"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp"
+                    android:visibility="gone" />
             </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
 
-        <!-- Action Row: [ + / ✓ ] (Secondary) + [ Navigation ] (Dominant Primary) -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 
-            <!-- Compact Hopping Toggle Button -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/addToHoppingCard"
-                android:layout_width="52dp"
-                android:layout_height="52dp"
-                android:layout_marginEnd="10dp"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?attr/selectableItemBackground"
-                app:cardBackgroundColor="@color/surface_variant"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="0dp"
-                app:strokeColor="@color/outline"
-                app:strokeWidth="1dp">
+    <!-- ── 2. FIXED FLOATING ACTION DOCK (PINNED AT BOTTOM OF VISIBLE SHEET - NEVER SCROLLS) ── -->
+    <LinearLayout
+        android:id="@+id/detailFloatingDock"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="@drawable/bg_bottom_dock_scrim"
+        android:elevation="12dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="20dp"
+        android:paddingTop="12dp"
+        android:paddingEnd="20dp"
+        android:paddingBottom="20dp">
+
+        <!-- [+] Add / Check Hopping Button -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/addToHoppingCard"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_marginEnd="12dp"
+            android:clickable="true"
+            android:focusable="true"
+            app:cardBackgroundColor="@android:color/transparent"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="4dp"
+            app:strokeColor="@android:color/transparent"
+            app:strokeWidth="0dp">
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_glass_tile_ripple">
 
                 <ImageView
                     android:id="@+id/hoppingActionIcon"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
                     android:layout_gravity="center"
                     android:contentDescription="Add to Hopping"
                     android:src="@drawable/ic_add"
                     app:tint="@color/primary" />
-            </com.google.android.material.card.MaterialCardView>
+            </FrameLayout>
+        </com.google.android.material.card.MaterialCardView>
 
-            <!-- Dominant Primary Navigation Button -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/navigateButton"
-                android:layout_width="0dp"
-                android:layout_height="52dp"
-                android:layout_weight="1"
-                android:fontFamily="@font/inter"
-                android:text="Navigation"
-                android:textAllCaps="false"
-                android:textColor="@color/on_primary"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                app:backgroundTint="@color/primary"
-                app:cornerRadius="16dp"
-                app:icon="@drawable/ic_navigation"
-                app:iconGravity="textStart"
-                app:iconTint="@color/on_primary" />
-        </LinearLayout>
-
+        <!-- Dominant Primary Navigation Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/navigateButton"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_btn_glow_primary"
+            android:fontFamily="@font/inter"
+            android:text="Navigation"
+            android:textAllCaps="false"
+            android:textColor="@color/on_primary"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:backgroundTint="@null"
+            app:cornerRadius="20dp"
+            app:elevation="4dp"
+            app:icon="@drawable/ic_navigation"
+            app:iconGravity="textStart"
+            app:iconPadding="10dp"
+            app:iconTint="@color/on_primary" />
     </LinearLayout>
-</ScrollView>
+
+</FrameLayout>

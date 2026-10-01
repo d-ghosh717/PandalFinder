@@ -50,24 +50,33 @@
                 android:textSize="13sp" />
         </LinearLayout>
 
-        <ImageButton
+        <FrameLayout
             android:id="@+id/closePassportSheet"
             android:layout_width="36dp"
             android:layout_height="36dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_close"
-            app:tint="@color/text_secondary" />
+            android:background="@drawable/bg_glass_circle_btn"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_gravity="center"
+                android:contentDescription="Close"
+                android:src="@drawable/ic_close"
+                app:tint="@color/text_primary" />
+        </FrameLayout>
     </LinearLayout>
 
-    <!-- Progress Card -->
+    <!-- Progress Card (Gold Liquid Glass) -->
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="14dp"
-        app:cardBackgroundColor="@color/surface_variant"
-        app:cardCornerRadius="18dp"
-        app:cardElevation="0dp"
-        app:strokeColor="@color/outline"
+        app:cardBackgroundColor="@color/crowd_surface_glass"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="2dp"
+        app:strokeColor="@color/glass_stroke_gold"
         app:strokeWidth="1dp">
 
         <LinearLayout

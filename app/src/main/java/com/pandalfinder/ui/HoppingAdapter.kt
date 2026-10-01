@@ -71,32 +71,29 @@ class HoppingAdapter(
             StopType.PANDAL -> {
                 holder.stopTypeIcon.setImageResource(R.drawable.ic_pandal_icon)
                 holder.stopTypeIcon.setColorFilter(ContextCompat.getColor(context, R.color.primary))
-                holder.stopTypeIconContainer.backgroundTintList =
-                    ContextCompat.getColorStateList(context, R.color.surface_variant)
+                holder.stopTypeIconContainer.setBackgroundResource(R.drawable.bg_lens_red)
+                holder.stopTypeIconContainer.backgroundTintList = null
                 holder.stopIndex.setTextColor(ContextCompat.getColor(context, R.color.primary))
-                holder.stopIndex.backgroundTintList =
-                    ContextCompat.getColorStateList(context, R.color.surface_variant)
-                holder.stopCard.strokeColor = ContextCompat.getColor(context, R.color.outline)
+                holder.stopIndex.setBackgroundResource(R.drawable.bg_lens_index)
+                holder.stopIndex.backgroundTintList = null
             }
             StopType.METRO -> {
                 holder.stopTypeIcon.setImageResource(R.drawable.ic_metro_train)
-                val color = item.metroRef?.lineColor ?: ContextCompat.getColor(context, R.color.metro_icon)
-                val badgeBg = item.metroRef?.lineBadgeBgColor ?: ContextCompat.getColor(context, R.color.metro_surface)
-                holder.stopTypeIcon.setColorFilter(color)
-                holder.stopTypeIconContainer.backgroundTintList = ColorStateList.valueOf(badgeBg)
-                holder.stopIndex.setTextColor(color)
-                holder.stopIndex.backgroundTintList = ColorStateList.valueOf(badgeBg)
-                holder.stopCard.strokeColor = ContextCompat.getColor(context, R.color.metro_outline)
+                holder.stopTypeIcon.setColorFilter(ContextCompat.getColor(context, R.color.metro_icon))
+                holder.stopTypeIconContainer.setBackgroundResource(R.drawable.bg_lens_metro)
+                holder.stopTypeIconContainer.backgroundTintList = null
+                holder.stopIndex.setTextColor(ContextCompat.getColor(context, R.color.metro_icon))
+                holder.stopIndex.setBackgroundResource(R.drawable.bg_lens_metro)
+                holder.stopIndex.backgroundTintList = null
             }
             StopType.TOILET -> {
                 holder.stopTypeIcon.setImageResource(R.drawable.ic_restroom)
-                val color = ContextCompat.getColor(context, R.color.toilet_icon)
-                val badgeBg = ContextCompat.getColor(context, R.color.toilet_surface)
-                holder.stopTypeIcon.setColorFilter(color)
-                holder.stopTypeIconContainer.backgroundTintList = ColorStateList.valueOf(badgeBg)
-                holder.stopIndex.setTextColor(color)
-                holder.stopIndex.backgroundTintList = ColorStateList.valueOf(badgeBg)
-                holder.stopCard.strokeColor = ContextCompat.getColor(context, R.color.toilet_outline)
+                holder.stopTypeIcon.setColorFilter(ContextCompat.getColor(context, R.color.toilet_icon))
+                holder.stopTypeIconContainer.setBackgroundResource(R.drawable.bg_lens_toilet)
+                holder.stopTypeIconContainer.backgroundTintList = null
+                holder.stopIndex.setTextColor(ContextCompat.getColor(context, R.color.toilet_icon))
+                holder.stopIndex.setBackgroundResource(R.drawable.bg_lens_toilet)
+                holder.stopIndex.backgroundTintList = null
             }
         }
 

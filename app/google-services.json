@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "333025667530",
+    "firebase_url": "https://pandalquest-default-rtdb.firebaseio.com",
+    "project_id": "pandalquest",
+    "storage_bucket": "pandalquest.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:333025667530:android:d653e917a23e08c1694733",
+        "android_client_info": {
+          "package_name": "com.pandalfinder"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAB6FzuFNUd9OCd0nciRTKr8crKfSrJdAc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

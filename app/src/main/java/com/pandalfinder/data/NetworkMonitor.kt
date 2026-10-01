@@ -7,6 +7,7 @@ import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 
 class NetworkMonitor(context: Context) {
     private val connectivityManager =
@@ -39,8 +40,8 @@ class NetworkMonitor(context: Context) {
                 .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
                 .build()
             connectivityManager.registerNetworkCallback(request, callback)
-        } catch (_: Exception) {
-            // Fallback gracefully if network callback cannot be registered
+        } catch (e: Exception) {
+            Log.w("NetworkMonitor", "Network callback registration failed: ${e.message}", e)
         }
     }
 

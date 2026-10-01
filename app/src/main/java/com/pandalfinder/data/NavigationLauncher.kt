@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.location.Location
 import android.net.Uri
+import android.util.Log
 import com.pandalfinder.Pandal
 
 object NavigationLauncher {
@@ -49,8 +50,13 @@ object NavigationLauncher {
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url)).setPackage("com.google.android.apps.maps")
         try {
             context.startActivity(intent)
-        } catch (_: ActivityNotFoundException) {
-            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+        } catch (e: ActivityNotFoundException) {
+            Log.d("NavigationLauncher", "Google Maps app not found, falling back to browser/generic handler: ${e.message}")
+            try {
+                context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+            } catch (e2: Exception) {
+                Log.e("NavigationLauncher", "Failed to launch navigation URL: ${e2.message}", e2)
+            }
         }
     }
 }

@@ -22,7 +22,7 @@ class CrowdRepository {
 
     fun getCrowdLabel(level: Int?): Pair<String, String> {
         return when (level) {
-            null -> "No reports yet" to "#8D6E63"
+            null -> "No reports today" to "#8D6E63"
             in 1..2 -> "Empty" to "#45A701"
             in 3..4 -> "Light" to "#7CB342"
             in 5..6 -> "Moderate" to "#FBC222"
@@ -34,24 +34,45 @@ class CrowdRepository {
     }
 
     /**
-     * Real-time listener for a pandal's crowd reports so updates propagate automatically.
+     * Calculates the start (00:00:00.000) and end (00:00:00.000 of next day) of the local calendar day.
+     * Uses device's default timezone dynamically.
+     */
+    fun getLocalDayBoundaries(timestampMillis: Long = System.currentTimeMillis()): Pair<Long, Long> {
+        val cal = java.util.Calendar.getInstance()
+        cal.timeInMillis = timestampMillis
+        cal.set(java.util.Calendar.HOUR_OF_DAY, 0)
+        cal.set(java.util.Calendar.MINUTE, 0)
+        cal.set(java.util.Calendar.SECOND, 0)
+        cal.set(java.util.Calendar.MILLISECOND, 0)
+        val startOfDay = cal.timeInMillis
+
+        cal.add(java.util.Calendar.DAY_OF_MONTH, 1)
+        val startOfNextDay = cal.timeInMillis
+
+        return Pair(startOfDay, startOfNextDay)
+    }
+
+    /**
+     * Real-time listener for a pandal's current-day crowd reports.
+     * Only reports submitted during the current local calendar day are counted.
      */
     fun listenToPandalCrowd(pandalId: String, onUpdate: (CrowdStatus) -> Unit): ListenerRegistration? {
         val cleanId = pandalId.removePrefix("pandal:")
-        val cutoff = System.currentTimeMillis() - REPORT_TTL_MILLIS
         return runCatching {
             firestore.collection(COLLECTION)
                 .whereEqualTo("pandalId", cleanId)
                 .addSnapshotListener { snapshot, error ->
                     if (error != null) {
-                        Log.e(TAG, "Crowd listener error for $cleanId: ${error.message}")
+                        Log.e(TAG, "Crowd listener error for $cleanId: ${error.message}", error)
                         return@addSnapshotListener
                     }
                     if (snapshot != null) {
+                        val (startOfDay, startOfNextDay) = getLocalDayBoundaries()
                         val validReports = snapshot.documents.mapNotNull { doc ->
-                            val level = doc.getLong("crowdLevel")?.toInt()
-                            val timestamp = doc.getTimestamp("timestamp")?.toDate()?.time
-                            if (level != null && level in 1..10 && timestamp != null && timestamp >= cutoff) {
+                            val level = doc.getLong("level")?.toInt() ?: doc.getLong("crowdLevel")?.toInt()
+                            val timestamp = (doc.getTimestamp("createdAt") ?: doc.getTimestamp("timestamp"))?.toDate()?.time
+                            val status = doc.getString("status") ?: "active"
+                            if (level != null && level in 1..10 && timestamp != null && timestamp >= startOfDay && timestamp < startOfNextDay && status == "active") {
                                 level to timestamp
                             } else null
                         }
@@ -70,15 +91,16 @@ class CrowdRepository {
 
     fun load(pandal: Pandal, onResult: (CrowdStatus?, Exception?) -> Unit) {
         val cleanId = pandal.id.removePrefix("pandal:")
-        val cutoff = System.currentTimeMillis() - REPORT_TTL_MILLIS
+        val (startOfDay, startOfNextDay) = getLocalDayBoundaries()
         firestore.collection(COLLECTION)
             .whereEqualTo("pandalId", cleanId)
             .get()
             .addOnSuccessListener { snapshot ->
                 val validReports = snapshot.documents.mapNotNull { doc ->
-                    val level = doc.getLong("crowdLevel")?.toInt()
-                    val timestamp = doc.getTimestamp("timestamp")?.toDate()?.time
-                    if (level != null && level in 1..10 && timestamp != null && timestamp >= cutoff) {
+                    val level = doc.getLong("level")?.toInt() ?: doc.getLong("crowdLevel")?.toInt()
+                    val timestamp = (doc.getTimestamp("createdAt") ?: doc.getTimestamp("timestamp"))?.toDate()?.time
+                    val status = doc.getString("status") ?: "active"
+                    if (level != null && level in 1..10 && timestamp != null && timestamp >= startOfDay && timestamp < startOfNextDay && status == "active") {
                         level to timestamp
                     } else null
                 }
@@ -92,26 +114,27 @@ class CrowdRepository {
                 }
             }
             .addOnFailureListener { error ->
-                Log.e(TAG, "Crowd read failed for pandal ${pandal.id}", error)
+                Log.e(TAG, "Crowd read failed for pandal ${pandal.id}: ${error.message}", error)
                 onResult(null, error)
             }
     }
 
     /**
-     * Fetches recent crowd levels for all pandals to generate the live map crowd visualization.
-     * Returns a map of pandalId -> average recent crowd level (1-10).
+     * Fetches current-day crowd levels for all pandals to generate the live map crowd visualization.
+     * Returns a map of pandalId -> average current-day crowd level (1-10).
      */
     fun fetchAllRecentCrowds(onResult: (Map<String, Int>) -> Unit) {
-        val cutoff = System.currentTimeMillis() - REPORT_TTL_MILLIS
+        val (startOfDay, startOfNextDay) = getLocalDayBoundaries()
         firestore.collection(COLLECTION)
             .get()
             .addOnSuccessListener { snapshot ->
                 val groupMap = mutableMapOf<String, MutableList<Int>>()
                 snapshot.documents.forEach { doc ->
                     val pId = doc.getString("pandalId") ?: return@forEach
-                    val level = doc.getLong("crowdLevel")?.toInt() ?: return@forEach
-                    val timestamp = doc.getTimestamp("timestamp")?.toDate()?.time ?: 0L
-                    if (level in 1..10 && timestamp >= cutoff) {
+                    val level = doc.getLong("level")?.toInt() ?: doc.getLong("crowdLevel")?.toInt() ?: return@forEach
+                    val timestamp = (doc.getTimestamp("createdAt") ?: doc.getTimestamp("timestamp"))?.toDate()?.time ?: 0L
+                    val status = doc.getString("status") ?: "active"
+                    if (level in 1..10 && timestamp >= startOfDay && timestamp < startOfNextDay && status == "active") {
                         groupMap.getOrPut(pId) { mutableListOf() }.add(level)
                     }
                 }
@@ -147,9 +170,10 @@ class CrowdRepository {
                 val cal = java.util.Calendar.getInstance()
 
                 docs.forEach { doc ->
-                    val level = doc.getLong("crowdLevel")?.toInt() ?: return@forEach
-                    val date = doc.getTimestamp("timestamp")?.toDate() ?: return@forEach
-                    if (level in 1..10) {
+                    val level = doc.getLong("level")?.toInt() ?: doc.getLong("crowdLevel")?.toInt() ?: return@forEach
+                    val date = (doc.getTimestamp("createdAt") ?: doc.getTimestamp("timestamp"))?.toDate() ?: return@forEach
+                    val status = doc.getString("status") ?: "active"
+                    if (level in 1..10 && status == "active") {
                         cal.time = date
                         val hour = cal.get(java.util.Calendar.HOUR_OF_DAY)
                         hourGroups.getOrPut(hour) { mutableListOf() }.add(level)
@@ -183,7 +207,8 @@ class CrowdRepository {
                     onResult(null)
                 }
             }
-            .addOnFailureListener {
+            .addOnFailureListener { err ->
+                Log.e(TAG, "Historical crowd read failed: ${err.message}", err)
                 onResult(null)
             }
     }
@@ -191,6 +216,7 @@ class CrowdRepository {
     fun submit(
         pandal: Pandal,
         level: Int,
+        userId: String,
         deviceId: String,
         location: Location?,
         onComplete: (Exception?) -> Unit
@@ -202,10 +228,15 @@ class CrowdRepository {
             return
         }
 
+        val cleanId = pandal.id.removePrefix("pandal:")
         val report = hashMapOf<String, Any>(
-            "pandalId" to pandal.id,
+            "pandalId" to cleanId,
+            "level" to level,
             "crowdLevel" to level,
+            "userId" to userId,
             "deviceId" to deviceId,
+            "status" to "active",
+            "createdAt" to FieldValue.serverTimestamp(),
             "timestamp" to FieldValue.serverTimestamp()
         )
         location?.let {
@@ -213,7 +244,7 @@ class CrowdRepository {
             report["longitude"] = it.longitude
         }
 
-        Log.d(TAG, "Submitting crowd report for ${pandal.name} (${pandal.id}): level $level")
+        Log.d(TAG, "Submitting crowd report for ${pandal.name} ($cleanId): level $level by $userId")
         firestore.collection(COLLECTION)
             .add(report)
             .addOnSuccessListener { docRef ->

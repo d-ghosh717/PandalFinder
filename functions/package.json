@@ -1,0 +1,16 @@
+{
+  "name": "pandalfinder-functions",
+  "description": "Cloud Functions for PandalFinder Firebase custom claims for Supabase Third-Party Auth",
+  "scripts": {
+    "deploy": "firebase deploy --only functions"
+  },
+  "engines": {
+    "node": "18"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "firebase-admin": "^12.0.0",
+    "firebase-functions": "^5.0.0"
+  },
+  "private": true
+}
