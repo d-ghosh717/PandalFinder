@@ -45,7 +45,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:fontFamily="@font/inter"
-                android:text="Your personal PandalFinder collection"
+                android:text="Your personal PandalQuest collection"
                 android:textColor="@color/text_secondary"
                 android:textSize="13sp" />
         </LinearLayout>
@@ -492,7 +492,7 @@
         android:layout_marginBottom="4dp"
         android:gravity="center"
         android:fontFamily="@font/inter"
-        android:text="PandalFinder v2.0.0"
+        android:text="PandalQuest v2.1.0"
         android:textColor="@color/text_tertiary"
         android:textSize="12sp" />
 

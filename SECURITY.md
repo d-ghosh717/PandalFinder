@@ -1,13 +1,13 @@
-# PandalFinder Security Architecture & Policy
+# PandalQuest Security Architecture & Policy
 
-Version: 2.0.0  
-Last Security Audit: September 2026
+Version: 2.1.0  
+Last Security Audit: October 2026
 
 ---
 
 ## 1. System Architecture
 
-PandalFinder combines Firebase, Supabase, and Google Maps Platform services into a zero-login, privacy-first Android client application:
+PandalQuest combines Firebase, Supabase, Google Maps Platform, and OpenRouteService into a zero-login, privacy-first Android client application:
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -26,12 +26,12 @@ PandalFinder combines Firebase, Supabase, and Google Maps Platform services into
  └───────────────────────────┘  └───────────────────────────┘
                │
                ▼
- ┌───────────────────────────┐
- │   Google Maps Platform    │
- │  - Google Routes API      │
- │  - Google Places API      │
- │  (Package & SHA-1 Locked) │
- └───────────────────────────┘
+ ┌───────────────────────────┐  ┌───────────────────────────┐
+ │   Google Maps Platform    │  │   OpenRouteService (ORS)  │
+ │  - Google Routes API      │  │  - HeiGIT REST Fallback   │
+ │  - Google Places API      │  │  - GeoJSON Directions     │
+ │  (Package & SHA-1 Locked) │  │  (Key protected BuildConfig)
+ └───────────────────────────┘  └───────────────────────────┘
 ```
 
 ---
@@ -194,7 +194,7 @@ Defined in [`supabase_security_setup.sql`](file:///Volumes/d/Projects/Ready/Pand
 ## 11. Privacy & Location Handling
 
 - **Ephemeral Use:** Location is requested solely for on-device sorting, routing, nearest metro calculations, and the 500m crowd eligibility check.
-- **Zero Continuous Tracking:** PandalFinder does not run background location listeners or log continuous telemetry to external servers.
+- **Zero Continuous Tracking:** PandalQuest does not run background location listeners or log continuous telemetry to external servers.
 - **Photo Upload Privacy:** Community photo uploads have zero location prerequisites and do not require location permissions.
 
 ---
@@ -244,5 +244,5 @@ Automated tests in [`AdminAndSecurityTest.kt`](file:///Volumes/d/Projects/Ready/
 
 ## 14. Known Limitations & Recommendations
 
-1. **Client-Side GPS Spoofing:** Because PandalFinder avoids mandatory paid Cloud Functions, device GPS calculations cannot be cryptographically verified server-side.
+1. **Client-Side GPS Spoofing:** Because PandalQuest avoids mandatory paid Cloud Functions, device GPS calculations cannot be cryptographically verified server-side.
 2. **Key Rotation Recommendation:** If `secrets.properties` or developer signing certificates are ever updated, rotate keys in Google Cloud Console and Supabase Dashboard.

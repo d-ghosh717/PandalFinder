@@ -3,58 +3,95 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:gravity="center_vertical"
-    android:orientation="horizontal"
+    android:orientation="vertical"
     android:paddingTop="6dp"
     android:paddingBottom="6dp">
 
-    <TextView
-        android:id="@+id/planStopIndex"
-        android:layout_width="26dp"
-        android:layout_height="26dp"
-        android:background="@drawable/bg_badge_circle"
-        android:backgroundTint="@color/surface_variant"
-        android:fontFamily="@font/inter"
-        android:gravity="center"
-        android:text="1"
-        android:textColor="@color/primary"
-        android:textSize="12sp"
-        android:textStyle="bold" />
-
-    <ImageView
-        android:id="@+id/planStopIcon"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
-        android:layout_marginStart="10dp"
-        android:src="@drawable/ic_pandal_icon"
-        app:tint="@color/primary" />
-
     <LinearLayout
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_weight="1"
-        android:orientation="vertical">
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
 
         <TextView
-            android:id="@+id/planStopName"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ellipsize="end"
+            android:id="@+id/planStopIndex"
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:background="@drawable/bg_badge_circle"
+            android:backgroundTint="@color/surface_variant"
             android:fontFamily="@font/inter"
-            android:maxLines="1"
-            android:textColor="@color/text_primary"
-            android:textSize="14sp"
+            android:gravity="center"
+            android:text="1"
+            android:textColor="@color/primary"
+            android:textSize="12sp"
             android:textStyle="bold" />
 
-        <TextView
-            android:id="@+id/planStopSubtitle"
-            android:layout_width="match_parent"
+        <ImageView
+            android:id="@+id/planStopIcon"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginStart="10dp"
+            android:src="@drawable/ic_pandal_icon"
+            app:tint="@color/primary" />
+
+        <LinearLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:ellipsize="end"
+            android:layout_marginStart="10dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/planStopName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:fontFamily="@font/inter"
+                android:maxLines="1"
+                android:textColor="@color/text_primary"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/planStopSubtitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:fontFamily="@font/inter"
+                android:maxLines="1"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Transit Leg Connector (Walk -> Metro -> Walk or Direct) -->
+    <LinearLayout
+        android:id="@+id/planLegConnector"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="36dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="2dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/planLegIcon"
+            android:layout_width="14dp"
+            android:layout_height="14dp"
+            android:src="@drawable/ic_metro_train"
+            app:tint="@color/secondary" />
+
+        <TextView
+            android:id="@+id/planLegText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
             android:fontFamily="@font/inter"
-            android:maxLines="1"
-            android:textColor="@color/text_secondary"
-            android:textSize="12sp" />
+            android:text="Metro via Esplanade • Saves ~8 min"
+            android:textColor="@color/secondary"
+            android:textSize="11sp"
+            android:textStyle="bold" />
     </LinearLayout>
 </LinearLayout>

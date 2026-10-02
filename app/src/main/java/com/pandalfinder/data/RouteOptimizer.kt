@@ -115,8 +115,31 @@ object RouteOptimizer {
     }
 
     fun distanceBetween(lat1: Double, lng1: Double, lat2: Double, lng2: Double): Float {
-        val results = FloatArray(1)
-        Location.distanceBetween(lat1, lng1, lat2, lng2, results)
-        return results[0]
+        if (lat1 == lat2 && lng1 == lng2) return 0f
+        return try {
+            val results = FloatArray(1)
+            Location.distanceBetween(lat1, lng1, lat2, lng2, results)
+            if (results[0] > 0f) {
+                results[0]
+            } else {
+                computeGeodesicMeters(lat1, lng1, lat2, lng2)
+            }
+        } catch (e: Throwable) {
+            computeGeodesicMeters(lat1, lng1, lat2, lng2)
+        }
+    }
+
+    private fun computeGeodesicMeters(lat1: Double, lng1: Double, lat2: Double, lng2: Double): Float {
+        val r = 6371000.0 // Earth radius in meters
+        val phi1 = Math.toRadians(lat1)
+        val phi2 = Math.toRadians(lat2)
+        val deltaPhi = Math.toRadians(lat2 - lat1)
+        val deltaLambda = Math.toRadians(lng2 - lng1)
+
+        val a = Math.sin(deltaPhi / 2) * Math.sin(deltaPhi / 2) +
+                Math.cos(phi1) * Math.cos(phi2) *
+                Math.sin(deltaLambda / 2) * Math.sin(deltaLambda / 2)
+        val c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+        return (r * c).toFloat()
     }
 }

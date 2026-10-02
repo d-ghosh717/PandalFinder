@@ -142,10 +142,31 @@ class GooglePlacesRepository {
 
         Log.d(TAG, "Places API Success: HTTP $status, body length=${responseBody.length}")
 
-        val placesJson = JSONObject(responseBody).optJSONArray("places")
-        val toilets = mutableListOf<PublicToilet>()
-        if (placesJson != null) {
-            Log.d(TAG, "Found ${placesJson.length()} places in response")
+        val toilets = parsePlacesResponse(responseBody)
+        Log.d(TAG, "Parsed ${toilets.size} valid toilets")
+        Pair(toilets, null)
+    }.getOrElse { error ->
+        val msg = "Network/API error: ${error.localizedMessage ?: "Unknown error"}"
+        Log.e(TAG, "Places nearby search failed", error)
+        Pair(null, msg)
+    }
+
+    companion object {
+        const val TAG = "GooglePlaces"
+        const val NEARBY_SEARCH_URL = "https://places.googleapis.com/v1/places:searchNearby"
+        const val CACHE_MILLIS = 5 * 60 * 1000L
+        const val PACKAGE_NAME = "com.pandalfinder"
+        const val CERT_SHA1 = "4F4C1806D054E172BF09FB0760599707D9BCFB5E"
+
+        fun parsePlacesResponse(responseBody: String): List<PublicToilet> {
+            val toilets = mutableListOf<PublicToilet>()
+            val json = try {
+                JSONObject(responseBody)
+            } catch (e: Exception) {
+                return emptyList()
+            }
+            val placesJson = json.optJSONArray("places") ?: return emptyList()
+
             for (i in 0 until placesJson.length()) {
                 val p = placesJson.optJSONObject(i) ?: continue
                 val id = p.optString("id", "")
@@ -166,26 +187,9 @@ class GooglePlacesRepository {
                             longitude = pLng
                         )
                     )
-                    Log.d(TAG, "  [$i] $name @ ($pLat, $pLng)")
                 }
             }
-        } else {
-            Log.d(TAG, "No 'places' array in response — 0 results")
+            return toilets
         }
-
-        Log.d(TAG, "Parsed ${toilets.size} valid toilets")
-        Pair(toilets, null)
-    }.getOrElse { error ->
-        val msg = "Network/API error: ${error.localizedMessage ?: "Unknown error"}"
-        Log.e(TAG, "Places nearby search failed", error)
-        Pair(null, msg)
-    }
-
-    private companion object {
-        const val TAG = "GooglePlaces"
-        const val NEARBY_SEARCH_URL = "https://places.googleapis.com/v1/places:searchNearby"
-        const val CACHE_MILLIS = 5 * 60 * 1000L
-        const val PACKAGE_NAME = "com.pandalfinder"
-        const val CERT_SHA1 = "4F4C1806D054E172BF09FB0760599707D9BCFB5E"
     }
 }

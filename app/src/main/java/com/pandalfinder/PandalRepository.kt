@@ -28,7 +28,7 @@ data class SearchResult(
 
 /** Single source of local pandal data. Keeping the UI behind this class makes a JSON
  * catalogue or a seasonal download a drop-in replacement later. */
-class PandalRepository(@Suppress("UNUSED_PARAMETER") context: Context) {
+class PandalRepository(@Suppress("UNUSED_PARAMETER") context: Context? = null) {
     companion object {
         private const val TAG = "PandalRepository"
         

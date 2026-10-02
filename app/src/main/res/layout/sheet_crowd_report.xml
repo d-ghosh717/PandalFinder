@@ -174,7 +174,7 @@
         android:layout_marginTop="10dp"
         android:fontFamily="@font/inter"
         android:gravity="center"
-        android:text="Keep contributing to keep PandalFinder updated."
+        android:text="Keep contributing to keep PandalQuest updated."
         android:textColor="@color/text_secondary"
         android:textSize="12sp" />
 

@@ -9,7 +9,12 @@ def routeSecretsFile = rootProject.file("secrets.properties")
 if (routeSecretsFile.exists()) {
     routeSecretsFile.withInputStream { routeSecrets.load(it) }
 }
-def routesApiKey = routeSecrets.getProperty("ROUTES_API_KEY", "")
+def localSecretsFile = rootProject.file("local.properties")
+if (localSecretsFile.exists()) {
+    localSecretsFile.withInputStream { routeSecrets.load(it) }
+}
+def routesApiKey = routeSecrets.getProperty("ROUTES_API_KEY", System.getenv("ROUTES_API_KEY") ?: "")
+def orsApiKey = routeSecrets.getProperty("ORS_API_KEY", System.getenv("ORS_API_KEY") ?: "")
 def supabaseUrl = routeSecrets.getProperty("SUPABASE_URL", "https://ittdzzuzgkavkeiookin.supabase.co")
 def supabaseKey = routeSecrets.getProperty("SUPABASE_PUBLISHABLE_KEY", "sb_publishable_3jZnGgxDoeDBmcDtlDlcow_6hBqnqjV")
 
@@ -22,9 +27,10 @@ android {
         applicationId "com.pandalfinder"
         minSdk 24
         targetSdk 33
-        versionCode 2
-        versionName "2.0.0"
+        versionCode 4
+        versionName "2.1.0"
         buildConfigField "String", "GOOGLE_ROUTES_API_KEY", "\"${routesApiKey.replace('\\', '\\\\').replace('\"', '\\\"')}\""
+        buildConfigField "String", "ORS_API_KEY", "\"${orsApiKey.replace('\\', '\\\\').replace('\"', '\\\"')}\""
         buildConfigField "String", "SUPABASE_URL", "\"${supabaseUrl.replace('\\', '\\\\').replace('\"', '\\\"')}\""
         buildConfigField "String", "SUPABASE_PUBLISHABLE_KEY", "\"${supabaseKey.replace('\\', '\\\\').replace('\"', '\\\"')}\""
     }
@@ -75,4 +81,5 @@ dependencies {
     implementation 'androidx.exifinterface:exifinterface:1.3.6'
 
     testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.json:json:20231013'
 }

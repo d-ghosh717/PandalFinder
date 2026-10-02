@@ -1319,7 +1319,7 @@
                     android:layout_width="52dp"
                     android:layout_height="52dp"
                     android:layout_gravity="center"
-                    android:contentDescription="PandalFinder Logo"
+                    android:contentDescription="PandalQuest Logo"
                     android:src="@drawable/ic_splash_pandal_logo" />
 
                 <!-- Specular light sweep across glass lens -->
@@ -1339,7 +1339,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:fontFamily="@font/inter"
-                android:text="PandalFinder"
+                android:text="PandalQuest"
                 android:textColor="@color/text_primary"
                 android:textSize="26sp"
                 android:textStyle="bold" />

@@ -1929,6 +1929,14 @@ class MainActivity : AppCompatActivity() {
             val geodesicDistance = location!!.distanceTo(tLoc)
             val formattedGeodesic = distanceShort(geodesicDistance)
             toiletCardDistance.text = "$formattedGeodesic from you • ${toilet.address}"
+
+            routes.routesToCoordinates(location!!, "toilet:${toilet.id}", toilet.latitude, toilet.longitude) { routesData ->
+                if (currentSelectedToilet?.id == toilet.id && routesData?.walk != null) {
+                    val roadDist = routeDistanceText(routesData.walk.distanceMeters)
+                    val walkTime = OpenRouteServiceProvider.formatDuration(routesData.walk.durationSeconds)
+                    toiletCardDistance.text = "$roadDist ($walkTime walk) • ${toilet.address}"
+                }
+            }
         } else {
             toiletCardDistance.text = toilet.address
         }
@@ -2488,11 +2496,15 @@ class MainActivity : AppCompatActivity() {
                 bikeDistance.text = "—"
                 carDistance.text = "—"
             } else {
-                mainDistance.text = routeData.drive?.let { routeDistanceText(it.distanceMeters) }
-                    ?: getString(R.string.road_distance_unavailable)
-                walkDistance.text = routeData.walk?.let { routeDistanceText(it.distanceMeters) } ?: "—"
-                bikeDistance.text = routeData.twoWheeler?.let { routeDistanceText(it.distanceMeters) } ?: "—"
-                carDistance.text = routeData.drive?.let { routeDistanceText(it.distanceMeters) } ?: "—"
+                val primary = routeData.walk ?: routeData.drive ?: routeData.twoWheeler
+                mainDistance.text = primary?.let {
+                    val dist = routeDistanceText(it.distanceMeters)
+                    if (it.durationSeconds > 0) "$dist • ${OpenRouteServiceProvider.formatDuration(it.durationSeconds)}" else dist
+                } ?: getString(R.string.road_distance_unavailable)
+
+                walkDistance.text = routeData.walk?.let { OpenRouteServiceProvider.formatDuration(it.durationSeconds) } ?: "—"
+                bikeDistance.text = routeData.twoWheeler?.let { OpenRouteServiceProvider.formatDuration(it.durationSeconds) } ?: "—"
+                carDistance.text = routeData.drive?.let { OpenRouteServiceProvider.formatDuration(it.durationSeconds) } ?: "—"
             }
         }
     }
@@ -2503,12 +2515,13 @@ class MainActivity : AppCompatActivity() {
         val sheet = BottomSheetDialog(this)
         sheet.setContentView(view)
 
+        val googleStatus = if (diag.apiKeyConfigured) "Google: Set" else "Google: Missing"
+        val orsStatus = if (diag.orsApiKeyConfigured) "ORS: Set" else "ORS: Missing"
         view.findViewById<TextView>(R.id.diagApiKeyStatus).text =
-            if (diag.apiKeyConfigured) "Google Routes API Key: Configured (${BuildConfig.GOOGLE_ROUTES_API_KEY.take(8)}...)"
-            else "Google Routes API Key: NOT CONFIGURED"
+            "Keys: $googleStatus | $orsStatus"
 
         view.findViewById<TextView>(R.id.diagPackageName).text =
-            "Package: ${GoogleRoutesRepository.PACKAGE_NAME} (Cert: ${GoogleRoutesRepository.CERT_SHA1.take(8)}...)"
+            "Provider: ${diag.lastProviderUsed} (Pkg: ${GoogleRoutesRepository.PACKAGE_NAME})"
 
         view.findViewById<TextView>(R.id.diagGpsStatus).text =
             if (location != null) "Current GPS: Acquired (${"%.5f".format(location!!.latitude)}, ${"%.5f".format(location!!.longitude)})"
@@ -2516,8 +2529,9 @@ class MainActivity : AppCompatActivity() {
 
         view.findViewById<TextView>(R.id.diagOriginCoords).text = "Origin: ${diag.lastOrigin.ifBlank { "None" }}"
         view.findViewById<TextView>(R.id.diagDestCoords).text = "Destination: ${diag.lastDestination.ifBlank { "None" }}"
-        view.findViewById<TextView>(R.id.diagLastHttp).text = "Last Routes HTTP Status: ${if (diag.lastHttpStatus > 0) "${diag.lastHttpStatus}" else "—"}"
-        view.findViewById<TextView>(R.id.diagLastError).text = "Last Error / Result: ${diag.lastErrorMessage.ifBlank { "None" }}"
+        view.findViewById<TextView>(R.id.diagLastHttp).text = "Google HTTP: ${if (diag.lastHttpStatus > 0) "${diag.lastHttpStatus}" else "—"} | ORS HTTP: ${if (diag.orsLastHttpStatus > 0) "${diag.orsLastHttpStatus}" else "—"}"
+        val lastErr = diag.lastErrorMessage.ifBlank { diag.orsLastErrorMessage.ifBlank { "OK" } }
+        view.findViewById<TextView>(R.id.diagLastError).text = "Status: $lastErr"
 
         view.findViewById<View>(R.id.closeDiagnostic).setOnClickListener { sheet.dismiss() }
         sheet.show()
@@ -3510,9 +3524,10 @@ class MainActivity : AppCompatActivity() {
         val hours = tonightsPlan.estimatedDurationMinutes / 60
         val mins = tonightsPlan.estimatedDurationMinutes % 60
         val timeStr = if (hours > 0) "~${hours}h ${mins}m" else "~${mins}m"
-        statsSummary.text = "${tonightsPlan.stops.size} stops • $distKm • $timeStr"
+        val countLabel = if (tonightsPlan.pandalCount > 0) "${tonightsPlan.pandalCount} pandals" else "${tonightsPlan.stops.size} stops"
+        statsSummary.text = "$countLabel • $distKm • $timeStr"
 
-        rv.adapter = PlanStopsPreviewAdapter(tonightsPlan.stops)
+        rv.adapter = PlanStopsPreviewAdapter(tonightsPlan.stops, tonightsPlan.legs)
 
         btnAddPlan.setOnClickListener {
             sheet.dismiss()
@@ -3942,7 +3957,8 @@ private class FestivalZoneAdapter(
 }
 
 private class PlanStopsPreviewAdapter(
-    private val items: List<HoppingStop>
+    private val items: List<HoppingStop>,
+    private val legs: List<PlanLeg> = emptyList()
 ) : RecyclerView.Adapter<PlanStopsPreviewAdapter.Holder>() {
 
     class Holder(v: View) : RecyclerView.ViewHolder(v) {
@@ -3950,6 +3966,9 @@ private class PlanStopsPreviewAdapter(
         val icon: ImageView = v.findViewById(R.id.planStopIcon)
         val name: TextView = v.findViewById(R.id.planStopName)
         val subtitle: TextView = v.findViewById(R.id.planStopSubtitle)
+        val legConnector: View? = v.findViewById(R.id.planLegConnector)
+        val legIcon: ImageView? = v.findViewById(R.id.planLegIcon)
+        val legText: TextView? = v.findViewById(R.id.planLegText)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, type: Int): Holder =
@@ -3976,6 +3995,28 @@ private class PlanStopsPreviewAdapter(
                 holder.icon.setImageResource(R.drawable.ic_restroom)
                 holder.icon.setColorFilter(ContextCompat.getColor(context, R.color.toilet_icon))
             }
+        }
+
+        // Display transit connector towards the next stop (if applicable)
+        if (position < items.size - 1 && position + 1 < legs.size) {
+            val leg = legs[position + 1]
+            if (leg.isMetroBeneficial) {
+                holder.legConnector?.visibility = View.VISIBLE
+                holder.legIcon?.setImageResource(R.drawable.ic_metro_train)
+                holder.legIcon?.setColorFilter(ContextCompat.getColor(context, R.color.secondary))
+                holder.legText?.text = leg.transferDescription ?: "Metro transfer"
+                holder.legText?.setTextColor(ContextCompat.getColor(context, R.color.secondary))
+            } else if (!leg.transferDescription.isNullOrBlank()) {
+                holder.legConnector?.visibility = View.VISIBLE
+                holder.legIcon?.setImageResource(R.drawable.ic_navigation)
+                holder.legIcon?.setColorFilter(ContextCompat.getColor(context, R.color.text_secondary))
+                holder.legText?.text = leg.transferDescription
+                holder.legText?.setTextColor(ContextCompat.getColor(context, R.color.text_secondary))
+            } else {
+                holder.legConnector?.visibility = View.GONE
+            }
+        } else {
+            holder.legConnector?.visibility = View.GONE
         }
     }
 

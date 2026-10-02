@@ -1,4 +1,4 @@
-# 🛕 PandalFinder
+# 🛕 PandalQuest
 
 ### Your Real-Time Durga Puja Companion for Kolkata
 
@@ -6,80 +6,41 @@
 > your hopping route. Track crowd updates. Share photos. Navigate with
 > ease.**
 
-**PandalFinder v2.0.0** is a modern Android application built for Durga
+**PandalQuest v2.1.0** is a modern Android application built for Durga
 Puja pandal hopping across Kolkata and Howrah.
 
-It combines live GPS, an interactive festival map, Google Maps Platform
-services, Firebase-powered community updates, public toilet discovery,
-metro discovery, personal saved/visited collections, community photos,
-and a multi-stop hopping planner into one map-first festival experience.
+It combines live GPS, an interactive festival map, multi-provider road
+routing (Google Routes + OpenRouteService fallback), Google Maps navigation,
+Firebase-powered community updates, Supabase photo sharing, Google Places public toilet
+discovery, metro discovery, personal saved/visited collections, and a smarter
+multi-stop hopping planner into one map-first festival experience.
 
 ------------------------------------------------------------------------
 
-## ✨ What is PandalFinder?
+# 🚀 What’s New in v2.1.0 — Smarter Routes & Nearby Toilets
 
-During Durga Puja, finding pandals is only part of the problem.
-PandalFinder brings discovery, routing, community information and
-personal trip planning together in one map-first experience.
+Version 2.1.0 brings major intelligence improvements to itinerary planning,
+live toilet discovery via Google Places, and resilience to road-route calculations:
 
-- Interactive pandal map
-- Metro and public toilet discovery
-- Universal place search
-- Google road-route distances
-- Google Maps navigation
-- Community crowd reports
-- Community weather observations
-- Pandal photo sharing
-- Saved pandals
-- Pandal Passport
-- Multi-stop Hopping itineraries
-- Festival-focused UI
+### 🧠 Smarter Auto Plan & Metro Decisions
 
-------------------------------------------------------------------------
+- **Complete Journey Time Comparison:** The Auto Plan now computes the full
+  journey time ($Walk + Metro + Wait/Transfer + Walk$) vs. direct road/walking time.
+- **5-Minute Minimum Time Saving Threshold:** Metro transit is only suggested
+  when it saves at least 5 minutes over the direct route.
+- **Detour Protection:** Rejects unreasonable walking detours, backtracking,
+  or unconnected lines.
+- **Pure Itinerary Stops:** Metro stations are treated as transport legs,
+  never polluted as standalone pandal hopping stops.
 
-# 🚀 What’s New in v2.0.0
+### 🛣️ OpenRouteService (HeiGIT) Road-Routing Fallback
 
-Version 2.0.0 expands PandalFinder from a pandal map into a more
-complete community festival companion.
-
-### 🧭 My Pandal
-
-Saved pandals and the Pandal Passport are grouped into a single **My
-Pandal** section.
-
-``` text
-My Pandal
-├── Saved
-└── Pandal Passport
-```
-
-### 📸 Community Pandal Photos
-
-Users can contribute real pandal photographs. Images are stored in
-Firebase Cloud Storage while Firestore stores photo metadata. New photos
-can be synchronized to other users.
-
-### 👥 Shared Crowd Updates
-
-Recent crowd reports are stored in Firebase and can be synchronized
-between users viewing the same pandal.
-
-### 🌦️ Weather Updates
-
-Automatic weather remains available, with community/local observations
-where implemented. Recent observations are designed to expire rather
-than remain indefinitely current.
-
-### 🗺️ Improved Map Experience
-
-The map combines Pandals, Metro stations, Public Toilets, Festival Zones
-where real data exists, Nearby discovery and Crowd activity.
-
-### 🛣️ Real Route Distances
-
-Selected destinations can use Google Routes for road-based walking,
-two-wheeler and driving distances. The app should show an unavailable
-state instead of inventing a route when the service fails.
+- **Zero Downtime Routing:** When Google Routes is unavailable or unbilled,
+  the app seamlessly falls back to OpenRouteService directions (`https://api.heigit.org`).
+- **Real Route Distances:** Authentic driving, walking, and cycling route
+  distances (never fabricated Haversine estimates).
+- **In-Memory Caching & Rate-Limit Protection:** Smart 5-minute caching and
+  cooldown backoff.
 
 ------------------------------------------------------------------------
 
@@ -228,34 +189,48 @@ The itinerary persists across app restarts.
 
 ------------------------------------------------------------------------
 
-# 🚗 Google Routes Integration
+# 🚗 Multi-Provider Road Routing (Google + OpenRouteService)
 
-The intended route flow is:
+The intended route flow uses a resilient fallback pipeline:
 
 ``` text
 Current Device GPS
         │
         ▼
-Google Routes API
+Primary: Google Routes API (ComputeRoutes REST)
         │
-        ├── Walking
-        ├── Two-wheeler
-        └── Driving
+        ├── Success ─────────► Return Google Route Result
+        │
+        └── Failure/Unbilled ─► Fallback: OpenRouteService (HeiGIT)
+                                    │
+                                    ├── Success ──► Return ORS Route Result
+                                    │
+                                    └── Failure ──► Display "Route unavailable"
 ```
 
-Road-route information must not be replaced with fabricated or
-straight-line values.
+### Supported Profiles:
+- **Driving / Car:** `RouteProfile.DRIVING` (Google: `DRIVE` / ORS: `driving-car`)
+- **Walking:** `RouteProfile.WALKING` (Google: `WALK` / ORS: `foot-walking`)
+- **Two-Wheeler / Cycling:** `RouteProfile.CYCLING` (Google: `TWO_WHEELER` / ORS: `cycling-regular`)
 
-Example:
+### Configuration (`secrets.properties`):
+```properties
+# Primary: Google Routes API Key
+ROUTES_API_KEY=YOUR_GOOGLE_ROUTES_KEY_HERE
 
-``` text
-Walking       7.8 km
-Two-wheeler   5.7 km
-Driving       5.8 km
+# Fallback: OpenRouteService Key (HeiGIT)
+ORS_API_KEY=YOUR_OPENROUTESERVICE_KEY_HERE
 ```
 
-Route requests should be made for the selected destination rather than
-every map marker.
+> **Note on OpenRouteService API Host:**
+> OpenRouteService requests use the active HeiGIT endpoint:
+> `https://api.heigit.org/openrouteservice/v2/directions/{profile}`
+> The legacy `api.openrouteservice.org` is deprecated.
+> All coordinate requests follow the GeoJSON specification: `[longitude, latitude]`.
+
+Road-route information is never replaced with fabricated or straight-line
+Haversine values. If both providers fail or are unconfigured, the UI clearly
+displays `"Route unavailable"`.
 
 ------------------------------------------------------------------------
 
@@ -304,13 +279,13 @@ Recent reports are stored through Firebase and can be synchronized to
 other users. Where contribution validation is enabled, only
 nearby/recent visitors can submit reports.
 
-> **Keep contributing to keep PandalFinder updated.**
+> **Keep contributing to keep PandalQuest updated.**
 
 ------------------------------------------------------------------------
 
 # 🌦️ Weather
 
-PandalFinder supports automatic weather information and community/local
+PandalQuest supports automatic weather information and community/local
 observations where implemented.
 
 Examples include:
@@ -358,7 +333,7 @@ Pandal / Metro / Toilet
 
 # 🎨 Design
 
-PandalFinder uses a visual identity inspired by Durga Puja and Kolkata.
+PandalQuest uses a visual identity inspired by Durga Puja and Kolkata.
 
 | Color           | Hex       |
 |-----------------|-----------|
@@ -680,7 +655,7 @@ Check:
 
 # 🗺️ Data Philosophy
 
-PandalFinder is designed around **real location and community data
+PandalQuest is designed around **real location and community data
 instead of fabricated values**.
 
 The application avoids:
@@ -700,7 +675,7 @@ should report that state instead of pretending that a value is accurate.
 
 # 🛡️ Privacy
 
-PandalFinder is designed to work without traditional account creation
+PandalQuest is designed to work without traditional account creation
 for its core experience.
 
 Location is primarily used for:
@@ -724,7 +699,7 @@ Firestore security controls.
 
 # 🗺️ Roadmap
 
-## ✅ Completed / v2.0.0
+## ✅ Completed / v2.1.0
 
 - [x] Live GPS location
 - [x] Interactive pandal map
@@ -733,9 +708,11 @@ Firestore security controls.
 - [x] Metro discovery
 - [x] Universal place search
 - [x] Independent pandal/metro/toilet filters
-- [x] Google Routes integration
+- [x] Multi-provider road routing (Google Routes + OpenRouteService)
+- [x] HeiGIT OpenRouteService fallback integration
+- [x] Smarter Auto Plan with total journey time evaluation & 5-min threshold
 - [x] Walking route distance
-- [x] Two-wheeler route distance
+- [x] Two-wheeler / cycling route distance
 - [x] Driving route distance
 - [x] Google Maps navigation
 - [x] Automatic weather
@@ -754,15 +731,14 @@ Firestore security controls.
 - [x] Saved pandals
 - [x] Pandal Passport
 - [x] My Pandal section
-- [x] Community pandal photos
-- [x] Firebase Cloud Storage photo uploads
+- [x] Community pandal photos (multi-select + fullscreen viewer)
+- [x] Supabase Storage photo integration
 - [x] Realtime community data architecture
-- [x] Durga Puja visual identity
-- [x] v2.0.0 release
+- [x] Durga Puja visual identity (Liquid Glass system)
+- [x] v2.1.0 release
 
 ## 🚧 Future Ideas
 
-- [ ] Smarter route optimization
 - [ ] Festival/event timing information
 - [ ] More detailed accessibility information
 - [ ] Offline map/core data support
@@ -801,18 +777,19 @@ Built with:
 - Google Play Services
 - Google Maps Platform
 - Google Routes API
+- OpenRouteService / HeiGIT API
 - Google Places API
 - Firebase
 - Cloud Firestore
-- Firebase Cloud Storage
-- OpenStreetMap / map data where applicable
+- Supabase Storage
+- OpenStreetMap / MapLibre GL where applicable
 
 ------------------------------------------------------------------------
 
-# 🛕 PandalFinder
+# 🛕 PandalQuest
 
 ### Discover Kolkata. Build your route. Experience Durga Puja.
 
 **Made for pandal hoppers.**
 
-**Current release: v2.0.0**
+**Current release: v2.1.0**
