@@ -94,19 +94,24 @@
             android:paddingEnd="16dp"
             android:paddingBottom="16dp">
 
-            <!-- Heart in Red Ambient Glass Lens -->
+            <!-- Average Rating in Red Ambient Glass Lens -->
             <FrameLayout
                 android:layout_width="44dp"
                 android:layout_height="44dp"
                 android:background="@drawable/bg_lens_red">
 
-                <ImageView
-                    android:layout_width="22dp"
-                    android:layout_height="22dp"
+                <TextView
+                    android:id="@+id/myPandalSavedRatingText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:contentDescription="Saved"
-                    android:src="@drawable/ic_heart_filled"
-                    app:tint="@color/primary" />
+                    android:fontFamily="@font/inter"
+                    android:gravity="center"
+                    android:includeFontPadding="false"
+                    android:text="—"
+                    android:textColor="@color/primary"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
             </FrameLayout>
 
             <LinearLayout
@@ -334,7 +339,7 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- Stat Chips: Photos & Crowd Reports -->
+            <!-- Stat Chips: Photos, Crowd Reports & Weather -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -359,7 +364,7 @@
                         android:fontFamily="@font/inter"
                         android:text="0"
                         android:textColor="@color/primary"
-                        android:textSize="22sp"
+                        android:textSize="20sp"
                         android:textStyle="bold" />
 
                     <TextView
@@ -369,12 +374,12 @@
                         android:fontFamily="@font/inter"
                         android:text="Photos"
                         android:textColor="@color/text_secondary"
-                        android:textSize="12sp"
+                        android:textSize="11sp"
                         android:textStyle="bold" />
                 </LinearLayout>
 
                 <View
-                    android:layout_width="10dp"
+                    android:layout_width="8dp"
                     android:layout_height="1dp" />
 
                 <!-- Crowd Reports Stat Chip -->
@@ -395,7 +400,7 @@
                         android:fontFamily="@font/inter"
                         android:text="0"
                         android:textColor="@color/secondary"
-                        android:textSize="22sp"
+                        android:textSize="20sp"
                         android:textStyle="bold" />
 
                     <TextView
@@ -405,7 +410,43 @@
                         android:fontFamily="@font/inter"
                         android:text="Crowd Reports"
                         android:textColor="@color/text_secondary"
-                        android:textSize="12sp"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="8dp"
+                    android:layout_height="1dp" />
+
+                <!-- Weather Stat Chip -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_glass_stat_chip_weather"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:paddingTop="12dp"
+                    android:paddingBottom="12dp">
+
+                    <TextView
+                        android:id="@+id/userWeatherCountText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/inter"
+                        android:text="0"
+                        android:textColor="#0288D1"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:fontFamily="@font/inter"
+                        android:text="Weather"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="11sp"
                         android:textStyle="bold" />
                 </LinearLayout>
             </LinearLayout>

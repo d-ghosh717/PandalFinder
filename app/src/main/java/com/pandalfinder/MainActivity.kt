@@ -134,6 +134,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var authRepo: AuthRepository
     private lateinit var contributions: ContributionsRepository
     private lateinit var adminRepo: AdminRepository
+    private lateinit var ratingRepo: RatingRepository
+    private lateinit var rainReportRepo: RainReportRepository
+    private var isResolvingLocationSettings = false
+    private var lastLocationPromptTime = 0L
 
     private val mainHandler = android.os.Handler(android.os.Looper.getMainLooper())
     private var pendingUploadPandalId: String? = null
@@ -612,13 +616,15 @@ class MainActivity : AppCompatActivity() {
         authRepo.initAndSignInAnonymously()
         contributions = ContributionsRepository()
         adminRepo = AdminRepository()
+        ratingRepo = RatingRepository()
+        rainReportRepo = RainReportRepository()
 
         initViews(state)
         startLaunchAnimation()
         setupHoppingTab()
         setupFloatingNav()
         setupNetworkAndAlerts()
-        showLocationExplanation()
+        checkLocationSettingsAndStart(explicitUserAction = false)
         loadLiveCrowdHeatmap()
     }
 
@@ -907,9 +913,14 @@ class MainActivity : AppCompatActivity() {
         toiletsFilterButton.setOnClickListener {
             filterShowToilets = !filterShowToilets
             updateFilterPillStyles()
+            Log.d(GooglePlacesRepository.DIAGNOSTIC_TAG, "1. TOILETS toggle ${if (filterShowToilets) "enabled" else "disabled"}")
             if (filterShowToilets) {
+                checkLocationSettingsAndStart(explicitUserAction = true) {
+                    fetchAndDisplayToilets()
+                }
                 fetchAndDisplayToilets()
             } else {
+                shownToilets = emptyList()
                 applyCurrentFilters()
             }
         }
@@ -1095,12 +1106,18 @@ class MainActivity : AppCompatActivity() {
             latitude = 22.5726
             longitude = 88.3639
         }
-        places.fetchNearbyToilets(loc) { toiletsList, error ->
+        Log.d(GooglePlacesRepository.DIAGNOSTIC_TAG, "2. Current GPS: latitude=${loc.latitude}, longitude=${loc.longitude}")
+        places.fetchNearbyToilets(loc, GooglePlacesRepository.DEFAULT_SEARCH_RADIUS_METERS) { toiletsList, error ->
             if (error != null) {
-                Log.e(TAG, "Places API Error: $error")
+                Log.e(GooglePlacesRepository.DIAGNOSTIC_TAG, "Places API Error: $error")
+                Toast.makeText(this, error, Toast.LENGTH_LONG).show()
             }
             if (toiletsList != null) {
                 shownToilets = toiletsList
+                Log.d(GooglePlacesRepository.DIAGNOSTIC_TAG, "11. Markers added count: ${toiletsList.size}")
+                if (toiletsList.isEmpty()) {
+                    Toast.makeText(this, "No toilets found nearby. Try expanding your search area.", Toast.LENGTH_SHORT).show()
+                }
                 if (filterShowToilets) {
                     applyCurrentFilters()
                 }
@@ -1335,6 +1352,9 @@ class MainActivity : AppCompatActivity() {
         try {
             registerReceiver(dateChangeReceiver, filter)
         } catch (_: Exception) {}
+
+        // Check Location Permissions and Device Location Settings on Resume
+        checkLocationSettingsAndStart(explicitUserAction = false)
     }
     override fun onPause() {
         mapView.onPause()
@@ -1346,17 +1366,136 @@ class MainActivity : AppCompatActivity() {
     override fun onStop() { mapView.onStop(); super.onStop() }
     override fun onDestroy() { mapView.onDestroy(); super.onDestroy() }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: android.content.Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_CHECK_SETTINGS) {
+            isResolvingLocationSettings = false
+            if (resultCode == android.app.Activity.RESULT_OK) {
+                Log.d(TAG, "Location settings resolution successful. Starting location updates.")
+                requestNearby()
+                dismissLocationOffBanner()
+                if (filterShowToilets) {
+                    fetchAndDisplayToilets()
+                }
+            } else {
+                Log.w(TAG, "Location settings resolution cancelled or rejected by user.")
+                showLocationOffBanner()
+            }
+        }
+    }
+
     // ────────────────────────────────────────────────────────
-    //  Location
+    //  Location Services & SettingsClient
     // ────────────────────────────────────────────────────────
+
+    private fun checkLocationSettingsAndStart(
+        explicitUserAction: Boolean = false,
+        onSuccess: (() -> Unit)? = null
+    ) {
+        if (!hasLocation()) {
+            if (explicitUserAction) {
+                if (isLocationPermissionPermanentlyDenied()) {
+                    showPermanentPermissionDeniedDialog()
+                } else {
+                    requestLocationPermission()
+                }
+            } else {
+                showLocationExplanation()
+            }
+            return
+        }
+
+        val request = com.google.android.gms.location.LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 10000)
+            .setMinUpdateDistanceMeters(10f)
+            .build()
+
+        val builder = com.google.android.gms.location.LocationSettingsRequest.Builder()
+            .addLocationRequest(request)
+            .setAlwaysShow(true)
+
+        val client = LocationServices.getSettingsClient(this)
+        client.checkLocationSettings(builder.build())
+            .addOnSuccessListener {
+                isResolvingLocationSettings = false
+                requestNearby()
+                dismissLocationOffBanner()
+                onSuccess?.invoke()
+            }
+            .addOnFailureListener { exception ->
+                if (exception is com.google.android.gms.common.api.ResolvableApiException) {
+                    val now = System.currentTimeMillis()
+                    if (explicitUserAction || (!isResolvingLocationSettings && (now - lastLocationPromptTime > 15_000L))) {
+                        lastLocationPromptTime = now
+                        isResolvingLocationSettings = true
+                        try {
+                            exception.startResolutionForResult(this@MainActivity, REQUEST_CHECK_SETTINGS)
+                        } catch (sendEx: android.content.IntentSender.SendIntentException) {
+                            isResolvingLocationSettings = false
+                            showLocationOffBanner()
+                        }
+                    } else {
+                        showLocationOffBanner()
+                    }
+                } else {
+                    showLocationOffBanner()
+                }
+            }
+    }
+
+    private fun isLocationPermissionPermanentlyDenied(): Boolean {
+        val fineDenied = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+        val coarseDenied = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
+        val shouldShowRationale = androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION) ||
+                androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+        return (fineDenied && coarseDenied) && !shouldShowRationale
+    }
+
+    private fun showPermanentPermissionDeniedDialog() {
+        statusTitle.text = "Location permission is required"
+        statusMessage.text = "Location permission was denied. Please open App Settings to grant location access."
+        allowButton.text = "Open Settings"
+        allowButton.visibility = View.VISIBLE
+        allowButton.setOnClickListener {
+            val intent = android.content.Intent(
+                android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                Uri.fromParts("package", packageName, null)
+            )
+            startActivity(intent)
+        }
+        statusCard.visibility = View.VISIBLE
+    }
+
+    private fun showLocationOffBanner() {
+        statusTitle.text = "Location is turned off"
+        statusMessage.text = "Location is off. Turn on Location to use nearby features."
+        allowButton.text = "Turn On"
+        allowButton.visibility = View.VISIBLE
+        allowButton.setOnClickListener {
+            checkLocationSettingsAndStart(explicitUserAction = true)
+        }
+        statusCard.visibility = View.VISIBLE
+    }
+
+    private fun dismissLocationOffBanner() {
+        val title = statusTitle.text?.toString().orEmpty()
+        if (title.contains("Location is turned off", ignoreCase = true) ||
+            title.contains("Location permission is required", ignoreCase = true)
+        ) {
+            statusCard.visibility = View.GONE
+        }
+    }
 
     private fun showLocationExplanation() {
         if (hasLocation()) {
-            requestNearby()
+            checkLocationSettingsAndStart(explicitUserAction = false)
         } else {
             statusTitle.text = getString(R.string.location_explanation_title)
             statusMessage.text = getString(R.string.location_explanation_body)
+            allowButton.text = getString(R.string.location_allow)
             allowButton.visibility = View.VISIBLE
+            allowButton.setOnClickListener {
+                checkLocationSettingsAndStart(explicitUserAction = true)
+            }
             renderMarkers(pandals.all(), emptyList())
         }
     }
@@ -1370,11 +1509,19 @@ class MainActivity : AppCompatActivity() {
         super.onRequestPermissionsResult(code, permissions, grants)
         if (code == REQUEST_LOCATION) {
             if (hasLocation()) {
-                requestNearby()
+                checkLocationSettingsAndStart(explicitUserAction = true)
             } else {
-                statusTitle.text = getString(R.string.location_denied_title)
-                statusMessage.text = getString(R.string.location_denied_body)
-                allowButton.visibility = View.VISIBLE
+                if (isLocationPermissionPermanentlyDenied()) {
+                    showPermanentPermissionDeniedDialog()
+                } else {
+                    statusTitle.text = getString(R.string.location_denied_title)
+                    statusMessage.text = getString(R.string.location_denied_body)
+                    allowButton.text = getString(R.string.location_allow)
+                    allowButton.visibility = View.VISIBLE
+                    allowButton.setOnClickListener {
+                        checkLocationSettingsAndStart(explicitUserAction = true)
+                    }
+                }
             }
         }
     }
@@ -2000,7 +2147,8 @@ class MainActivity : AppCompatActivity() {
 
         // ── Pandal info ──
         view.findViewById<TextView>(R.id.detailName).text = item.name
-        view.findViewById<TextView>(R.id.detailArea).text = item.area
+        val detailArea = view.findViewById<TextView>(R.id.detailArea)
+        detailArea.text = "${item.area}    —"
         val mainDistance = view.findViewById<TextView>(R.id.detailDistance)
         mainDistance.text = if (location != null) "Finding road route…" else "Acquiring GPS location…"
 
@@ -2234,80 +2382,121 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // ── Weather (Authoritative Open-Meteo + Community Firestore Realtime + Refresh) ──
+        // ── Weather (Authoritative Open-Meteo + Community Observation Layer + Refresh) ──
         val weatherStatus = view.findViewById<TextView>(R.id.weatherStatus)
         val weatherUpdated = view.findViewById<TextView>(R.id.weatherUpdated)
         val weatherCardIcon = view.findViewById<ImageView>(R.id.weatherCardIcon)
+        val weatherRefreshBtn = view.findViewById<MaterialButton>(R.id.weatherRefreshButton)
         weatherStatus.text = getString(R.string.weather_checking)
         weatherUpdated.text = ""
 
-        fun loadWeather() {
-            weatherReports.latest(item) { communityReport, _ ->
+        fun loadBaselineWeather() {
+            weather.currentFor(item) { result ->
                 if (currentDetailPandal?.id == item.id && currentDetailSheetView === view) {
-                    if (communityReport != null) {
-                        weatherStatus.text = "${communityReport.condition.emoji} ${communityReport.condition.label}"
-                        weatherUpdated.text = "Community report · Updated ${ago(communityReport.timestamp)}"
-                        when (communityReport.condition) {
-                            CommunityWeather.NO_RAIN -> weatherCardIcon.setImageResource(R.drawable.ic_weather_sun)
-                            CommunityWeather.DRIZZLE -> weatherCardIcon.setImageResource(R.drawable.ic_weather_drizzle)
-                            CommunityWeather.RAINING -> weatherCardIcon.setImageResource(R.drawable.ic_weather_rain)
-                            CommunityWeather.HEAVY_RAIN -> weatherCardIcon.setImageResource(R.drawable.ic_weather_thunder)
-                        }
+                    if (result != null) {
+                        weatherCardIcon.setImageResource(R.drawable.ic_weather)
+                        weatherStatus.text = "${result.emoji} ${result.label}"
+                        weatherUpdated.text = "Live weather · Updated ${ago(result.fetchedAt)}"
                     } else {
-                        weather.currentFor(item) { result ->
-                            if (currentDetailPandal?.id == item.id && currentDetailSheetView === view) {
-                                if (result != null) {
-                                    weatherCardIcon.setImageResource(R.drawable.ic_weather)
-                                    weatherStatus.text = "${result.emoji} ${result.label}"
-                                    weatherUpdated.text = "Live weather · Updated ${ago(result.fetchedAt)}"
-                                } else {
-                                    weatherCardIcon.setImageResource(R.drawable.ic_weather)
-                                    weatherStatus.text = getString(R.string.weather_no_data)
-                                    weatherUpdated.text = getString(R.string.weather_unavailable)
-                                }
-                            }
-                        }
+                        weatherCardIcon.setImageResource(R.drawable.ic_weather)
+                        weatherStatus.text = getString(R.string.weather_no_data)
+                        weatherUpdated.text = getString(R.string.weather_unavailable)
                     }
                 }
             }
         }
-        loadWeather()
+        loadBaselineWeather()
 
-        val weatherListener = weatherReports.listenToWeather(item.id) { report ->
-            if (currentDetailPandal?.id == item.id && currentDetailSheetView === view) {
-                if (report != null) {
-                    weatherStatus.text = "${report.condition.emoji} ${report.condition.label}"
-                    weatherUpdated.text = "Community report · Updated ${ago(report.timestamp)}"
-                    when (report.condition) {
-                        CommunityWeather.NO_RAIN -> weatherCardIcon.setImageResource(R.drawable.ic_weather_sun)
-                        CommunityWeather.DRIZZLE -> weatherCardIcon.setImageResource(R.drawable.ic_weather_drizzle)
-                        CommunityWeather.RAINING -> weatherCardIcon.setImageResource(R.drawable.ic_weather_rain)
-                        CommunityWeather.HEAVY_RAIN -> weatherCardIcon.setImageResource(R.drawable.ic_weather_thunder)
-                    }
-                } else {
-                    weather.currentFor(item) { result ->
-                        if (currentDetailPandal?.id == item.id && currentDetailSheetView === view) {
-                            if (result != null) {
-                                weatherCardIcon.setImageResource(R.drawable.ic_weather)
-                                weatherStatus.text = "${result.emoji} ${result.label}"
-                                weatherUpdated.text = "Live weather · Updated ${ago(result.fetchedAt)}"
-                            } else {
-                                weatherCardIcon.setImageResource(R.drawable.ic_weather)
-                                weatherStatus.text = getString(R.string.weather_no_data)
-                                weatherUpdated.text = getString(R.string.weather_unavailable)
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        val weatherRefreshBtn = view.findViewById<MaterialButton>(R.id.weatherRefreshButton)
         weatherRefreshBtn.setOnClickListener {
             animateButtonPress(weatherRefreshBtn)
             animateIconSpin(weatherCardIcon)
-            loadWeather()
+            loadBaselineWeather()
             Toast.makeText(this, "Refreshing weather…", Toast.LENGTH_SHORT).show()
+        }
+
+        // ── Real-time Community Weather Observation Sub-card ──
+        val communityWeatherStatus = view.findViewById<TextView>(R.id.communityWeatherStatus)
+        val communityWeatherIcon = view.findViewById<ImageView>(R.id.communityWeatherIcon)
+        val btnUpdateWeather = view.findViewById<MaterialButton>(R.id.btnUpdateWeather)
+
+        val weatherListener = weatherReports.listenToWeather(item.id) { report, count ->
+            if (currentDetailPandal?.id == item.id && currentDetailSheetView === view) {
+                if (report != null) {
+                    val countSuffix = if (count > 1) " ($count community reports)" else ""
+                    communityWeatherStatus.text = "${report.condition.label} · Reported ${ago(report.timestamp)}$countSuffix"
+                    communityWeatherIcon.setImageResource(report.condition.iconRes)
+                } else {
+                    communityWeatherStatus.text = "No recent report"
+                    communityWeatherIcon.setImageResource(R.drawable.ic_weather_rain)
+                }
+            }
+        }
+
+        btnUpdateWeather.setOnClickListener {
+            animateButtonPress(btnUpdateWeather)
+            showRainStatusDialog(item)
+        }
+
+        // ── Community Rating (1 to 5 Stars) Section ──
+        val tvRatingCount = view.findViewById<TextView>(R.id.tvRatingCount)
+        val tvRatingAvg = view.findViewById<TextView>(R.id.tvRatingAvg)
+        val aggregateScoreContainer = view.findViewById<View>(R.id.aggregateScoreContainer)
+        val tvUserRatingStatus = view.findViewById<TextView>(R.id.tvUserRatingStatus)
+        val rateStars = listOf<ImageView>(
+            view.findViewById(R.id.rateStar1),
+            view.findViewById(R.id.rateStar2),
+            view.findViewById(R.id.rateStar3),
+            view.findViewById(R.id.rateStar4),
+            view.findViewById(R.id.rateStar5)
+        )
+
+        fun updateUserStarsUI(rating: Int) {
+            for (i in 0 until 5) {
+                if (i < rating) {
+                    rateStars[i].setImageResource(R.drawable.ic_star_filled)
+                    rateStars[i].setColorFilter(ContextCompat.getColor(this, R.color.gold))
+                } else {
+                    rateStars[i].setImageResource(R.drawable.ic_star_outline)
+                    rateStars[i].setColorFilter(ContextCompat.getColor(this, R.color.text_tertiary))
+                }
+            }
+            tvUserRatingStatus.text = "Your rating: $rating/5"
+        }
+
+        for (i in 0 until 5) {
+            val starIndex = i + 1
+            rateStars[i].setOnClickListener {
+                animateButtonPress(rateStars[i])
+                updateUserStarsUI(starIndex)
+                tvUserRatingStatus.text = "Saving your rating…"
+                ratingRepo.submitRating(item.id, starIndex) { success, err ->
+                    if (success) {
+                        tvUserRatingStatus.text = "Your rating: $starIndex/5"
+                        Toast.makeText(this, "Rated $starIndex / 5 stars for ${item.name}", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(this, err ?: "Couldn't save your rating. Please try again.", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        }
+
+        val ratingListener = ratingRepo.listenToRatings(item.id) { userRating, avg, count ->
+            if (currentDetailPandal?.id == item.id && currentDetailSheetView === view) {
+                val formattedRating = RatingRepository.formatRatingDisplay(if (count > 0) avg else null)
+                detailArea.text = "${item.area}    $formattedRating"
+
+                if (userRating != null) {
+                    updateUserStarsUI(userRating)
+                }
+                if (count > 0 && avg != null) {
+                    aggregateScoreContainer.visibility = View.VISIBLE
+                    tvRatingAvg.text = String.format(java.util.Locale.US, "%.1f", avg)
+                    tvRatingCount.text = "$count ${if (count == 1) "rating" else "ratings"}"
+                } else {
+                    aggregateScoreContainer.visibility = View.GONE
+                    tvRatingCount.text = "No ratings yet"
+                }
+            }
         }
 
         // ── Crowd (from Firestore realtime snapshot) & Best Time to Visit (Part 9) ──
@@ -2397,12 +2586,20 @@ class MainActivity : AppCompatActivity() {
         // ── Nearest Metro (Part 14) ──
         val metroName = view.findViewById<TextView>(R.id.metroName)
         val metroWalkTime = view.findViewById<TextView>(R.id.metroWalkTime)
+        val metroGate = view.findViewById<TextView>(R.id.metroGate)
         val metroNavigateBtn = view.findViewById<MaterialButton>(R.id.metroNavigateButton)
         val metroResult = metro.nearestTo(item)
         val mDistStr = distanceShort(metroResult.distanceMeters)
-        metroName.text = "${metroResult.station.name} (${metroResult.station.line}) · $mDistStr"
-        val walkMins = Math.max(1, (metroResult.distanceMeters / 80.0).toInt())
-        metroWalkTime.text = "~$walkMins min walk"
+        metroName.text = metroResult.station.name
+        metroWalkTime.visibility = View.VISIBLE
+        metroWalkTime.text = "${metroResult.station.line} · $mDistStr"
+
+        if (metroResult.station.gateNumber != null) {
+            metroGate.visibility = View.VISIBLE
+            metroGate.text = "Gate ${metroResult.station.gateNumber}"
+        } else {
+            metroGate.visibility = View.GONE
+        }
 
         metroNavigateBtn.setOnClickListener {
             NavigationLauncher.openMetroRoute(this, metroResult.station)
@@ -2450,6 +2647,7 @@ class MainActivity : AppCompatActivity() {
             crowdListener?.remove()
             photoListener?.remove()
             weatherListener?.remove()
+            ratingListener?.remove()
             currentDetailPandal = null
             currentDetailSheetView = null
             refreshCurrentDetailCrowd = null
@@ -2479,6 +2677,11 @@ class MainActivity : AppCompatActivity() {
         val walkDistance = view.findViewById<TextView>(R.id.timeWalk)
         val bikeDistance = view.findViewById<TextView>(R.id.timeBike)
         val carDistance = view.findViewById<TextView>(R.id.timeCar)
+
+        Log.d(
+            "PandalQuest-Location",
+            "pandal name=${item.name} | pandal ID=${item.id} | canonical lat=${item.latitude} | canonical lng=${item.longitude} | current lat=${origin?.latitude} | current lng=${origin?.longitude} | route origin=(${origin?.latitude}, ${origin?.longitude}) | route destination=(${item.latitude}, ${item.longitude})"
+        )
 
         if (origin == null) {
             mainDistance.text = "Acquiring GPS location…"
@@ -2853,6 +3056,19 @@ class MainActivity : AppCompatActivity() {
         val savedCountView = view.findViewById<TextView>(R.id.myPandalSavedCount)
         savedCountView.text = if (savedCount == 1) "1 saved pandal" else "$savedCount saved pandals"
 
+        val savedRatingTextView = view.findViewById<TextView>(R.id.myPandalSavedRatingText)
+        val savedIds = favorites.getFavoriteIds()
+        if (savedIds.isEmpty()) {
+            savedRatingTextView?.text = "—"
+        } else {
+            savedRatingTextView?.text = "…"
+            ratingRepo.fetchAggregateRatingForPandals(savedIds) { avg, _ ->
+                mainHandler.post {
+                    savedRatingTextView?.text = RatingRepository.formatRatingDisplay(avg)
+                }
+            }
+        }
+
         val visitedCount = passport.getVisitedCount()
         val totalPandals = pandals.all().size
         val percent = if (totalPandals > 0) ((visitedCount.toFloat() / totalPandals) * 100).toInt() else 0
@@ -2872,6 +3088,7 @@ class MainActivity : AppCompatActivity() {
 
         val photosCountText = view.findViewById<TextView>(R.id.userPhotosCountText)
         val crowdCountText = view.findViewById<TextView>(R.id.userCrowdCountText)
+        val weatherCountText = view.findViewById<TextView>(R.id.userWeatherCountText)
         val contributionsSubtitle = view.findViewById<TextView>(R.id.myContributionsSubtitle)
 
         authRepo.getOrCreateUid { uid ->
@@ -2879,6 +3096,7 @@ class MainActivity : AppCompatActivity() {
                 mainHandler.post {
                     photosCountText.text = userContribs.photosCount.toString()
                     crowdCountText.text = userContribs.crowdReportsCount.toString()
+                    weatherCountText?.text = userContribs.weatherReportsCount.toString()
                     val total = userContribs.total
                     contributionsSubtitle.text = if (total == 0) "No community contributions yet" else "$total total community contributions"
                 }
@@ -3546,85 +3764,79 @@ class MainActivity : AppCompatActivity() {
     }
 
     // ────────────────────────────────────────────────────────
-    //  Weather contribution bottom sheet
+    //  Weather contribution modal bottom sheet (Rain status)
     // ────────────────────────────────────────────────────────
 
-    private fun weatherDialog(item: Pandal, onRefreshed: () -> Unit) {
-        val sheet = BottomSheetDialog(this)
-        val view = layoutInflater.inflate(R.layout.sheet_weather_report, null)
-        sheet.setContentView(view)
-
-        view.findViewById<TextView>(R.id.weatherPandalName).text = item.name
-        view.findViewById<View>(R.id.closeWeatherSheet).setOnClickListener { sheet.dismiss() }
-
-        val banner = view.findViewById<View>(R.id.weatherEligibilityBanner)
-        val bannerText = view.findViewById<TextView>(R.id.weatherEligibilityText)
-        val submit = view.findViewById<MaterialButton>(R.id.submitWeather)
-        val progress = view.findViewById<ProgressBar>(R.id.weatherProgress)
-
-        val optNoRain = view.findViewById<LinearLayout>(R.id.optNoRain)
-        val optDrizzle = view.findViewById<LinearLayout>(R.id.optDrizzle)
-        val optRaining = view.findViewById<LinearLayout>(R.id.optRaining)
-        val optHeavyRain = view.findViewById<LinearLayout>(R.id.optHeavyRain)
-
-        val eligibilityResult = eligibility.evaluate(item, location)
-        if (!eligibilityResult.allowed) {
-            banner.visibility = View.VISIBLE
-            bannerText.text = eligibilityResult.reason
-        } else {
-            banner.visibility = View.GONE
+    private fun showRainStatusDialog(item: Pandal, onRefreshed: (() -> Unit)? = null) {
+        val currentLoc = location
+        if (currentLoc == null) {
+            Toast.makeText(this, "Location required to update weather. Please enable Location.", Toast.LENGTH_SHORT).show()
+            checkLocationSettingsAndStart(explicitUserAction = true)
+            return
         }
 
-        var selectedCondition: CommunityWeather? = null
-        val optionsMap = mapOf(
-            optNoRain to CommunityWeather.NO_RAIN,
-            optDrizzle to CommunityWeather.DRIZZLE,
-            optRaining to CommunityWeather.RAINING,
-            optHeavyRain to CommunityWeather.HEAVY_RAIN
+        val dist = RouteOptimizer.distanceBetween(
+            currentLoc.latitude,
+            currentLoc.longitude,
+            item.latitude,
+            item.longitude
         )
 
-        fun selectOption(selectedView: View, condition: CommunityWeather) {
-            selectedCondition = condition
-            optionsMap.keys.forEach { v ->
-                if (v == selectedView) {
-                    v.setBackgroundResource(R.drawable.bg_option_selected)
+        if (dist > WeatherReportRepository.MAX_DISTANCE_METERS) {
+            val distStr = if (dist >= 1000f) "%.1f km".format(dist / 1000f) else "${dist.toInt()} m"
+            Toast.makeText(
+                this,
+                "Move within 500 m of this Pandal to update the current weather. (Currently $distStr away)",
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+
+        val sheet = BottomSheetDialog(this)
+        val view = layoutInflater.inflate(R.layout.dialog_rain_status, null)
+        sheet.setContentView(view)
+
+        view.findViewById<TextView>(R.id.tvRainPopupSubtitle).text = "Report current weather at ${item.name}"
+        view.findViewById<View>(R.id.btnRainPopupClose).setOnClickListener { sheet.dismiss() }
+
+        val cardNoRain = view.findViewById<com.google.android.material.card.MaterialCardView>(R.id.cardNoRain)
+        val cardDrizzle = view.findViewById<com.google.android.material.card.MaterialCardView>(R.id.cardDrizzle)
+        val cardRaining = view.findViewById<com.google.android.material.card.MaterialCardView>(R.id.cardRaining)
+        val cardHeavyRain = view.findViewById<com.google.android.material.card.MaterialCardView>(R.id.cardHeavyRain)
+
+        val options = listOf(
+            cardNoRain to CommunityWeather.NO_RAIN,
+            cardDrizzle to CommunityWeather.DRIZZLE,
+            cardRaining to CommunityWeather.RAINING,
+            cardHeavyRain to CommunityWeather.HEAVY_RAIN
+        )
+
+        fun selectAndSubmit(selectedCard: com.google.android.material.card.MaterialCardView, condition: CommunityWeather) {
+            options.forEach { (card, _) ->
+                if (card == selectedCard) {
+                    card.setCardBackgroundColor(ContextCompat.getColor(this, R.color.hopping_surface))
+                    card.strokeColor = ContextCompat.getColor(this, R.color.primary)
                 } else {
-                    v.setBackgroundResource(R.drawable.bg_option_unselected)
+                    card.setCardBackgroundColor(ContextCompat.getColor(this, R.color.surface_variant))
+                    card.strokeColor = ContextCompat.getColor(this, R.color.weather_outline)
                 }
             }
-            if (eligibilityResult.allowed) {
-                submit.isEnabled = true
-            }
-        }
 
-        optNoRain.setOnClickListener { selectOption(optNoRain, CommunityWeather.NO_RAIN) }
-        optDrizzle.setOnClickListener { selectOption(optDrizzle, CommunityWeather.DRIZZLE) }
-        optRaining.setOnClickListener { selectOption(optRaining, CommunityWeather.RAINING) }
-        optHeavyRain.setOnClickListener { selectOption(optHeavyRain, CommunityWeather.HEAVY_RAIN) }
-
-        submit.setOnClickListener {
-            val chosen = selectedCondition ?: return@setOnClickListener
-            submit.isEnabled = false
-            progress.visibility = View.VISIBLE
-
-            val devId = eligibilityResult.deviceId
-            authRepo.getOrCreateUid { uid ->
-                weatherReports.submit(item, chosen, uid, devId, location) { error ->
-                    mainHandler.post {
-                        progress.visibility = View.GONE
-                        if (error == null) {
-                            Toast.makeText(this, "Weather update submitted. Thank you for contributing!", Toast.LENGTH_SHORT).show()
-                            onRefreshed()
-                            sheet.dismiss()
-                        } else {
-                            Log.e(TAG, "Failed to submit weather report: ${error.message}", error)
-                            Toast.makeText(this, "Failed to submit: ${error.localizedMessage ?: "Unknown error"}", Toast.LENGTH_LONG).show()
-                            submit.isEnabled = true
-                        }
-                    }
+            weatherReports.submitWeatherObservation(item, condition, currentLoc) { success, err ->
+                if (success) {
+                    Toast.makeText(this, "Weather updated", Toast.LENGTH_SHORT).show()
+                    onRefreshed?.invoke()
+                    sheet.dismiss()
+                } else {
+                    Toast.makeText(this, err ?: "Couldn't update weather. Try again.", Toast.LENGTH_SHORT).show()
                 }
             }
         }
+
+        cardNoRain.setOnClickListener { selectAndSubmit(cardNoRain, CommunityWeather.NO_RAIN) }
+        cardDrizzle.setOnClickListener { selectAndSubmit(cardDrizzle, CommunityWeather.DRIZZLE) }
+        cardRaining.setOnClickListener { selectAndSubmit(cardRaining, CommunityWeather.RAINING) }
+        cardHeavyRain.setOnClickListener { selectAndSubmit(cardHeavyRain, CommunityWeather.HEAVY_RAIN) }
 
         sheet.show()
     }
@@ -3735,7 +3947,8 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val TAG = "PandalFinderMain"
-        private const val REQUEST_LOCATION = 1001
+        const val REQUEST_LOCATION = 1001
+        const val REQUEST_CHECK_SETTINGS = 1002
 
         fun isValidCoordinate(lat: Double, lng: Double): Boolean =
             !lat.isNaN() && !lat.isInfinite() && !lng.isNaN() && !lng.isInfinite() &&

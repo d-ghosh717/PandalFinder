@@ -32,6 +32,7 @@ class HoppingRepository(context: Context, private val pandalRepository: PandalRe
 
     fun getPlan(): List<HoppingStop> {
         val pandalMap = pandalRepository.all().associateBy { it.id }
+        val slugMap = pandalRepository.all().associateBy { it.id.substringBeforeLast('-') }
         val metroMap = MetroStation.allStations().associateBy { it.name.lowercase().replace(" ", "_") }
         val toiletMap = getSavedToilets()
 
@@ -39,7 +40,7 @@ class HoppingRepository(context: Context, private val pandalRepository: PandalRe
             when {
                 rawId.startsWith("pandal:") -> {
                     val pId = rawId.removePrefix("pandal:")
-                    pandalMap[pId]?.let { HoppingStop.fromPandal(it) }
+                    (pandalMap[pId] ?: slugMap[pId.substringBeforeLast('-')])?.let { HoppingStop.fromPandal(it) }
                 }
                 rawId.startsWith("metro:") -> {
                     val mKey = rawId.removePrefix("metro:")
@@ -51,7 +52,7 @@ class HoppingRepository(context: Context, private val pandalRepository: PandalRe
                 }
                 else -> {
                     // Legacy IDs (bare pandal ID)
-                    pandalMap[rawId]?.let { HoppingStop.fromPandal(it) }
+                    (pandalMap[rawId] ?: slugMap[rawId.substringBeforeLast('-')])?.let { HoppingStop.fromPandal(it) }
                 }
             }
         }

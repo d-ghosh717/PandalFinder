@@ -140,5 +140,39 @@ class SearchAndHoppingTest {
         assertNotNull(stop.toiletRef)
         assertEquals(toilet.id, stop.toiletRef?.id)
     }
+
+    @Test
+    fun testLocalPandalsDeduplicationAndLocations() {
+        val pandals = Pandal.getLocalPandals()
+        
+        // 1. Verify specific updated locations
+        val machua = pandals.firstOrNull { it.name == "Machua Bazar Sarbojanik Durgapuja Samity" }
+        assertNotNull(machua)
+        assertEquals(22.5812141, machua!!.latitude, 0.0001)
+        assertEquals(88.3572457, machua.longitude, 0.0001)
+
+        val brindabon = pandals.firstOrNull { it.name == "Brindabon Matri Mandir" }
+        assertNotNull(brindabon)
+        assertEquals(22.5820532, brindabon!!.latitude, 0.0001)
+        assertEquals(88.3730342, brindabon.longitude, 0.0001)
+
+        val karbagan = pandals.firstOrNull { it.name == "Karbagan Sarbojanin Durgotsab Committee" }
+        assertNotNull(karbagan)
+        assertEquals(22.5952410, karbagan!!.latitude, 0.0001)
+        assertEquals(88.3842775, karbagan.longitude, 0.0001)
+
+        val pally14 = pandals.firstOrNull { it.name == "14 Pally Udayan Sangha" }
+        assertNotNull(pally14)
+        assertEquals(22.5575857, pally14!!.latitude, 0.0001)
+        assertEquals(88.3669753, pally14.longitude, 0.0001)
+
+        // 2. Verify Selimpur Pally exists and duplicate is deleted
+        assertTrue(pandals.any { it.name == "Selimpur Pally" })
+        assertFalse(pandals.any { it.name.equals("Selimpur Pally Sarbojanin", ignoreCase = true) })
+
+        // 3. Verify no duplicate names
+        val normalizedNames = pandals.map { it.name.trim().lowercase() }
+        assertEquals(normalizedNames.size, normalizedNames.toSet().size)
+    }
 }
 

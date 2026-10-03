@@ -5,9 +5,10 @@ import com.google.firebase.firestore.FirebaseFirestore
 
 data class UserContributions(
     val photosCount: Int = 0,
-    val crowdReportsCount: Int = 0
+    val crowdReportsCount: Int = 0,
+    val weatherReportsCount: Int = 0
 ) {
-    val total: Int get() = photosCount + crowdReportsCount
+    val total: Int get() = photosCount + crowdReportsCount + weatherReportsCount
 }
 
 class ContributionsRepository {
@@ -16,22 +17,23 @@ class ContributionsRepository {
 
     /**
      * Queries Firestore collections for actual community contributions submitted by the given UID.
-     * Only counts Photos and Crowd Reports.
+     * Counts Photos, Crowd Reports, and Weather Reports submitted by this user.
      */
     fun fetchUserContributions(uid: String, onResult: (UserContributions) -> Unit) {
         if (uid.isBlank()) {
-            onResult(UserContributions(0, 0))
+            onResult(UserContributions(0, 0, 0))
             return
         }
 
         var photos = 0
         var crowd = 0
+        var weather = 0
         var completed = 0
 
         fun checkDone() {
             completed++
-            if (completed == 2) {
-                onResult(UserContributions(photos, crowd))
+            if (completed == 3) {
+                onResult(UserContributions(photos, crowd, weather))
             }
         }
 
@@ -57,6 +59,18 @@ class ContributionsRepository {
             }
             .addOnFailureListener { err ->
                 Log.e(TAG, "Failed to query user crowd reports: ${err.message}", err)
+                checkDone()
+            }
+
+        firestore.collection(WeatherReportRepository.COLLECTION)
+            .whereEqualTo("userId", uid)
+            .get()
+            .addOnSuccessListener { snap ->
+                weather = snap.documents.count { (it.getString("status") ?: "active") == "active" }
+                checkDone()
+            }
+            .addOnFailureListener { err ->
+                Log.e(TAG, "Failed to query user weather reports: ${err.message}", err)
                 checkDone()
             }
     }

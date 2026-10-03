@@ -38,13 +38,19 @@ class PassportRepository(context: Context) {
 
     fun isVisited(pandalId: String): Boolean {
         val cleanId = pandalId.removePrefix("pandal:")
-        return getVisitedRecords().any { it.pandalId == cleanId || it.pandalId == pandalId }
+        val records = getVisitedRecords()
+        if (records.any { it.pandalId == cleanId || it.pandalId == pandalId }) return true
+        val slug = cleanId.substringBeforeLast('-')
+        return slug.isNotBlank() && records.any {
+            val rId = it.pandalId.removePrefix("pandal:")
+            rId == cleanId || rId.startsWith("$slug-") || rId == slug
+        }
     }
 
     fun markVisited(pandal: Pandal): Boolean {
         val records = getVisitedRecords().toMutableList()
         val cleanId = pandal.id.removePrefix("pandal:")
-        if (records.any { it.pandalId == cleanId }) return false
+        if (isVisited(pandal.id)) return false
 
         records.add(
             VisitedPandalRecord(
@@ -61,8 +67,12 @@ class PassportRepository(context: Context) {
 
     fun removeVisited(pandalId: String): Boolean {
         val cleanId = pandalId.removePrefix("pandal:")
+        val slug = cleanId.substringBeforeLast('-')
         val records = getVisitedRecords().toMutableList()
-        val removed = records.removeAll { it.pandalId == cleanId || it.pandalId == pandalId }
+        val removed = records.removeAll {
+            val rId = it.pandalId.removePrefix("pandal:")
+            rId == cleanId || it.pandalId == pandalId || (slug.isNotBlank() && rId.startsWith("$slug-")) || rId == slug
+        }
         if (removed) {
             saveRecords(records)
             notifyChanged()

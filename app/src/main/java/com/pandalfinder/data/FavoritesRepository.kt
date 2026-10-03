@@ -38,18 +38,26 @@ class FavoritesRepository(context: Context) {
     fun isFavorite(pandalId: String): Boolean {
         val cleanId = pandalId.removePrefix("pandal:")
         val ids = getFavoriteIds()
-        return ids.contains(cleanId) || ids.contains(pandalId)
+        if (ids.contains(cleanId) || ids.contains(pandalId)) return true
+        val slug = cleanId.substringBeforeLast('-')
+        return slug.isNotBlank() && ids.any {
+            val s = it.removePrefix("pandal:")
+            s == cleanId || s.startsWith("$slug-") || s == slug
+        }
     }
 
     fun toggleFavorite(pandalId: String): Boolean {
         val cleanId = pandalId.removePrefix("pandal:")
         val current = getFavoriteIds().toMutableSet()
-        val willBeSaved = !current.contains(cleanId)
+        val willBeSaved = !isFavorite(pandalId)
         if (willBeSaved) {
             current.add(cleanId)
         } else {
-            current.remove(cleanId)
-            current.remove("pandal:$cleanId")
+            val slug = cleanId.substringBeforeLast('-')
+            current.removeAll {
+                val s = it.removePrefix("pandal:")
+                s == cleanId || (slug.isNotBlank() && s.startsWith("$slug-")) || s == slug
+            }
         }
         saveIds(current)
         notifyChanged()
@@ -62,8 +70,11 @@ class FavoritesRepository(context: Context) {
         if (isFavorite) {
             current.add(cleanId)
         } else {
-            current.remove(cleanId)
-            current.remove("pandal:$cleanId")
+            val slug = cleanId.substringBeforeLast('-')
+            current.removeAll {
+                val s = it.removePrefix("pandal:")
+                s == cleanId || (slug.isNotBlank() && s.startsWith("$slug-")) || s == slug
+            }
         }
         saveIds(current)
         notifyChanged()
@@ -72,7 +83,13 @@ class FavoritesRepository(context: Context) {
     fun getFavoritePandals(pandalRepository: PandalRepository): List<Pandal> {
         val ids = getFavoriteIds()
         val allPandals = pandalRepository.all()
-        return allPandals.filter { p -> ids.contains(p.id) || ids.contains("pandal:${p.id}") }
+        return allPandals.filter { p ->
+            val slug = p.id.substringBeforeLast('-')
+            ids.contains(p.id) || ids.contains("pandal:${p.id}") || ids.any { savedId ->
+                val s = savedId.removePrefix("pandal:")
+                s == p.id || (slug.isNotBlank() && s.startsWith("$slug-")) || s == slug
+            }
+        }
     }
 
     private fun saveIds(ids: Set<String>) {

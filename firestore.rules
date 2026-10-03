@@ -69,18 +69,57 @@ service cloud.firestore {
     }
 
     // ── Weather Reports ──
-    // Normal users can submit authenticated weather observations.
+    // Normal users can submit authenticated weather observations ('NO_RAIN', 'DRIZZLE', 'RAINING', 'HEAVY_RAIN').
     // Updates/Deletions are restricted to authorized admins only.
     match /weatherReports/{reportId} {
+      allow read: if true;
+      allow create: if request.auth != null
+                    && (request.resource.data.userId == request.auth.uid || request.resource.data.reportedBy == request.auth.uid)
+                    && request.resource.data.pandalId is string
+                    && request.resource.data.pandalId.size() > 0
+                    && (
+                      request.resource.data.weatherStatus in ['NO_RAIN', 'DRIZZLE', 'RAINING', 'HEAVY_RAIN'] ||
+                      request.resource.data.condition in ['NO_RAIN', 'DRIZZLE', 'RAINING', 'HEAVY_RAIN'] ||
+                      request.resource.data.weatherCondition in ['NO_RAIN', 'DRIZZLE', 'RAINING', 'HEAVY_RAIN']
+                    );
+      allow update, delete: if isAdmin();
+    }
+
+    // ── Pandal Community Ratings (1 to 5 Stars) ──
+    // Authenticated users can create/update only their own rating for a pandal.
+    // Deterministic ID is pandalRatings/{pandalId}_{userId}.
+    match /pandalRatings/{ratingId} {
       allow read: if true;
       allow create: if request.auth != null
                     && request.resource.data.userId == request.auth.uid
                     && request.resource.data.pandalId is string
                     && request.resource.data.pandalId.size() > 0
+                    && request.resource.data.rating is int
+                    && request.resource.data.rating >= 1
+                    && request.resource.data.rating <= 5;
+      allow update: if request.auth != null
                     && (
-                      request.resource.data.condition in ['NO_RAIN', 'DRIZZLE', 'RAINING', 'HEAVY_RAIN'] ||
-                      request.resource.data.weatherCondition in ['NO_RAIN', 'DRIZZLE', 'RAINING', 'HEAVY_RAIN']
+                      (resource.data.userId == request.auth.uid
+                       && request.resource.data.userId == request.auth.uid
+                       && request.resource.data.pandalId == resource.data.pandalId
+                       && request.resource.data.rating is int
+                       && request.resource.data.rating >= 1
+                       && request.resource.data.rating <= 5)
+                      ||
+                      isAdmin()
                     );
+      allow delete: if (request.auth != null && resource.data.userId == request.auth.uid) || isAdmin();
+    }
+
+    // ── Community Real-Time Rain Reports (Rain Right Now) ──
+    // Authenticated users can submit real-time rain reports.
+    // Expired or invalid reports are moderated or filtered by client TTL (90 mins).
+    match /rainReports/{reportId} {
+      allow read: if true;
+      allow create: if request.auth != null
+                    && request.resource.data.reportedBy == request.auth.uid
+                    && request.resource.data.pandalId is string
+                    && request.resource.data.pandalId.size() > 0;
       allow update, delete: if isAdmin();
     }
 
@@ -90,3 +129,4 @@ service cloud.firestore {
     }
   }
 }
+

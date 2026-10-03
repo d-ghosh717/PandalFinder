@@ -8,5 +8,7 @@ data class PublicToilet(
     val name: String,
     val address: String,
     val latitude: Double,
-    val longitude: Double
+    val longitude: Double,
+    val types: List<String> = emptyList(),
+    val rating: Double? = null
 )

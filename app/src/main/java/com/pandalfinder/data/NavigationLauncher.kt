@@ -15,9 +15,11 @@ object NavigationLauncher {
         launchMapsUrl(context, url)
     }
 
-    /** Open Google Maps navigation to a metro station. */
+    /** Open Google Maps navigation to a metro station (navigating to verified gate if available). */
     fun openMetroRoute(context: Context, station: MetroStation) {
-        val url = "https://www.google.com/maps/dir/?api=1&destination=${station.latitude},${station.longitude}&travelmode=walking"
+        val destLat = station.gateLatitude ?: station.latitude
+        val destLng = station.gateLongitude ?: station.longitude
+        val url = "https://www.google.com/maps/dir/?api=1&destination=${destLat},${destLng}&travelmode=walking"
         launchMapsUrl(context, url)
     }
 

@@ -9,7 +9,10 @@ data class MetroStation(
     val name: String,
     val latitude: Double,
     val longitude: Double,
-    val line: String
+    val line: String,
+    val gateNumber: String? = null,
+    val gateLatitude: Double? = null,
+    val gateLongitude: Double? = null
 ) {
     val lineColor: Int
         get() = getLineColor(line)
@@ -45,7 +48,7 @@ data class MetroStation(
             MetroStation("Dakshineswar", 22.6553, 88.3576, "Blue Line"),
             MetroStation("Baranagar", 22.6394, 88.3755, "Blue Line"),
             MetroStation("Noapara", 22.6296, 88.3773, "Blue Line"),
-            MetroStation("Dum Dum", 22.6222, 88.4062, "Blue Line"),
+            MetroStation("Dum Dum", 22.6222, 88.4062, "Blue Line", gateNumber = "1", gateLatitude = 22.6222, gateLongitude = 88.4062),
             MetroStation("Belgachia", 22.6097, 88.3840, "Blue Line"),
             MetroStation("Shyambazar", 22.5992, 88.3716, "Blue Line"),
             MetroStation("Shobhabazar Sutanuti", 22.5937, 88.3652, "Blue Line"),
@@ -53,23 +56,23 @@ data class MetroStation(
             MetroStation("Mahatma Gandhi Road", 22.5791, 88.3610, "Blue Line"),
             MetroStation("Central", 22.5721, 88.3590, "Blue Line"),
             MetroStation("Chandni Chowk", 22.5666, 88.3549, "Blue Line"),
-            MetroStation("Esplanade", 22.5628, 88.3516, "Blue Line"),
+            MetroStation("Esplanade", 22.5628, 88.3516, "Blue Line", gateNumber = "1", gateLatitude = 22.5628, gateLongitude = 88.3516),
             MetroStation("Park Street", 22.5545, 88.3515, "Blue Line"),
             MetroStation("Maidan", 22.5474, 88.3477, "Blue Line"),
             MetroStation("Rabindra Sadan", 22.5393, 88.3449, "Blue Line"),
             MetroStation("Netaji Bhavan", 22.5334, 88.3440, "Blue Line"),
             MetroStation("Jatin Das Park", 22.5259, 88.3417, "Blue Line"),
-            MetroStation("Kalighat", 22.5194, 88.3417, "Blue Line"),
-            MetroStation("Rabindra Sarobar", 22.5087, 88.3466, "Blue Line"),
+            MetroStation("Kalighat", 22.5194, 88.3417, "Blue Line", gateNumber = "2", gateLatitude = 22.5194, gateLongitude = 88.3417),
+            MetroStation("Rabindra Sarobar", 22.5087, 88.3466, "Blue Line", gateNumber = "1", gateLatitude = 22.5087, gateLongitude = 88.3466),
             MetroStation("Masterda Surya Sen", 22.5014, 88.3501, "Blue Line"),
             MetroStation("Netaji", 22.4940, 88.3561, "Blue Line"),
             MetroStation("Kavi Subhash", 22.4805, 88.3638, "Blue Line"),
 
             // ── Green Line (Line 2): Howrah Maidan → Sector V ──
-            MetroStation("Howrah Maidan", 22.5844, 88.3383, "Green Line"),
+            MetroStation("Howrah Maidan", 22.5844, 88.3383, "Green Line", gateNumber = "2", gateLatitude = 22.5844, gateLongitude = 88.3383),
             MetroStation("Howrah", 22.5846, 88.3427, "Green Line"),
             MetroStation("Mahakaran", 22.5721, 88.3484, "Green Line"),
-            MetroStation("Sealdah", 22.5691, 88.3713, "Green Line"),
+            MetroStation("Sealdah", 22.5691, 88.3713, "Green Line", gateNumber = "1", gateLatitude = 22.5691, gateLongitude = 88.3713),
             MetroStation("Phool Bagan", 22.5715, 88.3848, "Green Line"),
             MetroStation("Bengal Chemical", 22.5726, 88.3945, "Green Line"),
             MetroStation("Salt Lake Stadium", 22.5732, 88.4048, "Green Line"),

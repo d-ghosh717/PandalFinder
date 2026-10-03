@@ -500,78 +500,147 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
+                    android:orientation="vertical"
                     android:padding="15dp">
 
-                    <FrameLayout
-                        android:layout_width="44dp"
-                        android:layout_height="44dp"
-                        android:background="@drawable/bg_badge_circle"
-                        android:backgroundTint="@color/weather_surface">
-
-                        <ImageView
-                            android:id="@+id/weatherCardIcon"
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:layout_gravity="center"
-                            android:contentDescription="Weather"
-                            android:src="@drawable/ic_weather"
-                            app:tint="@color/weather_icon" />
-                    </FrameLayout>
-
                     <LinearLayout
-                        android:layout_width="0dp"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="12dp"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
 
-                        <TextView
-                            android:layout_width="match_parent"
+                        <FrameLayout
+                            android:layout_width="44dp"
+                            android:layout_height="44dp"
+                            android:background="@drawable/bg_badge_circle"
+                            android:backgroundTint="@color/weather_surface">
+
+                            <ImageView
+                                android:id="@+id/weatherCardIcon"
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:layout_gravity="center"
+                                android:contentDescription="Weather"
+                                android:src="@drawable/ic_weather"
+                                app:tint="@color/weather_icon" />
+                        </FrameLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/inter"
+                                android:text="Live Weather"
+                                android:textColor="@color/weather_text"
+                                android:textSize="13sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/weatherStatus"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="1dp"
+                                android:fontFamily="@font/inter"
+                                android:textColor="@color/text_primary"
+                                android:textSize="16sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/weatherUpdated"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="1dp"
+                                android:fontFamily="@font/inter"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/weatherRefreshButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="38dp"
+                            android:minWidth="0dp"
+                            android:background="@drawable/bg_btn_glow_weather"
                             android:fontFamily="@font/inter"
-                            android:text="Live Weather"
+                            android:text="Refresh"
+                            android:textAllCaps="false"
                             android:textColor="@color/weather_text"
                             android:textSize="13sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:id="@+id/weatherStatus"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="1dp"
-                            android:fontFamily="@font/inter"
-                            android:textColor="@color/text_primary"
-                            android:textSize="16sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:id="@+id/weatherUpdated"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="1dp"
-                            android:fontFamily="@font/inter"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="12sp" />
+                            android:textStyle="bold"
+                            android:paddingStart="14dp"
+                            android:paddingEnd="14dp"
+                            app:backgroundTint="@null"
+                            app:cornerRadius="19dp" />
                     </LinearLayout>
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/weatherRefreshButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="38dp"
-                        android:minWidth="0dp"
-                        android:background="@drawable/bg_btn_glow_weather"
-                        android:fontFamily="@font/inter"
-                        android:text="Update"
-                        android:textAllCaps="false"
-                        android:textColor="@color/weather_text"
-                        android:textSize="13sp"
-                        android:textStyle="bold"
-                        android:paddingStart="14dp"
-                        android:paddingEnd="14dp"
-                        app:backgroundTint="@null"
-                        app:cornerRadius="19dp" />
+                    <!-- Real-time Community Weather Observation Sub-card -->
+                    <LinearLayout
+                        android:id="@+id/communityWeatherContainer"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:background="@drawable/bg_option_selected"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="10dp">
+
+                        <ImageView
+                            android:id="@+id/communityWeatherIcon"
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:src="@drawable/ic_weather_rain"
+                            app:tint="@color/weather_icon" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/inter"
+                                android:text="Community observation"
+                                android:textColor="@color/text_primary"
+                                android:textSize="13sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/communityWeatherStatus"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:fontFamily="@font/inter"
+                                android:text="No recent report"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnUpdateWeather"
+                            android:layout_width="wrap_content"
+                            android:layout_height="34dp"
+                            android:minWidth="0dp"
+                            android:background="@drawable/bg_btn_glow_weather"
+                            android:fontFamily="@font/inter"
+                            android:text="Update weather"
+                            android:textAllCaps="false"
+                            android:textColor="@color/weather_text"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            android:paddingStart="12dp"
+                            android:paddingEnd="12dp"
+                            app:backgroundTint="@null"
+                            app:cornerRadius="17dp" />
+                    </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -776,6 +845,17 @@
                             android:textColor="@color/text_secondary"
                             android:textSize="12sp"
                             android:visibility="gone" />
+
+                        <TextView
+                            android:id="@+id/metroGate"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:fontFamily="@font/inter"
+                            android:textColor="@color/metro_text"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            android:visibility="gone" />
                     </LinearLayout>
 
                     <com.google.android.material.button.MaterialButton
@@ -794,6 +874,180 @@
                         android:paddingEnd="14dp"
                         app:cornerRadius="19dp"
                         app:strokeColor="@color/metro_outline" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ── 10. COMMUNITY RATING CARD (Warm Golden Glass) ── -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/ratingCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:cardBackgroundColor="@color/glass_surface_warm"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/glass_stroke_gold"
+                app:strokeWidth="1.2dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <!-- Header with Aggregate Information -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <FrameLayout
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:background="@drawable/bg_badge_circle"
+                            android:backgroundTint="@color/crowd_surface">
+
+                            <ImageView
+                                android:layout_width="22dp"
+                                android:layout_height="22dp"
+                                android:layout_gravity="center"
+                                android:contentDescription="Rating"
+                                android:src="@drawable/ic_star_filled"
+                                app:tint="@color/gold" />
+                        </FrameLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/inter"
+                                android:text="Rate this Pandal"
+                                android:textColor="@color/text_primary"
+                                android:textSize="14sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/tvRatingCount"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="1dp"
+                                android:fontFamily="@font/inter"
+                                android:text="No ratings yet"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/aggregateScoreContainer"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:visibility="gone">
+
+                            <TextView
+                                android:id="@+id/tvRatingAvg"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/inter"
+                                android:textColor="@color/text_primary"
+                                android:textSize="20sp"
+                                android:textStyle="bold" />
+
+                            <ImageView
+                                android:layout_width="16dp"
+                                android:layout_height="16dp"
+                                android:layout_marginStart="3dp"
+                                android:src="@drawable/ic_star_filled"
+                                app:tint="@color/gold" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- 5 Interactive Star Rating Selection -->
+                    <LinearLayout
+                        android:id="@+id/starsContainer"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="14dp"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:id="@+id/rateStar1"
+                            android:layout_width="38dp"
+                            android:layout_height="38dp"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:contentDescription="1 Star"
+                            android:padding="6dp"
+                            android:src="@drawable/ic_star_outline"
+                            app:tint="@color/text_tertiary" />
+
+                        <ImageView
+                            android:id="@+id/rateStar2"
+                            android:layout_width="38dp"
+                            android:layout_height="38dp"
+                            android:layout_marginStart="6dp"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:contentDescription="2 Stars"
+                            android:padding="6dp"
+                            android:src="@drawable/ic_star_outline"
+                            app:tint="@color/text_tertiary" />
+
+                        <ImageView
+                            android:id="@+id/rateStar3"
+                            android:layout_width="38dp"
+                            android:layout_height="38dp"
+                            android:layout_marginStart="6dp"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:contentDescription="3 Stars"
+                            android:padding="6dp"
+                            android:src="@drawable/ic_star_outline"
+                            app:tint="@color/text_tertiary" />
+
+                        <ImageView
+                            android:id="@+id/rateStar4"
+                            android:layout_width="38dp"
+                            android:layout_height="38dp"
+                            android:layout_marginStart="6dp"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:contentDescription="4 Stars"
+                            android:padding="6dp"
+                            android:src="@drawable/ic_star_outline"
+                            app:tint="@color/text_tertiary" />
+
+                        <ImageView
+                            android:id="@+id/rateStar5"
+                            android:layout_width="38dp"
+                            android:layout_height="38dp"
+                            android:layout_marginStart="6dp"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:contentDescription="5 Stars"
+                            android:padding="6dp"
+                            android:src="@drawable/ic_star_outline"
+                            app:tint="@color/text_tertiary" />
+                    </LinearLayout>
+
+                    <!-- User Rating Feedback Status -->
+                    <TextView
+                        android:id="@+id/tvUserRatingStatus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="6dp"
+                        android:fontFamily="@font/inter"
+                        android:text="Tap stars to rate"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
